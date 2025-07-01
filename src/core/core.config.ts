@@ -15,29 +15,6 @@ export class CoreConfig {
   @IsNumber({}, { message: 'Set Env variable PORT, example: 3000' })
   port: number;
 
-  @IsNotEmpty({
-    message: 'Set Env variable POSTGRES_HOST, example: localhost',
-  })
-  postgresHost: string;
-
-  @IsNumber({}, { message: 'Set Env variable POSTGRES_PORT, example: 5432' })
-  postgresPort: number;
-
-  @IsNotEmpty({
-    message: 'Set Env variable POSTGRES_USER, example: postgres',
-  })
-  postgresUser: string;
-
-  @IsNotEmpty({
-    message: 'Set Env variable POSTGRES_PASSWORD, example: your_password',
-  })
-  postgresPassword: string;
-
-  @IsNotEmpty({
-    message: 'Set Env variable POSTGRES_DB_NAME, example: your_db',
-  })
-  postgresDbName: string;
-
   @IsEnum(Environments, {
     message:
       'Set correct NODE_ENV value, available values: ' +
@@ -99,16 +76,6 @@ export class CoreConfig {
 
   constructor(private configService: ConfigService<any, true>) {
     this.port = Number(this.configService.get('PORT'));
-
-    this.postgresHost = this.configService.get('POSTGRES_HOST');
-
-    this.postgresPort = Number(this.configService.get('POSTGRES_PORT'));
-
-    this.postgresUser = this.configService.get('POSTGRES_USER');
-
-    this.postgresPassword = this.configService.get('POSTGRES_PASSWORD');
-
-    this.postgresDbName = this.configService.get('POSTGRES_DB_NAME');
 
     this.env = this.configService.get('NODE_ENV');
 
