@@ -1,28 +1,16 @@
 import { Global, Module } from '@nestjs/common';
-import { Pool } from 'pg';
 import { DatabaseConfig } from './config/database.config';
+import { PgPoolProvider } from './providers/pg-pool.provider';
+import { PG_POOL } from './constants/database.constants';
 
 @Global()
 @Module({
   providers: [
-    {
-      provide: 'PG_POOL',
-      inject: [DatabaseConfig],
-      useFactory: (databaseConfig: DatabaseConfig) => {
-        return new Pool({
-          host: databaseConfig.postgresHost,
-          port: databaseConfig.postgresPort,
-          user: databaseConfig.postgresUser,
-          password: databaseConfig.postgresPassword,
-          database: databaseConfig.postgresDbName,
-        });
-      },
-    },
-
     //🔸 Common:
     //config
     DatabaseConfig,
+    PgPoolProvider,
   ],
-  exports: ['PG_POOL'],
+  exports: [PG_POOL],
 })
 export class DatabaseModule {}
