@@ -1,8 +1,19 @@
-import { Module } from '@nestjs/common';
+import { DynamicModule, Module } from '@nestjs/common';
+import { CoreConfig } from './core/core.config';
+import { configModule } from './dynamic-config.module';
+import { CoreModule } from './core/core.module';
+import { TestingModule } from './modules/testing/testing.module';
 
 @Module({
-  imports: [],
+  imports: [configModule, CoreModule],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule {
+  static forRoot(coreConfig: CoreConfig): DynamicModule {
+    return {
+      module: AppModule,
+      imports: [...(coreConfig.includeTestingModule ? [TestingModule] : [])],
+    };
+  }
+}
