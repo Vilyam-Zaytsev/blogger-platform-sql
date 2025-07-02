@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IsBoolean, IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
-import { configValidationUtility } from './utils/config-validation.utility';
+import { configValidator } from './utils/config.validator';
 
 export enum Environments {
   DEVELOPMENT = 'development',
@@ -18,7 +18,7 @@ export class CoreConfig {
   @IsEnum(Environments, {
     message:
       'Set correct NODE_ENV value, available values: ' +
-      configValidationUtility.getEnumValues(Environments).join(', '),
+      configValidator.getEnumValues(Environments).join(', '),
   })
   env: string;
 
@@ -83,20 +83,20 @@ export class CoreConfig {
 
     this.adminPassword = this.configService.get('ADMIN_PASSWORD');
 
-    this.isSwaggerEnabled = configValidationUtility.convertToBoolean(
+    this.isSwaggerEnabled = configValidator.convertToBoolean(
       this.configService.get('IS_SWAGGER_ENABLED'),
     ) as boolean;
 
-    this.includeTestingModule = configValidationUtility.convertToBoolean(
+    this.includeTestingModule = configValidator.convertToBoolean(
       this.configService.get('INCLUDE_TESTING_MODULE'),
     ) as boolean;
 
     this.sendInternalServerErrorDetails =
-      configValidationUtility.convertToBoolean(
+      configValidator.convertToBoolean(
         this.configService.get('SEND_INTERNAL_SERVER_ERROR_DETAILS'),
       ) as boolean;
 
-    this.testLoggingEnabled = configValidationUtility.convertToBoolean(
+    this.testLoggingEnabled = configValidator.convertToBoolean(
       this.configService.get('TEST_LOGGING_ENABLED'),
     ) as boolean;
 
@@ -104,6 +104,6 @@ export class CoreConfig {
 
     this.throttleLimit = Number(this.configService.get('THROTTLE_LIMIT'));
 
-    configValidationUtility.validateConfig(this);
+    configValidator.validateConfig(this);
   }
 }
