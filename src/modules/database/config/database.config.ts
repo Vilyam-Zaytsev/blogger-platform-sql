@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 import { ConfigService } from '@nestjs/config';
-import { configValidationUtility } from '../../../core/utils/config-validation.utility';
+import { configValidator } from '../../../core/utils/config.validator';
 
 @Injectable()
 export class DatabaseConfig {
@@ -39,6 +39,6 @@ export class DatabaseConfig {
 
     this.postgresDbName = this.configService.get('POSTGRES_DB_NAME');
 
-    configValidationUtility.validateConfig(this);
+    configValidator.validateConfig(this);
   }
 }
