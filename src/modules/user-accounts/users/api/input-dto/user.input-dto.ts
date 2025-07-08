@@ -1,6 +1,6 @@
-import { IsStringWithTrimDecorator } from '../../../../core/decorators/validation/is-string-with-trim.decorator';
+import { IsStringWithTrimDecorator } from '../../../../../core/decorators/validation/is-string-with-trim.decorator';
 import { IsEmail, IsString, Matches } from 'class-validator';
-import { TrimDecorator } from '../../../../core/decorators/transform/trim.decorator';
+import { TrimDecorator } from '../../../../../core/decorators/transform/trim.decorator';
 
 export class UserInputDto {
   @Matches(/^[a-zA-Z0-9_-]*$/)
