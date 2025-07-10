@@ -7,7 +7,7 @@ import { CreateUserDto } from '../dto/create-user.dto';
 export class UsersRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async insertUser(dto: CreateUserDto): Promise<UserDbType> {
+  async insertUser(dto: CreateUserDto): Promise<string> {
     const query = `
         INSERT INTO "Users" ("login", "email", "passwordHash")
         VALUES ($1, $2, $3)
@@ -21,7 +21,7 @@ export class UsersRepository {
       values,
     );
 
-    return result.rows[0];
+    return result.rows[0].id.toString();
   }
   // async getByIdOrNotFoundFail(id: string): Promise<UserDocument> {
   //   const user: UserDocument | null = await this.UserModel.findOne({
