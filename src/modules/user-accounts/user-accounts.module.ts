@@ -4,6 +4,7 @@ import { UsersRepository } from './users/infrastructure/users.repository';
 import { CreateUserByAdminUseCase } from './users/application/usecases/create-user-by-admin.usecase';
 import { UserValidationService } from './users/application/services/user-validation.service';
 import { CryptoService } from './users/application/services/crypto.service';
+import { UsersQueryRepository } from './users/infrastructure/query/users.query-repository';
 
 @Module({
   imports: [],
@@ -17,6 +18,7 @@ import { CryptoService } from './users/application/services/crypto.service';
     UserValidationService,
     //repo
     UsersRepository,
+    UsersQueryRepository,
   ],
   exports: [],
 })
