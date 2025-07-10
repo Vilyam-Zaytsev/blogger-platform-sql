@@ -54,12 +54,21 @@ export class UsersRepository {
     return result.rows[0] as UserDbType;
   }
 
-  // async getByEmail(email: string): Promise<UserDocument | null> {
-  //   return this.UserModel.findOne({
-  //     email,
-  //     deletedAt: null,
-  //   });
-  // }
+  async getByEmail(email: string): Promise<UserDbType | null> {
+    const result = await this.pool.query(
+      `SELECT *
+       FROM "Users"
+       WHERE email = $1
+         AND "deletedAt" IS NULL`,
+      [email],
+    );
+
+    if (result.rowCount === 0) {
+      return null;
+    }
+
+    return result.rows[0] as UserDbType;
+  }
 
   // async getByIds(ids: string[]): Promise<UserDocument[]> {
   //   return this.UserModel.find({ _id: { $in: ids } });
