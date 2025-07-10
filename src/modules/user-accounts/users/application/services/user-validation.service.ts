@@ -1,38 +1,39 @@
 import { Injectable } from '@nestjs/common';
-import { CryptoService } from './crypto.service';
+// import { CryptoService } from './crypto.service';
 import { UsersRepository } from '../../infrastructure/users.repository';
+import { CreateUserDto } from '../../dto/create-user.dto';
+import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 
 @Injectable()
 export class UserValidationService {
   constructor(
     private readonly usersRepository: UsersRepository,
-    private readonly cryptoService: CryptoService,
+    // private readonly cryptoService: CryptoService,
   ) {}
 
-  // async validateUniqueUser(dto: CreateUserDto): Promise<void> {
-  //   const [byLogin, byEmail] = await Promise.all([
-  //     this.usersRepository.getByLogin(dto.login),
-  //     this.usersRepository.getByEmail(dto.email),
-  //   ]);
-  //
-  //   if (byLogin) {
-  //     throw new ValidationException([
-  //       {
-  //         message: 'User with the same login already exists.',
-  //         field: 'login',
-  //       },
-  //     ]);
-  //   }
-  //
-  //   if (byEmail) {
-  //     throw new ValidationException([
-  //       {
-  //         message: 'User with the same email already exists.',
-  //         field: 'email',
-  //       },
-  //     ]);
-  //   }
-  // }
+  async validateUniqueUser(dto: CreateUserDto): Promise<void> {
+    const [byLogin, byEmail] = await Promise.all([
+      this.usersRepository.getByLogin(dto.login),
+      this.usersRepository.getByEmail(dto.email),
+    ]);
+    if (byLogin) {
+      throw new ValidationException([
+        {
+          message: 'User with the same login already exists.',
+          field: 'login',
+        },
+      ]);
+    }
+
+    if (byEmail) {
+      throw new ValidationException([
+        {
+          message: 'User with the same email already exists.',
+          field: 'email',
+        },
+      ]);
+    }
+  }
 
   // async authenticateUser(
   //   loginOrEmail: string,
