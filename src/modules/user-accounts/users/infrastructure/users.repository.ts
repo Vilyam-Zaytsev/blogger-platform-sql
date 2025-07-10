@@ -1,11 +1,28 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../database/constants/database.constants';
-import { Pool } from 'pg';
+import { Pool, QueryResult } from 'pg';
+import { CreateUserDto } from '../dto/create-user.dto';
 
 @Injectable()
 export class UsersRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
+  async insertUser(dto: CreateUserDto): Promise<UserDbType> {
+    const query = `
+        INSERT INTO "Users" ("login", "email", "passwordHash")
+        VALUES ($1, $2, $3)
+        RETURNING *;
+    `;
+
+    const values: string[] = [dto.login, dto.email, dto.passwordHash];
+
+    const result: QueryResult<UserDbType> = await this.pool.query(
+      query,
+      values,
+    );
+
+    return result.rows[0];
+  }
   // async getByIdOrNotFoundFail(id: string): Promise<UserDocument> {
   //   const user: UserDocument | null = await this.UserModel.findOne({
   //     _id: id,
