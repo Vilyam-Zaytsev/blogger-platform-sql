@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { PG_POOL } from '../../../database/constants/database.constants';
+import { Pool } from 'pg';
 
 @Injectable()
 export class UsersRepository {
-  constructor() {}
+  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   // async getByIdOrNotFoundFail(id: string): Promise<UserDocument> {
   //   const user: UserDocument | null = await this.UserModel.findOne({
@@ -17,7 +19,7 @@ export class UsersRepository {
   //     });
   //   }
   //
-  //   return user;
+  //   return user;xxxxxxxxxxxxxxxxxxxxxxxx
   // }
   //
   // async getByConfirmationCode(
@@ -36,20 +38,29 @@ export class UsersRepository {
   //   });
   // }
   //
-  // async getByLogin(login: string): Promise<UserDocument | null> {
-  //   return this.UserModel.findOne({
-  //     login,
-  //     deletedAt: null,
-  //   });
-  // }
-  //
+  async getByLogin(login: string): Promise<UserDbType | null> {
+    const result = await this.pool.query(
+      `SELECT *
+       FROM "Users"
+       WHERE login = $1
+         AND "deletedAt" IS NULL`,
+      [login],
+    );
+
+    if (result.rowCount === 0) {
+      return null;
+    }
+
+    return result.rows[0] as UserDbType;
+  }
+
   // async getByEmail(email: string): Promise<UserDocument | null> {
   //   return this.UserModel.findOne({
   //     email,
   //     deletedAt: null,
   //   });
   // }
-  //
+
   // async getByIds(ids: string[]): Promise<UserDocument[]> {
   //   return this.UserModel.find({ _id: { $in: ids } });
   // }
