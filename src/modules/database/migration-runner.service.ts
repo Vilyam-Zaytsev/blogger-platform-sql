@@ -12,7 +12,7 @@ export class MigrationRunnerService implements OnModuleInit {
     await this.ensureMigrationsTable();
 
     const applied = await this.getAppliedMigrations();
-    const migrationDir = join(__dirname, 'migrations');
+    const migrationDir = join(process.cwd(), 'migrations');
     const files = readdirSync(migrationDir)
       .filter((file) => file.endsWith('.sql'))
       .sort();
