@@ -2,12 +2,14 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
 import { CreateUserDto } from '../dto/create-user.dto';
+import { ConfirmationStatus } from '../types/email-confirmation-db.type';
+import { UserDbType } from '../types/user-db.type';
 
 @Injectable()
 export class UsersRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async insertUser(dto: CreateUserDto): Promise<string> {
+  async insertUser(dto: CreateUserDto): Promise<number> {
     const query = `
         INSERT INTO "Users" ("login", "email", "passwordHash")
         VALUES ($1, $2, $3)
@@ -21,7 +23,25 @@ export class UsersRepository {
       values,
     );
 
-    return result.rows[0].id.toString();
+    return result.rows[0].id;
+  }
+
+  async insertEmailConfirmationWithConfirmedStatus(
+    userId: number,
+  ): Promise<void> {
+    const query = `
+        INSERT INTO "EmailConfirmation" (
+            "userId",
+            "confirmationCode", 
+            "expirationDate", 
+            "confirmationStatus"
+        )
+        VALUES ($1, NULL, NULL, $2)
+    `;
+
+    const values = [userId, ConfirmationStatus.Confirmed];
+
+    await this.pool.query(query, values);
   }
   // async getByIdOrNotFoundFail(id: string): Promise<UserDocument> {
   //   const user: UserDocument | null = await this.UserModel.findOne({
