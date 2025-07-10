@@ -3,7 +3,7 @@ export type UserDbType = {
   login: string;
   email: string;
   passwordHash: string;
-  createdAt: Date;
-  updatedAt: Date;
-  deletedAt: Date;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string | null;
 };
