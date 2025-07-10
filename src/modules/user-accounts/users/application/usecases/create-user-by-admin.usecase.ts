@@ -19,7 +19,7 @@ export class CreateUserByAdminUseCase
     private readonly cryptoService: CryptoService,
   ) {}
 
-  async execute({ dto }: CreateUserCommand): Promise<string> {
+  async execute({ dto }: CreateUserCommand): Promise<number> {
     await this.userValidation.validateUniqueUser(dto);
 
     const passwordHash: string = await this.cryptoService.createPasswordHash(
@@ -36,6 +36,6 @@ export class CreateUserByAdminUseCase
       userId,
     );
 
-    return userId.toString();
+    return userId;
   }
 }
