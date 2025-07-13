@@ -5,6 +5,7 @@ import { CreateUserByAdminUseCase } from './users/application/usecases/create-us
 import { UserValidationService } from './users/application/services/user-validation.service';
 import { CryptoService } from './users/application/services/crypto.service';
 import { UsersQueryRepository } from './users/infrastructure/query/users.query-repository';
+import { GetUsersQueryHandler } from './users/application/queries/get-users.query-handler';
 
 @Module({
   imports: [],
@@ -13,6 +14,8 @@ import { UsersQueryRepository } from './users/infrastructure/query/users.query-r
     //🔸 User:
     //use-cases
     CreateUserByAdminUseCase,
+    //query-handlers
+    GetUsersQueryHandler,
     //services
     CryptoService,
     UserValidationService,
