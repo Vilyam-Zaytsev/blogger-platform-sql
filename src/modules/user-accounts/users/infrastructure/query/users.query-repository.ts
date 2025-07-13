@@ -39,16 +39,15 @@ export class UsersQueryRepository {
   async getAll(
     query: GetUsersQueryParams,
   ): Promise<PaginatedViewDto<UserViewDto>> {
-    const {
-      searchLoginTerm,
-      searchEmailTerm,
-      sortBy,
-      sortDirection,
-      pageSize,
-      pageNumber,
-    }: GetUsersQueryParams = query;
-
+    const { sortBy, sortDirection, pageSize, pageNumber }: GetUsersQueryParams =
+      query;
     const offset: number = query.calculateSkip();
+    const searchLoginTerm: string = query.searchLoginTerm
+      ? query.searchLoginTerm
+      : '';
+    const searchEmailTerm: string = query.searchEmailTerm
+      ? query.searchEmailTerm
+      : '';
 
     if (!Object.values(UsersSortBy).includes(sortBy)) {
       throw new ValidationException([
@@ -68,34 +67,32 @@ export class UsersQueryRepository {
       ]);
     }
 
-    const orderByClause = `ORDER BY "${sortBy}" ${sortDirection}`;
-
-    let queryText: string = `SELECT *
-                             FROM "Users"
-                             WHERE "deletedAt" IS NULL`;
-    let countQueryText: string = `SELECT COUNT(*) AS "totalCount"
-                                  FROM "Users"
-                                  WHERE "deletedAt" IS NULL`;
-    const values: any[] = [];
-
-    if (searchLoginTerm !== null || searchEmailTerm !== null) {
-      queryText += ` AND (($1 IS NULL OR login ILIKE '%' || $1 || '%') OR ($2 IS NULL OR email ILIKE '%' || $2 || '%'))`;
-      countQueryText += ` AND (($1 IS NULL OR login ILIKE '%' || $1 || '%') OR ($2 IS NULL OR email ILIKE '%' || $2 || '%'))`;
-      values.push(searchLoginTerm, searchEmailTerm);
-    }
-
-    queryText += ` ${orderByClause} OFFSET $${values.length + 1} LIMIT $${values.length + 2}`;
-    values.push(offset, pageSize);
-
     try {
       const users: QueryResult<UserDbType> = await this.pool.query(
-        queryText,
-        values,
+        `SELECT *
+         FROM "Users"
+         WHERE "deletedAt" IS NULL
+           AND (
+             login ILIKE '%' || $1 || '%'
+                 OR
+                 email ILIKE '%' || $2 || '%'
+             )
+         ORDER BY "${sortBy}" ${sortDirection}
+         OFFSET $3 LIMIT $4;`,
+        [searchLoginTerm, searchEmailTerm, offset, pageSize],
       );
+
       const totalCount: QueryResult<{ totalCount: number }> =
         await this.pool.query(
-          countQueryText,
-          values.slice(0, values.length > 2 ? 2 : 0),
+          `SELECT COUNT(*) AS "totalCount"
+           FROM "Users"
+           WHERE "deletedAt" IS NULL
+             AND (
+               login ILIKE '%' || $1 || '%'
+                   OR
+                   email ILIKE '%' || $2 || '%'
+               )`,
+          [searchLoginTerm, searchEmailTerm],
         );
 
       const items: UserViewDto[] = users.rows.map(
@@ -110,7 +107,7 @@ export class UsersQueryRepository {
       });
     } catch (error) {
       console.error(
-        'Ошибка при выполнении SQL-запроса в методе getAll() (запрос всех пользователей):',
+        'Ошибка при выполнении SQL-запроса в UsersQueryRepository.getAll():',
         error,
       );
       throw new DomainException({
