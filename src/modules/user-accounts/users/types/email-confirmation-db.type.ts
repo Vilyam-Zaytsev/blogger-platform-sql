@@ -5,7 +5,8 @@ export enum ConfirmationStatus {
 
 export type EmailConfirmationDbType = {
   userId: number;
-  confirmationCode: string;
-  expirationDate: Date;
+  confirmationCode: string | null;
+  expirationDate: string | null;
   confirmationStatus: ConfirmationStatus;
+  deletedAt: string | null;
 };
