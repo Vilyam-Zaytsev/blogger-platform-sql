@@ -6,6 +6,7 @@ import { UserValidationService } from './users/application/services/user-validat
 import { CryptoService } from './users/application/services/crypto.service';
 import { UsersQueryRepository } from './users/infrastructure/query/users.query-repository';
 import { GetUsersQueryHandler } from './users/application/queries/get-users.query-handler';
+import { DeleteUserUseCase } from './users/application/usecases/delete-user.usecase';
 
 @Module({
   imports: [],
@@ -14,6 +15,7 @@ import { GetUsersQueryHandler } from './users/application/queries/get-users.quer
     //🔸 User:
     //use-cases
     CreateUserByAdminUseCase,
+    DeleteUserUseCase,
     //query-handlers
     GetUsersQueryHandler,
     //services
