@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { UserInputDto } from './input-dto/user.input-dto';
 import { UserViewDto } from './view-dto/user.view-dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -8,6 +18,8 @@ import { UsersQueryRepository } from '../infrastructure/query/users.query-reposi
 import { GetUsersQueryParams } from './input-dto/get-users-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetUsersQuery } from '../application/queries/get-users.query-handler';
+import { IdInputDto } from '../../../../core/dto/id.input-dto';
+import { DeleteUserCommand } from '../application/usecases/delete-user.usecase';
 
 @Controller('users')
 export class UsersController {
@@ -32,5 +44,11 @@ export class UsersController {
     );
 
     return this.usersQueryRepository.getByIdOrNotFoundFail(userId);
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUser(@Param() params: IdInputDto): Promise<void> {
+    await this.commandBus.execute(new DeleteUserCommand(params));
   }
 }
