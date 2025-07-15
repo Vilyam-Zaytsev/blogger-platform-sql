@@ -99,6 +99,7 @@ export class UsersRepository {
   }
 
   //TODO: Нормально ли в этой ситуации то, что репозиторий отвечает за логику приложения?
+
   //TODO: Нормально ли в этом случае использовать транзакцию или лучше разделить на два метода?
 
   async softDelete(id: number): Promise<UserDbType | null> {
