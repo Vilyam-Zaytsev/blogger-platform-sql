@@ -29,6 +29,7 @@ export class UsersRepository {
     return queryResult.rows[0];
   }
 
+  //TODO: объединить два метода в один
   async insertEmailConfirmationWithConfirmedStatus(
     userId: number,
   ): Promise<void> {
