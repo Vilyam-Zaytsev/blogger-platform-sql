@@ -15,25 +15,23 @@ export class UsersRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async insertUser(dto: CreateUserDto): Promise<number> {
-    const query = `
+    const query: string = `
         INSERT INTO "Users" ("login", "email", "passwordHash")
         VALUES ($1, $2, $3) RETURNING *;
     `;
 
     const values: string[] = [dto.login, dto.email, dto.passwordHash];
 
-    const result: QueryResult<UserDbType> = await this.pool.query(
-      query,
-      values,
-    );
+    const queryResult: QueryResult<UserDbType> =
+      await this.pool.query<UserDbType>(query, values);
 
-    return result.rows[0].id;
+    return queryResult.rows[0].id;
   }
 
   async insertEmailConfirmationWithConfirmedStatus(
     userId: number,
   ): Promise<void> {
-    const query = `
+    const query: string = `
         INSERT INTO "EmailConfirmation" ("userId",
                                          "confirmationCode",
                                          "expirationDate",
@@ -47,74 +45,61 @@ export class UsersRepository {
   }
 
   async getByIdOrNotFoundFail(id: number): Promise<UserDbType> {
-    const user: QueryResult<UserDbType> = await this.pool.query(
-      `SELECT *
+    const queryResult: QueryResult<UserDbType> =
+      await this.pool.query<UserDbType>(
+        `SELECT *
        FROM "Users"
        WHERE id = $1
          AND "deletedAt" IS NULL`,
-      [id],
-    );
+        [id],
+      );
 
-    if (!user.rows[0]) {
+    if (!queryResult.rows[0]) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `The user with ID (${id}) does not exist`,
       });
     }
 
-    return user.rows[0];
+    return queryResult.rows[0];
   }
 
-  //
-  // async getByConfirmationCode(
-  //   confirmationCode: string,
-  // ): Promise<UserDocument | null> {
-  //   return this.UserModel.findOne({
-  //     'emailConfirmation.confirmationCode': confirmationCode,
-  //     deletedAt: null,
-  //   });
-  // }
-  //
-  // async getByRecoveryCode(recoveryCode: string): Promise<UserDocument | null> {
-  //   return this.UserModel.findOne({
-  //     'passwordRecovery.recoveryCode': recoveryCode,
-  //     deletedAt: null,
-  //   });
-  // }
-  //
   async getByLogin(login: string): Promise<UserDbType | null> {
-    const result = await this.pool.query(
-      `SELECT *
+    const queryResult: QueryResult<UserDbType> =
+      await this.pool.query<UserDbType>(
+        `SELECT *
        FROM "Users"
        WHERE login = $1
          AND "deletedAt" IS NULL`,
-      [login],
-    );
+        [login],
+      );
 
-    if (result.rowCount === 0) {
+    if (queryResult.rowCount === 0) {
       return null;
     }
 
-    return result.rows[0] as UserDbType;
+    return queryResult.rows[0];
   }
 
   async getByEmail(email: string): Promise<UserDbType | null> {
-    const result = await this.pool.query(
-      `SELECT *
+    const queryResult: QueryResult<UserDbType> =
+      await this.pool.query<UserDbType>(
+        `SELECT *
        FROM "Users"
        WHERE email = $1
          AND "deletedAt" IS NULL`,
-      [email],
-    );
+        [email],
+      );
 
-    if (result.rowCount === 0) {
+    if (queryResult.rowCount === 0) {
       return null;
     }
 
-    return result.rows[0] as UserDbType;
+    return queryResult.rows[0];
   }
 
   //TODO: Нормально ли в этой ситуации то, что репозиторий отвечает за логику приложения?
+
   //TODO: Нормально ли в этом случае использовать транзакцию или лучше разделить на два метода?
 
   async softDelete(id: number): Promise<UserDbType | null> {
@@ -123,20 +108,14 @@ export class UsersRepository {
     try {
       await client.query('BEGIN');
 
-      const userResult: QueryResult<UserDbType> = await client.query(
-        `UPDATE "Users"
+      const userResult: QueryResult<UserDbType> =
+        await client.query<UserDbType>(
+          `UPDATE "Users"
          SET "deletedAt" = NOW()
          WHERE id = $1
            AND "deletedAt" IS NULL RETURNING *;`,
-        [id],
-      );
-
-      const user: UserDbType = userResult.rows[0];
-
-      if (!user) {
-        await client.query('ROLLBACK');
-        return null;
-      }
+          [id],
+        );
 
       if (userResult.rowCount === 0) {
         await client.query('ROLLBACK');
@@ -146,13 +125,7 @@ export class UsersRepository {
         });
       }
 
-      // await client.query(
-      //   `UPDATE "EmailConfirmation"
-      //    SET "deletedAt" = NOW()
-      //    WHERE "userId" = $1
-      //      AND "deletedAt" IS NULL;`,
-      //   [id],
-      // );
+      const user: UserDbType = userResult.rows[0];
 
       const emailConfirmationResult: QueryResult<EmailConfirmationDbType> =
         await client.query(
@@ -192,8 +165,4 @@ export class UsersRepository {
       client.release();
     }
   }
-
-  // async getByIds(ids: string[]): Promise<UserDocument[]> {
-  //   return this.UserModel.find({ _id: { $in: ids } });
-  // }
 }
