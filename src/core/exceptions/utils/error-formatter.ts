@@ -16,6 +16,7 @@ export const errorFormatter = (errors: ValidationError[]): Extension[] => {
       }
     } else if (error.children && error.children.length > 0) {
       stack.push(...error.children);
+      console.log('xxx');
     }
   }
 
