@@ -4,6 +4,7 @@ import { UserValidationService } from '../services/user-validation.service';
 import { UsersRepository } from '../../infrastructure/users.repository';
 import { UserInputDto } from '../../api/input-dto/user.input-dto';
 import { CryptoService } from '../services/crypto.service';
+import { UserDbType } from '../../types/user-db.type';
 
 export class CreateUserCommand {
   constructor(public readonly dto: UserInputDto) {}
@@ -31,11 +32,12 @@ export class CreateUserByAdminUseCase
       passwordHash,
     };
 
-    const userId: number = await this.usersRepository.insertUser(createUserDto);
+    const user: UserDbType =
+      await this.usersRepository.insertUser(createUserDto);
     await this.usersRepository.insertEmailConfirmationWithConfirmedStatus(
-      userId,
+      user.id,
     );
 
-    return userId;
+    return user.id;
   }
 }
