@@ -10,6 +10,8 @@ import { ThrottlerGuard } from '@nestjs/throttler';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UserInputDto } from '../../users/api/input-dto/user.input-dto';
 import { RegisterUserCommand } from '../aplication/usecases/register-user.useсase';
+import { RegistrationConfirmationCodeInputDto } from './input-dto/registration-confirmation-code.input-dto';
+import { ConfirmUserCommand } from '../aplication/usecases/confirm-user.usecase';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
@@ -25,14 +27,14 @@ export class AuthController {
     return this.commandBus.execute(new RegisterUserCommand(body));
   }
 
-  // @Post('registration-confirmation')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async registrationConfirmation(
-  //   @Body() body: RegistrationConfirmationCodeInputDto,
-  // ): Promise<void> {
-  //   return this.commandBus.execute(new ConfirmUserCommand(body));
-  // }
-  //
+  @Post('registration-confirmation')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async registrationConfirmation(
+    @Body() body: RegistrationConfirmationCodeInputDto,
+  ): Promise<void> {
+    return this.commandBus.execute(new ConfirmUserCommand(body));
+  }
+
   // @Post('registration-email-resending')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // async registrationEmailResending(
