@@ -91,10 +91,9 @@ export class CoreConfig {
       this.configService.get('INCLUDE_TESTING_MODULE'),
     ) as boolean;
 
-    this.sendInternalServerErrorDetails =
-      configValidator.convertToBoolean(
-        this.configService.get('SEND_INTERNAL_SERVER_ERROR_DETAILS'),
-      ) as boolean;
+    this.sendInternalServerErrorDetails = configValidator.convertToBoolean(
+      this.configService.get('SEND_INTERNAL_SERVER_ERROR_DETAILS'),
+    ) as boolean;
 
     this.testLoggingEnabled = configValidator.convertToBoolean(
       this.configService.get('TEST_LOGGING_ENABLED'),
