@@ -19,7 +19,7 @@
     "test:debug": "cross-env NODE_ENV=testing jest --config ./test/jest-e2e.json --runInBand --detectOpenHandles %npm_config_testfile%",
     "test:e2e": "cross-env NODE_ENV=testing jest --config ./test/jest-e2e.json --runInBand --detectOpenHandles %npm_config_testfile%",
     "test:e2e-all": "cross-env NODE_ENV=testing jest --config ./test/jest-e2e.json --runInBand",
-    "test:unit": "cross-env NODE_ENV=testing jest --config test/jest-unit.json --runInBand --detectOpenHandles %npm_config_testfile%",
+    "test:unit": "cross-env NODE_ENV=testing jest --config test/jest-unit.json --runInBand --detectOpenHandles",
     "test:int": "cross-env NODE_ENV=testing jest --config test/jest-int.json --runInBand --detectOpenHandles %npm_config_testfile%"
   },
   "dependencies": {
@@ -31,7 +31,7 @@
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
-    "@nestjs/swagger": "^11.1.6",
+    "@nestjs/swagger": "^11.2.0",
     "@nestjs/throttler": "^6.4.0",
     "bcrypt": "^5.1.1",
     "chalk": "4",
