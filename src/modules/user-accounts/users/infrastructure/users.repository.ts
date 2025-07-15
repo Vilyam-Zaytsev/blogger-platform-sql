@@ -9,12 +9,13 @@ import {
 import { UserDbType } from '../types/user-db.type';
 import { DomainException } from 'src/core/exceptions/damain-exceptions';
 import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
+import { CreateEmailConfirmationDto } from '../../auth/dto/create-email-confirmation.dto';
 
 @Injectable()
 export class UsersRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async insertUser(dto: CreateUserDto): Promise<number> {
+  async insertUser(dto: CreateUserDto): Promise<UserDbType> {
     const query: string = `
         INSERT INTO "Users" ("login", "email", "passwordHash")
         VALUES ($1, $2, $3) RETURNING *;
@@ -25,7 +26,7 @@ export class UsersRepository {
     const queryResult: QueryResult<UserDbType> =
       await this.pool.query<UserDbType>(query, values);
 
-    return queryResult.rows[0].id;
+    return queryResult.rows[0];
   }
 
   async insertEmailConfirmationWithConfirmedStatus(
@@ -42,6 +43,32 @@ export class UsersRepository {
     const values = [userId, ConfirmationStatus.Confirmed];
 
     await this.pool.query(query, values);
+  }
+
+  async insertEmailConfirmationWithNotConfirmedStatus(
+    dto: CreateEmailConfirmationDto,
+  ): Promise<EmailConfirmationDbType> {
+    const { userId, confirmationCode, expirationDate, confirmationStatus } =
+      dto;
+    const query: string = `
+        INSERT INTO "EmailConfirmation" ("userId",
+                                         "confirmationCode",
+                                         "expirationDate",
+                                         "confirmationStatus")
+        VALUES ($1, $2, $3, $4)
+    `;
+
+    const values = [
+      userId,
+      confirmationCode,
+      expirationDate,
+      confirmationStatus,
+    ];
+
+    const resultQuery: QueryResult<EmailConfirmationDbType> =
+      await this.pool.query<EmailConfirmationDbType>(query, values);
+
+    return resultQuery.rows[0];
   }
 
   async getByIdOrNotFoundFail(id: number): Promise<UserDbType> {
