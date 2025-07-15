@@ -17,8 +17,8 @@ export class UsersRepository {
 
   async insertUser(dto: CreateUserDto): Promise<UserDbType> {
     const query: string = `
-        INSERT INTO "Users" ("login", "email", "passwordHash")
-        VALUES ($1, $2, $3) RETURNING *;
+      INSERT INTO "Users" ("login", "email", "passwordHash")
+      VALUES ($1, $2, $3) RETURNING *;
     `;
 
     const values: string[] = [dto.login, dto.email, dto.passwordHash];
@@ -34,11 +34,11 @@ export class UsersRepository {
     userId: number,
   ): Promise<void> {
     const query: string = `
-        INSERT INTO "EmailConfirmation" ("userId",
-                                         "confirmationCode",
-                                         "expirationDate",
-                                         "confirmationStatus")
-        VALUES ($1, NULL, NULL, $2)
+      INSERT INTO "EmailConfirmation" ("userId",
+                                       "confirmationCode",
+                                       "expirationDate",
+                                       "confirmationStatus")
+      VALUES ($1, NULL, NULL, $2)
     `;
 
     const values = [userId, ConfirmationStatus.Confirmed];
@@ -52,11 +52,11 @@ export class UsersRepository {
     const { userId, confirmationCode, expirationDate, confirmationStatus } =
       dto;
     const query: string = `
-        INSERT INTO "EmailConfirmation" ("userId",
-                                         "confirmationCode",
-                                         "expirationDate",
-                                         "confirmationStatus")
-        VALUES ($1, $2, $3, $4)
+      INSERT INTO "EmailConfirmation" ("userId",
+                                       "confirmationCode",
+                                       "expirationDate",
+                                       "confirmationStatus")
+      VALUES ($1, $2, $3, $4)
     `;
 
     const values = [
@@ -76,9 +76,9 @@ export class UsersRepository {
     const queryResult: QueryResult<UserDbType> =
       await this.pool.query<UserDbType>(
         `SELECT *
-       FROM "Users"
-       WHERE id = $1
-         AND "deletedAt" IS NULL`,
+         FROM "Users"
+         WHERE id = $1
+           AND "deletedAt" IS NULL`,
         [id],
       );
 
@@ -96,9 +96,9 @@ export class UsersRepository {
     const queryResult: QueryResult<UserDbType> =
       await this.pool.query<UserDbType>(
         `SELECT *
-       FROM "Users"
-       WHERE login = $1
-         AND "deletedAt" IS NULL`,
+         FROM "Users"
+         WHERE login = $1
+           AND "deletedAt" IS NULL`,
         [login],
       );
 
@@ -113,9 +113,9 @@ export class UsersRepository {
     const queryResult: QueryResult<UserDbType> =
       await this.pool.query<UserDbType>(
         `SELECT *
-       FROM "Users"
-       WHERE email = $1
-         AND "deletedAt" IS NULL`,
+         FROM "Users"
+         WHERE email = $1
+           AND "deletedAt" IS NULL`,
         [email],
       );
 
@@ -126,15 +126,14 @@ export class UsersRepository {
     return queryResult.rows[0];
   }
 
-  async getByConfirmationCode(
+  async getEmailConfirmationByConfirmationCode(
     confirmationCode: string,
-  ): Promise<UserDbType | null> {
-    const queryResult: QueryResult<UserDbType> =
-      await this.pool.query<UserDbType>(
+  ): Promise<EmailConfirmationDbType | null> {
+    const queryResult: QueryResult<EmailConfirmationDbType> =
+      await this.pool.query<EmailConfirmationDbType>(
         `SELECT *
-      FROM "Users"
-      WHERE "confirmationCode" = $1
-      AND "deletedAt" IS NULL`,
+         FROM "EmailConfirmation"
+         WHERE "confirmationCode" = $1`,
         [confirmationCode],
       );
 
@@ -143,6 +142,25 @@ export class UsersRepository {
     }
 
     return queryResult.rows[0];
+  }
+
+  //TODO: вынести в отдельную команду!
+  async confirmUser(userId: number): Promise<void> {
+    const queryResult: QueryResult = await this.pool.query(
+      `UPDATE "EmailConfirmation"
+         SET "confirmationCode"   = NULL,
+             "expirationDate"     = NULL,
+             "confirmationStatus" = ${ConfirmationStatus.Confirmed}
+         WHERE "userId" = $1`,
+      [userId],
+    );
+
+    if (queryResult.rowCount === 0) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `EmailConfirmation for userId (${userId}) not found.`,
+      });
+    }
   }
 
   //TODO: Нормально ли в этой ситуации то, что репозиторий отвечает за логику приложения?
@@ -158,9 +176,9 @@ export class UsersRepository {
       const userResult: QueryResult<UserDbType> =
         await client.query<UserDbType>(
           `UPDATE "Users"
-         SET "deletedAt" = NOW()
-         WHERE id = $1
-           AND "deletedAt" IS NULL RETURNING *;`,
+           SET "deletedAt" = NOW()
+           WHERE id = $1
+             AND "deletedAt" IS NULL RETURNING *;`,
           [id],
         );
 
