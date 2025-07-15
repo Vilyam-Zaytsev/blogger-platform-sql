@@ -2,7 +2,7 @@ import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import { PG_POOL } from './constants/database.constants';
-import { Pool } from 'pg';
+import { Pool, PoolClient, QueryResult } from 'pg';
 
 @Injectable()
 export class MigrationRunnerService implements OnModuleInit {
@@ -11,41 +11,54 @@ export class MigrationRunnerService implements OnModuleInit {
   async onModuleInit(): Promise<void> {
     await this.ensureMigrationsTable();
 
-    const applied = await this.getAppliedMigrations();
-    const migrationDir = join(process.cwd(), 'migrations');
-    const files = readdirSync(migrationDir)
-      .filter((file) => file.endsWith('.sql'))
+    const applied: string[] = await this.getAppliedMigrations();
+    const migrationDir: string = join(process.cwd(), 'migrations');
+    const files: string[] = readdirSync(migrationDir)
+      .filter((file: string): boolean => file.endsWith('.sql'))
       .sort();
 
     for (const file of files) {
       if (!applied.includes(file)) {
-        const sql = readFileSync(join(migrationDir, file), 'utf-8');
+        const sql: string = readFileSync(join(migrationDir, file), 'utf-8');
         console.log(`Running migration: ${file}`);
-        await this.pool.query(sql);
-        await this.pool.query(
-          'INSERT INTO schema_migrations (name) VALUES ($1)',
-          [file],
-        );
-        console.log(`Applied: ${file}`);
+
+        const client: PoolClient = await this.pool.connect();
+        try {
+          await client.query('BEGIN');
+          await client.query(sql);
+          await client.query(
+            'INSERT INTO schema_migrations (name) VALUES ($1)',
+            [file],
+          );
+          await client.query('COMMIT');
+          console.log(`Applied: ${file}`);
+        } catch (error) {
+          await client.query('ROLLBACK');
+          console.error(`Migration failed: ${file}`, error);
+        } finally {
+          client.release();
+        }
       }
     }
   }
 
-  private async ensureMigrationsTable() {
-    await this.pool.query(`
+  private async ensureMigrationsTable(): Promise<void> {
+    await this.pool.query(
+      `
       CREATE TABLE IF NOT EXISTS schema_migrations (
         id SERIAL PRIMARY KEY,
         name TEXT NOT NULL UNIQUE,
         "runOn" TIMESTAMP DEFAULT now()
       );
-    `);
+    `,
+    );
   }
 
   private async getAppliedMigrations(): Promise<string[]> {
-    const res = await this.pool.query<{ name: string }>(
-      'SELECT name FROM schema_migrations',
-    );
+    const queryResult: QueryResult<{ name: string }> = await this.pool.query<{
+      name: string;
+    }>('SELECT name FROM schema_migrations');
 
-    return res.rows.map((row) => row.name);
+    return queryResult.rows.map((row: { name: string }): string => row.name);
   }
 }
