@@ -126,6 +126,25 @@ export class UsersRepository {
     return queryResult.rows[0];
   }
 
+  async getByConfirmationCode(
+    confirmationCode: string,
+  ): Promise<UserDbType | null> {
+    const queryResult: QueryResult<UserDbType> =
+      await this.pool.query<UserDbType>(
+        `SELECT *
+      FROM "Users"
+      WHERE "confirmationCode" = $1
+      AND "deletedAt" IS NULL`,
+        [confirmationCode],
+      );
+
+    if (queryResult.rowCount === 0) {
+      return null;
+    }
+
+    return queryResult.rows[0];
+  }
+
   //TODO: Нормально ли в этой ситуации то, что репозиторий отвечает за логику приложения?
 
   //TODO: Нормально ли в этом случае использовать транзакцию или лучше разделить на два метода?
