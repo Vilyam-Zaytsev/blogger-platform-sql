@@ -5,6 +5,8 @@ import { UsersRepository } from '../../infrastructure/users.repository';
 import { UserInputDto } from '../../api/input-dto/user.input-dto';
 import { CryptoService } from '../services/crypto.service';
 import { UserDbType } from '../../types/user-db.type';
+import { CreateEmailConfirmationDto } from '../../../auth/dto/create-email-confirmation.dto';
+import { ConfirmationStatus } from '../../types/email-confirmation-db.type';
 
 export class CreateUserCommand {
   constructor(public readonly dto: UserInputDto) {}
@@ -34,8 +36,16 @@ export class CreateUserByAdminUseCase
 
     const user: UserDbType =
       await this.usersRepository.insertUser(createUserDto);
-    await this.usersRepository.insertEmailConfirmationWithConfirmedStatus(
-      user.id,
+
+    const createEmailConfirmationDto: CreateEmailConfirmationDto = {
+      userId: user.id,
+      confirmationCode: null,
+      expirationDate: null,
+      confirmationStatus: ConfirmationStatus.Confirmed,
+    };
+
+    await this.usersRepository.insertEmailConfirmation(
+      createEmailConfirmationDto,
     );
 
     return user.id;

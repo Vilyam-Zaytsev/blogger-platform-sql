@@ -29,24 +29,7 @@ export class UsersRepository {
     return queryResult.rows[0];
   }
 
-  //TODO: объединить два метода в один
-  async insertEmailConfirmationWithConfirmedStatus(
-    userId: number,
-  ): Promise<void> {
-    const query: string = `
-      INSERT INTO "EmailConfirmation" ("userId",
-                                       "confirmationCode",
-                                       "expirationDate",
-                                       "confirmationStatus")
-      VALUES ($1, NULL, NULL, $2)
-    `;
-
-    const values = [userId, ConfirmationStatus.Confirmed];
-
-    await this.pool.query(query, values);
-  }
-
-  async insertEmailConfirmationWithNotConfirmedStatus(
+  async insertEmailConfirmation(
     dto: CreateEmailConfirmationDto,
   ): Promise<EmailConfirmationDbType> {
     const { userId, confirmationCode, expirationDate, confirmationStatus } =

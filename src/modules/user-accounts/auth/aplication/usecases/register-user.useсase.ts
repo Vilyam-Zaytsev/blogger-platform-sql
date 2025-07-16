@@ -53,7 +53,7 @@ export class RegisterUserUseCase
     };
 
     const emailConfirmation: EmailConfirmationDbType =
-      await this.usersRepository.insertEmailConfirmationWithNotConfirmedStatus(
+      await this.usersRepository.insertEmailConfirmation(
         createEmailConfirmationDto,
       );
 
