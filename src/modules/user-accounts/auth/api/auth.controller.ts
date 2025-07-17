@@ -30,6 +30,7 @@ import { ExtractSessionFromRequest } from '../domain/guards/decorators/extract-s
 import { LogoutCommand } from '../aplication/usecases/logout.usecase';
 import { PasswordRecoveryInputDto } from './input-dto/password-recovery.input-dto';
 import { PasswordRecoveryCommand } from '../aplication/usecases/password-recovery.usecase';
+import { RefreshTokenCommand } from '../aplication/usecases/refreah-token.usecase';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
@@ -100,27 +101,27 @@ export class AuthController {
     return this.commandBus.execute(new PasswordRecoveryCommand(body));
   }
 
-  // @Post('refresh-token')
-  // @HttpCode(HttpStatus.OK)
-  // @UseGuards(JwtRefreshAuthGuard)
-  // async refreshToken(
-  //   @ExtractSessionFromRequest() session: SessionContextDto,
-  //   @Res({ passthrough: true }) res: Response,
-  // ): Promise<LoginViewDto> {
-  //   const { accessToken, refreshToken }: AuthTokens =
-  //     await this.commandBus.execute(new RefreshTokenCommand(session));
-  //
-  //   res.cookie('refreshToken', refreshToken, {
-  //     httpOnly: true,
-  //     secure: true,
-  //     sameSite: 'strict',
-  //     maxAge: 120000,
-  //     path: '/',
-  //   });
-  //
-  //   return { accessToken };
-  // }
-  //
+  @Post('refresh-token')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtRefreshAuthGuard)
+  async refreshToken(
+    @ExtractSessionFromRequest() session: SessionContextDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginViewDto> {
+    const { accessToken, refreshToken }: AuthTokens =
+      await this.commandBus.execute(new RefreshTokenCommand(session));
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 120000,
+      path: '/',
+    });
+
+    return { accessToken };
+  }
+
   // @Post('new-password')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // async newPassword(@Body() body: NewPasswordInputDto): Promise<void> {
