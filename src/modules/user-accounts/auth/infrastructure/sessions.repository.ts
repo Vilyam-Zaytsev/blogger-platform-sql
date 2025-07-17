@@ -2,6 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
 import { CreateSessionDomainDto } from '../domain/dto/create-session.domain.dto';
+import { SessionDbType } from '../types/session-db.type';
 
 @Injectable()
 export class SessionsRepository {
@@ -32,10 +33,19 @@ export class SessionsRepository {
   //   });
   // }
   //
-  // async getByDeviceId(deviceId: string): Promise<SessionDocument | null> {
-  //   return this.SessionModel.findOne({
-  //     deviceId,
-  //     deletedAt: null,
-  //   });
-  // }
+  async getByDeviceId(deviceId: string): Promise<SessionDbType | null> {
+    const queryResult: QueryResult<SessionDbType> =
+      await this.pool.query<SessionDbType>(
+        `SELECT *
+         FROM "Sessions"
+         WHERE "deviceId" = $1`,
+        [deviceId],
+      );
+
+    if (queryResult.rowCount === 0) {
+      return null;
+    }
+
+    return queryResult.rows[0];
+  }
 }
