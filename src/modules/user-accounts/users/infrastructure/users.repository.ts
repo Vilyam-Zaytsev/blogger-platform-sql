@@ -11,6 +11,7 @@ import {
   UpdateEmailConfirmationDto,
 } from '../../auth/dto/create-email-confirmation.dto';
 import { CreatePasswordRecoveryDto } from '../../auth/dto/create-password-recovery.dto';
+import { PasswordRecoveryDbType } from '../../auth/types/password-recovery-db.type';
 
 @Injectable()
 export class UsersRepository {
@@ -237,12 +238,30 @@ export class UsersRepository {
 
     await this.pool.query<{ confirmationCode: string }>(
       `
-          INSERT INTO "PasswordRecovery" ("userId",
-                                          "recoveryCode",
-                                          "expirationDate")
-          VALUES ($1, $2, $3) RETURNING "recoveryCode"
-        `,
+        INSERT INTO "PasswordRecovery" ("userId",
+                                        "recoveryCode",
+                                        "expirationDate")
+        VALUES ($1, $2, $3) RETURNING "recoveryCode"
+      `,
       [userId, recoveryCode, expirationDate],
     );
+  }
+
+  async getPasswordRecoveryByRecoveryCode(
+    code: string,
+  ): Promise<PasswordRecoveryDbType | null> {
+    const queryResult: QueryResult<PasswordRecoveryDbType> =
+      await this.pool.query<PasswordRecoveryDbType>(
+        `SELECT
+         FROM "PasswordRecovery"
+         WHERE "recoveryCode" = $1`,
+        [code],
+      );
+
+    if (queryResult.rowCount === 0) {
+      return null;
+    }
+
+    return queryResult.rows[0];
   }
 }
