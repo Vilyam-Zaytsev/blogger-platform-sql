@@ -127,6 +127,51 @@ export class UsersRepository {
     return queryResult.rows[0];
   }
 
+  async getEmailConfirmationByUserId(
+    id: number,
+  ): Promise<EmailConfirmationDbType | null> {
+    const queryResult: QueryResult<EmailConfirmationDbType> =
+      await this.pool.query<EmailConfirmationDbType>(
+        `SELECT *
+         FROM "EmailConfirmation"
+         WHERE "userId" = $1`,
+        [id],
+      );
+
+    if (queryResult.rowCount === 0) {
+      return null;
+    }
+
+    return queryResult.rows[0];
+  }
+
+  async updateEmailConfirmation(
+    dto: UpdateEmailConfirmationDto,
+  ): Promise<EmailConfirmationDbType> {
+    const { userId, confirmationCode, expirationDate, confirmationStatus } =
+      dto;
+
+    const queryResult: QueryResult<EmailConfirmationDbType> =
+      await this.pool.query<EmailConfirmationDbType>(
+        `UPDATE "EmailConfirmation"
+       SET "userId"             = $1,
+           "confirmationCode"   = $2,
+           "expirationDate"     = $3,
+           "confirmationStatus" = $4
+       WHERE "userId" = $1 RETURNING *`,
+        [userId, confirmationCode, expirationDate, confirmationStatus],
+      );
+
+    if (queryResult.rowCount === 0) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `EmailConfirmation for userId (${userId}) not found.`,
+      });
+    }
+
+    return queryResult.rows[0];
+  }
+
   //TODO: вынести в отдельную команду!
   async confirmUser(userId: number): Promise<void> {
     const queryResult: QueryResult = await this.pool.query(
