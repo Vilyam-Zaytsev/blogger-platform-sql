@@ -4,6 +4,7 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
@@ -14,6 +15,15 @@ import { RegistrationConfirmationCodeInputDto } from './input-dto/registration-c
 import { ConfirmUserCommand } from '../aplication/usecases/confirm-user.usecase';
 import { RegistrationEmailResandingInputDto } from './input-dto/registration-email-resending.input-dto';
 import { ResendRegistrationEmailCommand } from '../aplication/usecases/resend-registration-email.usecase';
+import { LocalAuthGuard } from '../domain/guards/local/local-auth.guard';
+import { ExtractClientInfo } from '../../../../core/decorators/request/extract-client-info.decorator';
+import { ClientInfoDto } from '../../../../core/dto/client-info.dto';
+import { UserContextDto } from '../domain/guards/dto/user-context.dto';
+import { ExtractUserFromRequest } from '../domain/guards/decorators/extract-user-from-request.decorator';
+import { LoginViewDto } from './view-dto/login.view-dto';
+import { AuthTokens } from '../domain/types/auth-tokens.type';
+import { LoginUserCommand } from '../aplication/usecases/login-user.usecase';
+import { Response } from 'express';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
@@ -45,28 +55,28 @@ export class AuthController {
     return this.commandBus.execute(new ResendRegistrationEmailCommand(body));
   }
 
-  // @Post('login')
-  // @HttpCode(HttpStatus.OK)
-  // @UseGuards(LocalAuthGuard)
-  // async login(
-  //   @ExtractUserFromRequest() user: UserContextDto,
-  //   @ExtractClientInfo() clientInfo: ClientInfoDto,
-  //   @Res({ passthrough: true }) res: Response,
-  // ): Promise<LoginViewDto> {
-  //   const { accessToken, refreshToken }: AuthTokens =
-  //     await this.commandBus.execute(new LoginUserCommand(user, clientInfo));
-  //
-  //   res.cookie('refreshToken', refreshToken, {
-  //     httpOnly: true,
-  //     secure: true,
-  //     sameSite: 'strict',
-  //     maxAge: 120000,
-  //     path: '/',
-  //   });
-  //
-  //   return { accessToken };
-  // }
-  //
+  @Post('login')
+  @HttpCode(HttpStatus.OK)
+  @UseGuards(LocalAuthGuard)
+  async login(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @ExtractClientInfo() clientInfo: ClientInfoDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<LoginViewDto> {
+    const { accessToken, refreshToken }: AuthTokens =
+      await this.commandBus.execute(new LoginUserCommand(user, clientInfo));
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 120000,
+      path: '/',
+    });
+
+    return { accessToken };
+  }
+
   // @Post('logout')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // @UseGuards(JwtRefreshAuthGuard)
