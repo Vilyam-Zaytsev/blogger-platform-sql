@@ -24,6 +24,10 @@ import { LoginViewDto } from './view-dto/login.view-dto';
 import { AuthTokens } from '../domain/types/auth-tokens.type';
 import { LoginUserCommand } from '../aplication/usecases/login-user.usecase';
 import { Response } from 'express';
+import { JwtRefreshAuthGuard } from '../domain/guards/bearer/jwt-refresh-auth.guard';
+import { SessionContextDto } from '../domain/guards/dto/session-context.dto';
+import { ExtractSessionFromRequest } from '../domain/guards/decorators/extract-session-from-request.decorator';
+import { LogoutCommand } from '../aplication/usecases/logout.usecase';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
@@ -77,15 +81,15 @@ export class AuthController {
     return { accessToken };
   }
 
-  // @Post('logout')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JwtRefreshAuthGuard)
-  // async logout(
-  //   @ExtractSessionFromRequest() session: SessionContextDto,
-  // ): Promise<void> {
-  //   return this.commandBus.execute(new LogoutCommand(session));
-  // }
-  //
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtRefreshAuthGuard)
+  async logout(
+    @ExtractSessionFromRequest() session: SessionContextDto,
+  ): Promise<void> {
+    return this.commandBus.execute(new LogoutCommand(session));
+  }
+
   // @Post('password-recovery')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // async passwordRecovery(
