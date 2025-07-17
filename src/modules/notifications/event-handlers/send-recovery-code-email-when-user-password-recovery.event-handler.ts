@@ -2,18 +2,18 @@ import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { EmailTemplate } from '../templates/types';
 import { EmailTemplates } from '../templates/email.templates';
 import { EmailService } from '../services/email.service';
-import { UserPasswordRecoveryEvent } from '../../user-accounts/auth/domain/events/user-password-recovery.event';
+import { PasswordRecoveryEvent } from '../../user-accounts/auth/domain/events/password-recovery.event';
 
-@EventsHandler(UserPasswordRecoveryEvent)
+@EventsHandler(PasswordRecoveryEvent)
 export class SendRecoveryCodeEmailWhenUserPasswordRecoveryEventHandler
-  implements IEventHandler<UserPasswordRecoveryEvent>
+  implements IEventHandler<PasswordRecoveryEvent>
 {
   constructor(
     private emailService: EmailService,
     private readonly templates: EmailTemplates,
   ) {}
 
-  async handle(event: UserPasswordRecoveryEvent) {
+  async handle(event: PasswordRecoveryEvent) {
     const { email, recoveryCode } = event;
 
     const template: EmailTemplate =
