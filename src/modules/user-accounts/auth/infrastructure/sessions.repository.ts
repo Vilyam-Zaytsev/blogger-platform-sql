@@ -3,6 +3,7 @@ import { PG_POOL } from '../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
 import { CreateSessionDomainDto } from '../domain/dto/create-session.domain.dto';
 import { SessionDbType } from '../types/session-db.type';
+import { UpdateSessionTimestamps } from '../aplication/types/update-session-timestamps.type';
 
 @Injectable()
 export class SessionsRepository {
@@ -49,16 +50,15 @@ export class SessionsRepository {
     return queryResult.rows[0];
   }
 
-  async updateTimestamps(
-    id: number,
-    timestamps: { iat: Date; exp: Date },
-  ): Promise<void> {
+  async updateTimestamps(dto: UpdateSessionTimestamps): Promise<void> {
+    const { sessionId, iat, exp } = dto;
+
     await this.pool.query(
       `UPDATE "Sessions"
        SET iat = $1,
            exp = $2
        WHERE "id" = $3`,
-      [timestamps.iat, timestamps.exp],
+      [iat, exp, sessionId],
     );
   }
 
