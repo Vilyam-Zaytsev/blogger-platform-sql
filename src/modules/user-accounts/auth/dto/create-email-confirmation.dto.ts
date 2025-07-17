@@ -6,3 +6,5 @@ export class CreateEmailConfirmationDto {
   expirationDate: Date | null;
   confirmationStatus: ConfirmationStatus;
 }
+
+export class UpdateEmailConfirmationDto extends CreateEmailConfirmationDto {}
