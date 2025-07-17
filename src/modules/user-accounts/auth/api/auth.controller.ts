@@ -31,6 +31,8 @@ import { LogoutCommand } from '../aplication/usecases/logout.usecase';
 import { PasswordRecoveryInputDto } from './input-dto/password-recovery.input-dto';
 import { PasswordRecoveryCommand } from '../aplication/usecases/password-recovery.usecase';
 import { RefreshTokenCommand } from '../aplication/usecases/refreah-token.usecase';
+import { NewPasswordInputDto } from './input-dto/new-password-input.dto';
+import { NewPasswordCommand } from '../aplication/usecases/new-password.usecase';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
@@ -122,12 +124,12 @@ export class AuthController {
     return { accessToken };
   }
 
-  // @Post('new-password')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async newPassword(@Body() body: NewPasswordInputDto): Promise<void> {
-  //   return this.commandBus.execute(new NewPasswordCommand(body));
-  // }
-  //
+  @Post('new-password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async newPassword(@Body() body: NewPasswordInputDto): Promise<void> {
+    return this.commandBus.execute(new NewPasswordCommand(body));
+  }
+
   // @Get('me')
   // @UseGuards(JwtAuthGuard)
   // async me(@ExtractUserFromRequest() user: UserContextDto): Promise<MeViewDto> {
