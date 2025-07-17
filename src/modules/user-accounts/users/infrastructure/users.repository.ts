@@ -14,18 +14,19 @@ import {
 @Injectable()
 export class UsersRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
-  async insertUser(dto: CreateUserDto): Promise<UserDbType> {
+  async insertUser(dto: CreateUserDto): Promise<number> {
     const query: string = `
         INSERT INTO "Users" ("login", "email", "passwordHash")
-        VALUES ($1, $2, $3) RETURNING *;
+        VALUES ($1, $2, $3) RETURNING id;
     `;
 
     const values: string[] = [dto.login, dto.email, dto.passwordHash];
 
-    const queryResult: QueryResult<UserDbType> =
-      await this.pool.query<UserDbType>(query, values);
+    const queryResult: QueryResult<{ id: number }> = await this.pool.query<{
+      id: number;
+    }>(query, values);
 
-    return queryResult.rows[0];
+    return queryResult.rows[0].id;
   }
 
   async getByIdOrNotFoundFail(id: number): Promise<UserDbType> {
