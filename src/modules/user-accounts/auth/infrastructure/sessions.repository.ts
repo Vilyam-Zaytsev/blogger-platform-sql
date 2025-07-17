@@ -48,4 +48,13 @@ export class SessionsRepository {
 
     return queryResult.rows[0];
   }
+
+  async deleteSessionById(id: number): Promise<void> {
+    await this.pool.query(
+      `DELETE
+       FROM "Sessions"
+       WHERE id = $1`,
+      [id],
+    );
+  }
 }
