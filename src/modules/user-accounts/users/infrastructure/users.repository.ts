@@ -85,7 +85,7 @@ export class UsersRepository {
 
   async insertEmailConfirmation(
     dto: CreateEmailConfirmationDto,
-  ): Promise<EmailConfirmationDbType> {
+  ): Promise<string> {
     const { userId, confirmationCode, expirationDate, confirmationStatus } =
       dto;
     const query: string = `
@@ -93,7 +93,7 @@ export class UsersRepository {
                                          "confirmationCode",
                                          "expirationDate",
                                          "confirmationStatus")
-        VALUES ($1, $2, $3, $4) RETURNING *
+        VALUES ($1, $2, $3, $4) RETURNING "confirmationCode"
     `;
 
     const values = [
@@ -103,10 +103,10 @@ export class UsersRepository {
       confirmationStatus,
     ];
 
-    const resultQuery: QueryResult<EmailConfirmationDbType> =
-      await this.pool.query<EmailConfirmationDbType>(query, values);
+    const resultQuery: QueryResult<{ confirmationCode: string }> =
+      await this.pool.query<{ confirmationCode: string }>(query, values);
 
-    return resultQuery.rows[0];
+    return resultQuery.rows[0].confirmationCode;
   }
 
   async getEmailConfirmationByUserId(
