@@ -49,7 +49,7 @@ export class SessionsRepository {
     return queryResult.rows[0];
   }
 
-  async updateSessionsTimestamps(
+  async updateTimestamps(
     id: number,
     timestamps: { iat: Date; exp: Date },
   ): Promise<void> {
