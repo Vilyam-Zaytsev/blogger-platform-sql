@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -33,6 +34,9 @@ import { PasswordRecoveryCommand } from '../aplication/usecases/password-recover
 import { RefreshTokenCommand } from '../aplication/usecases/refreah-token.usecase';
 import { NewPasswordInputDto } from './input-dto/new-password-input.dto';
 import { NewPasswordCommand } from '../aplication/usecases/new-password.usecase';
+import { JwtAuthGuard } from '../domain/guards/bearer/jwt-auth.guard';
+import { MeViewDto } from '../../users/api/view-dto/user.view-dto';
+import { GetMeQuery } from '../aplication/queries/get-me.query-handler';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
@@ -130,9 +134,9 @@ export class AuthController {
     return this.commandBus.execute(new NewPasswordCommand(body));
   }
 
-  // @Get('me')
-  // @UseGuards(JwtAuthGuard)
-  // async me(@ExtractUserFromRequest() user: UserContextDto): Promise<MeViewDto> {
-  //   return this.queryBus.execute(new GetMeQuery(user.id));
-  // }
+  @Get('me')
+  @UseGuards(JwtAuthGuard)
+  async me(@ExtractUserFromRequest() user: UserContextDto): Promise<MeViewDto> {
+    return this.queryBus.execute(new GetMeQuery(user.id));
+  }
 }
