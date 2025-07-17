@@ -20,8 +20,8 @@ export class UsersRepository {
 
   async insertUser(dto: CreateUserDto): Promise<UserDbType> {
     const query: string = `
-      INSERT INTO "Users" ("login", "email", "passwordHash")
-      VALUES ($1, $2, $3) RETURNING *;
+        INSERT INTO "Users" ("login", "email", "passwordHash")
+        VALUES ($1, $2, $3) RETURNING *;
     `;
 
     const values: string[] = [dto.login, dto.email, dto.passwordHash];
@@ -38,11 +38,11 @@ export class UsersRepository {
     const { userId, confirmationCode, expirationDate, confirmationStatus } =
       dto;
     const query: string = `
-      INSERT INTO "EmailConfirmation" ("userId",
-                                       "confirmationCode",
-                                       "expirationDate",
-                                       "confirmationStatus")
-      VALUES ($1, $2, $3, $4)
+        INSERT INTO "EmailConfirmation" ("userId",
+                                         "confirmationCode",
+                                         "expirationDate",
+                                         "confirmationStatus")
+        VALUES ($1, $2, $3, $4) RETURNING *
     `;
 
     const values = [
@@ -179,10 +179,10 @@ export class UsersRepository {
   async confirmUser(userId: number): Promise<void> {
     const queryResult: QueryResult = await this.pool.query(
       `UPDATE "EmailConfirmation"
-         SET "confirmationCode"   = NULL,
-             "expirationDate"     = NULL,
-             "confirmationStatus" = ${ConfirmationStatus.Confirmed}
-         WHERE "userId" = $1`,
+       SET "confirmationCode"   = NULL,
+           "expirationDate"     = NULL,
+           "confirmationStatus" = ${ConfirmationStatus.Confirmed}
+       WHERE "userId" = $1`,
       [userId],
     );
 
