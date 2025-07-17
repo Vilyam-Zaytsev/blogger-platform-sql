@@ -9,7 +9,10 @@ import {
 import { UserDbType } from '../types/user-db.type';
 import { DomainException } from 'src/core/exceptions/damain-exceptions';
 import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
-import { CreateEmailConfirmationDto } from '../../auth/dto/create-email-confirmation.dto';
+import {
+  CreateEmailConfirmationDto,
+  UpdateEmailConfirmationDto,
+} from '../../auth/dto/create-email-confirmation.dto';
 
 @Injectable()
 export class UsersRepository {
