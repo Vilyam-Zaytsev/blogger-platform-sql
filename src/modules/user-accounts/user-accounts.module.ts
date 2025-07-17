@@ -11,6 +11,7 @@ import { AuthController } from './auth/api/auth.controller';
 import { RegisterUserUseCase } from './auth/aplication/usecases/register-user.useсase';
 import { ConfirmUserUseCase } from './auth/aplication/usecases/confirm-user.usecase';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { ResendRegistrationEmailUseCase } from './auth/aplication/usecases/resend-registration-email.usecase';
 
 @Module({
   imports: [NotificationsModule],
@@ -20,6 +21,7 @@ import { NotificationsModule } from '../notifications/notifications.module';
     //use-cases
     RegisterUserUseCase,
     ConfirmUserUseCase,
+    ResendRegistrationEmailUseCase,
 
     //🔸 User:
     //use-cases
