@@ -12,6 +12,8 @@ import { UserInputDto } from '../../users/api/input-dto/user.input-dto';
 import { RegisterUserCommand } from '../aplication/usecases/register-user.useсase';
 import { RegistrationConfirmationCodeInputDto } from './input-dto/registration-confirmation-code.input-dto';
 import { ConfirmUserCommand } from '../aplication/usecases/confirm-user.usecase';
+import { RegistrationEmailResandingInputDto } from './input-dto/registration-email-resending.input-dto';
+import { ResendRegistrationEmailCommand } from '../aplication/usecases/resend-registration-email.usecase';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
@@ -35,14 +37,14 @@ export class AuthController {
     return this.commandBus.execute(new ConfirmUserCommand(body));
   }
 
-  // @Post('registration-email-resending')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async registrationEmailResending(
-  //   @Body() body: RegistrationEmailResandingInputDto,
-  // ): Promise<void> {
-  //   return this.commandBus.execute(new ResendRegistrationEmailCommand(body));
-  // }
-  //
+  @Post('registration-email-resending')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async registrationEmailResending(
+    @Body() body: RegistrationEmailResandingInputDto,
+  ): Promise<void> {
+    return this.commandBus.execute(new ResendRegistrationEmailCommand(body));
+  }
+
   // @Post('login')
   // @HttpCode(HttpStatus.OK)
   // @UseGuards(LocalAuthGuard)
