@@ -6,6 +6,7 @@ import {
   ConfirmationStatus,
   EmailConfirmationDbType,
 } from '../../../users/types/email-confirmation-db.type';
+import { UpdateEmailConfirmationDto } from '../../dto/create-email-confirmation.dto';
 
 export class ConfirmUserCommand {
   constructor(public readonly dto: RegistrationConfirmationCodeInputDto) {}
@@ -36,6 +37,15 @@ export class ConfirmUserUseCase implements ICommandHandler<ConfirmUserCommand> {
       ]);
     }
 
-    await this.usersRepository.confirmUser(emailConfirmation.userId);
+    const updateEmailConfirmationDto: UpdateEmailConfirmationDto = {
+      userId: emailConfirmation.userId,
+      confirmationCode: null,
+      expirationDate: null,
+      confirmationStatus: ConfirmationStatus.Confirmed,
+    };
+
+    await this.usersRepository.updateEmailConfirmation(
+      updateEmailConfirmationDto,
+    );
   }
 }
