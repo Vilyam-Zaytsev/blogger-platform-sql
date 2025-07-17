@@ -146,29 +146,19 @@ export class UsersRepository {
 
   async updateEmailConfirmation(
     dto: UpdateEmailConfirmationDto,
-  ): Promise<EmailConfirmationDbType> {
+  ): Promise<void> {
     const { userId, confirmationCode, expirationDate, confirmationStatus } =
       dto;
 
-    const queryResult: QueryResult<EmailConfirmationDbType> =
-      await this.pool.query<EmailConfirmationDbType>(
-        `UPDATE "EmailConfirmation"
+    await this.pool.query<EmailConfirmationDbType>(
+      `UPDATE "EmailConfirmation"
        SET "userId"             = $1,
            "confirmationCode"   = $2,
            "expirationDate"     = $3,
            "confirmationStatus" = $4
-       WHERE "userId" = $1 RETURNING *`,
-        [userId, confirmationCode, expirationDate, confirmationStatus],
-      );
-
-    if (queryResult.rowCount === 0) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: `EmailConfirmation for userId (${userId}) not found.`,
-      });
-    }
-
-    return queryResult.rows[0];
+       WHERE "userId" = $1`,
+      [userId, confirmationCode, expirationDate, confirmationStatus],
+    );
   }
 
   //TODO: Нормально ли в этой ситуации то, что репозиторий отвечает за логику приложения?
