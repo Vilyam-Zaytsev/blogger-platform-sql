@@ -2,10 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../database/constants/database.constants';
 import { Pool, PoolClient, QueryResult } from 'pg';
 import { CreateUserDto } from '../dto/create-user.dto';
-import {
-  ConfirmationStatus,
-  EmailConfirmationDbType,
-} from '../types/email-confirmation-db.type';
+import { EmailConfirmationDbType } from '../types/email-confirmation-db.type';
 import { UserDbType } from '../types/user-db.type';
 import { DomainException } from 'src/core/exceptions/damain-exceptions';
 import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
@@ -17,7 +14,6 @@ import {
 @Injectable()
 export class UsersRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
-
   async insertUser(dto: CreateUserDto): Promise<UserDbType> {
     const query: string = `
         INSERT INTO "Users" ("login", "email", "passwordHash")
@@ -30,32 +26,6 @@ export class UsersRepository {
       await this.pool.query<UserDbType>(query, values);
 
     return queryResult.rows[0];
-  }
-
-  async insertEmailConfirmation(
-    dto: CreateEmailConfirmationDto,
-  ): Promise<EmailConfirmationDbType> {
-    const { userId, confirmationCode, expirationDate, confirmationStatus } =
-      dto;
-    const query: string = `
-        INSERT INTO "EmailConfirmation" ("userId",
-                                         "confirmationCode",
-                                         "expirationDate",
-                                         "confirmationStatus")
-        VALUES ($1, $2, $3, $4) RETURNING *
-    `;
-
-    const values = [
-      userId,
-      confirmationCode,
-      expirationDate,
-      confirmationStatus,
-    ];
-
-    const resultQuery: QueryResult<EmailConfirmationDbType> =
-      await this.pool.query<EmailConfirmationDbType>(query, values);
-
-    return resultQuery.rows[0];
   }
 
   async getByIdOrNotFoundFail(id: number): Promise<UserDbType> {
@@ -112,22 +82,30 @@ export class UsersRepository {
     return queryResult.rows[0];
   }
 
-  async getEmailConfirmationByConfirmationCode(
-    confirmationCode: string,
-  ): Promise<EmailConfirmationDbType | null> {
-    const queryResult: QueryResult<EmailConfirmationDbType> =
-      await this.pool.query<EmailConfirmationDbType>(
-        `SELECT *
-         FROM "EmailConfirmation"
-         WHERE "confirmationCode" = $1`,
-        [confirmationCode],
-      );
+  async insertEmailConfirmation(
+    dto: CreateEmailConfirmationDto,
+  ): Promise<EmailConfirmationDbType> {
+    const { userId, confirmationCode, expirationDate, confirmationStatus } =
+      dto;
+    const query: string = `
+        INSERT INTO "EmailConfirmation" ("userId",
+                                         "confirmationCode",
+                                         "expirationDate",
+                                         "confirmationStatus")
+        VALUES ($1, $2, $3, $4) RETURNING *
+    `;
 
-    if (queryResult.rowCount === 0) {
-      return null;
-    }
+    const values = [
+      userId,
+      confirmationCode,
+      expirationDate,
+      confirmationStatus,
+    ];
 
-    return queryResult.rows[0];
+    const resultQuery: QueryResult<EmailConfirmationDbType> =
+      await this.pool.query<EmailConfirmationDbType>(query, values);
+
+    return resultQuery.rows[0];
   }
 
   async getEmailConfirmationByUserId(
@@ -139,6 +117,24 @@ export class UsersRepository {
          FROM "EmailConfirmation"
          WHERE "userId" = $1`,
         [id],
+      );
+
+    if (queryResult.rowCount === 0) {
+      return null;
+    }
+
+    return queryResult.rows[0];
+  }
+
+  async getEmailConfirmationByConfirmationCode(
+    confirmationCode: string,
+  ): Promise<EmailConfirmationDbType | null> {
+    const queryResult: QueryResult<EmailConfirmationDbType> =
+      await this.pool.query<EmailConfirmationDbType>(
+        `SELECT *
+         FROM "EmailConfirmation"
+         WHERE "confirmationCode" = $1`,
+        [confirmationCode],
       );
 
     if (queryResult.rowCount === 0) {
@@ -173,25 +169,6 @@ export class UsersRepository {
     }
 
     return queryResult.rows[0];
-  }
-
-  //TODO: вынести в отдельную команду!
-  async confirmUser(userId: number): Promise<void> {
-    const queryResult: QueryResult = await this.pool.query(
-      `UPDATE "EmailConfirmation"
-       SET "confirmationCode"   = NULL,
-           "expirationDate"     = NULL,
-           "confirmationStatus" = ${ConfirmationStatus.Confirmed}
-       WHERE "userId" = $1`,
-      [userId],
-    );
-
-    if (queryResult.rowCount === 0) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: `EmailConfirmation for userId (${userId}) not found.`,
-      });
-    }
   }
 
   //TODO: Нормально ли в этой ситуации то, что репозиторий отвечает за логику приложения?
