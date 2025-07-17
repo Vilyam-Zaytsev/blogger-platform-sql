@@ -7,11 +7,22 @@ import { CryptoService } from './users/application/services/crypto.service';
 import { UsersQueryRepository } from './users/infrastructure/query/users.query-repository';
 import { GetUsersQueryHandler } from './users/application/queries/get-users.query-handler';
 import { DeleteUserUseCase } from './users/application/usecases/delete-user.usecase';
+import { AuthController } from './auth/api/auth.controller';
+import { RegisterUserUseCase } from './auth/aplication/usecases/register-user.useсase';
+import { ConfirmUserUseCase } from './auth/aplication/usecases/confirm-user.usecase';
+import { NotificationsModule } from '../notifications/notifications.module';
+import { ResendRegistrationEmailUseCase } from './auth/aplication/usecases/resend-registration-email.usecase';
 
 @Module({
-  imports: [],
-  controllers: [UsersController],
+  imports: [NotificationsModule],
+  controllers: [UsersController, AuthController],
   providers: [
+    //🔸 Auth:
+    //use-cases
+    RegisterUserUseCase,
+    ConfirmUserUseCase,
+    ResendRegistrationEmailUseCase,
+
     //🔸 User:
     //use-cases
     CreateUserByAdminUseCase,
