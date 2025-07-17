@@ -10,14 +10,16 @@ import {
   CreateEmailConfirmationDto,
   UpdateEmailConfirmationDto,
 } from '../../auth/dto/create-email-confirmation.dto';
+import { CreatePasswordRecoveryDto } from '../../auth/dto/create-password-recovery.dto';
 
 @Injectable()
 export class UsersRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+
   async insertUser(dto: CreateUserDto): Promise<number> {
     const query: string = `
-        INSERT INTO "Users" ("login", "email", "passwordHash")
-        VALUES ($1, $2, $3) RETURNING id;
+      INSERT INTO "Users" ("login", "email", "passwordHash")
+      VALUES ($1, $2, $3) RETURNING id;
     `;
 
     const values: string[] = [dto.login, dto.email, dto.passwordHash];
@@ -89,11 +91,11 @@ export class UsersRepository {
     const { userId, confirmationCode, expirationDate, confirmationStatus } =
       dto;
     const query: string = `
-        INSERT INTO "EmailConfirmation" ("userId",
-                                         "confirmationCode",
-                                         "expirationDate",
-                                         "confirmationStatus")
-        VALUES ($1, $2, $3, $4) RETURNING "confirmationCode"
+      INSERT INTO "EmailConfirmation" ("userId",
+                                       "confirmationCode",
+                                       "expirationDate",
+                                       "confirmationStatus")
+      VALUES ($1, $2, $3, $4) RETURNING "confirmationCode"
     `;
 
     const values = [
@@ -230,29 +232,17 @@ export class UsersRepository {
     }
   }
 
-  async insertPasswordRecovery(
-    dto: CreateEmailConfirmationDto,
-  ): Promise<string> {
-    const { userId, confirmationCode, expirationDate, confirmationStatus } =
-      dto;
-    const query: string = `
-        INSERT INTO "EmailConfirmation" ("userId",
-                                         "confirmationCode",
-                                         "expirationDate",
-                                         "confirmationStatus")
-        VALUES ($1, $2, $3, $4) RETURNING "confirmationCode"
-    `;
+  async insertPasswordRecovery(dto: CreatePasswordRecoveryDto): Promise<void> {
+    const { userId, recoveryCode, expirationDate } = dto;
 
-    const values = [
-      userId,
-      confirmationCode,
-      expirationDate,
-      confirmationStatus,
-    ];
-
-    const resultQuery: QueryResult<{ confirmationCode: string }> =
-      await this.pool.query<{ confirmationCode: string }>(query, values);
-
-    return resultQuery.rows[0].confirmationCode;
+    await this.pool.query<{ confirmationCode: string }>(
+      `
+          INSERT INTO "PasswordRecovery" ("userId",
+                                          "recoveryCode",
+                                          "expirationDate")
+          VALUES ($1, $2, $3) RETURNING "recoveryCode"
+        `,
+      [userId, recoveryCode, expirationDate],
+    );
   }
 }
