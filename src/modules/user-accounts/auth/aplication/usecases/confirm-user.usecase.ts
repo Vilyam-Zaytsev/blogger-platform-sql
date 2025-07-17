@@ -5,7 +5,7 @@ import { UsersRepository } from '../../../users/infrastructure/users.repository'
 import {
   ConfirmationStatus,
   EmailConfirmationDbType,
-} from '../../../users/types/email-confirmation-db.type';
+} from '../../types/email-confirmation-db.type';
 import { UpdateEmailConfirmationDto } from '../../dto/create-email-confirmation.dto';
 
 export class ConfirmUserCommand {

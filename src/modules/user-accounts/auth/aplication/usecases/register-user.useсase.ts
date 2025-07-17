@@ -4,7 +4,7 @@ import { UserValidationService } from '../../../users/application/services/user-
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
 import { CryptoService } from '../../../users/application/services/crypto.service';
 import { CreateUserDto } from '../../../users/dto/create-user.dto';
-import { ConfirmationStatus } from '../../../users/types/email-confirmation-db.type';
+import { ConfirmationStatus } from '../../types/email-confirmation-db.type';
 import { CreateEmailConfirmationDto } from '../../dto/create-email-confirmation.dto';
 import { add } from 'date-fns';
 import { UserRegisteredEvent } from '../../domain/events/user-registered.event';

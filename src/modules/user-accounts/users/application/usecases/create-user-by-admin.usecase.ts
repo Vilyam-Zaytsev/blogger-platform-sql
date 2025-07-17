@@ -5,7 +5,7 @@ import { UsersRepository } from '../../infrastructure/users.repository';
 import { UserInputDto } from '../../api/input-dto/user.input-dto';
 import { CryptoService } from '../services/crypto.service';
 import { CreateEmailConfirmationDto } from '../../../auth/dto/create-email-confirmation.dto';
-import { ConfirmationStatus } from '../../types/email-confirmation-db.type';
+import { ConfirmationStatus } from '../../../auth/types/email-confirmation-db.type';
 
 export class CreateUserCommand {
   constructor(public readonly dto: UserInputDto) {}

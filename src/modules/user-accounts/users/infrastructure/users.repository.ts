@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../database/constants/database.constants';
 import { Pool, PoolClient, QueryResult } from 'pg';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { EmailConfirmationDbType } from '../types/email-confirmation-db.type';
+import { EmailConfirmationDbType } from '../../auth/types/email-confirmation-db.type';
 import { UserDbType } from '../types/user-db.type';
 import { DomainException } from 'src/core/exceptions/damain-exceptions';
 import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
@@ -228,5 +228,31 @@ export class UsersRepository {
     } finally {
       client.release();
     }
+  }
+
+  async insertPasswordRecovery(
+    dto: CreateEmailConfirmationDto,
+  ): Promise<string> {
+    const { userId, confirmationCode, expirationDate, confirmationStatus } =
+      dto;
+    const query: string = `
+        INSERT INTO "EmailConfirmation" ("userId",
+                                         "confirmationCode",
+                                         "expirationDate",
+                                         "confirmationStatus")
+        VALUES ($1, $2, $3, $4) RETURNING "confirmationCode"
+    `;
+
+    const values = [
+      userId,
+      confirmationCode,
+      expirationDate,
+      confirmationStatus,
+    ];
+
+    const resultQuery: QueryResult<{ confirmationCode: string }> =
+      await this.pool.query<{ confirmationCode: string }>(query, values);
+
+    return resultQuery.rows[0].confirmationCode;
   }
 }

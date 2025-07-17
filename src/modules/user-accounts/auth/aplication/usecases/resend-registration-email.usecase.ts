@@ -8,7 +8,7 @@ import { UserDbType } from '../../../users/types/user-db.type';
 import {
   ConfirmationStatus,
   EmailConfirmationDbType,
-} from '../../../users/types/email-confirmation-db.type';
+} from '../../types/email-confirmation-db.type';
 import { DomainException } from '../../../../../core/exceptions/damain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { UpdateEmailConfirmationDto } from '../../dto/create-email-confirmation.dto';

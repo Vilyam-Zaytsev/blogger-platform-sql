@@ -1,4 +1,4 @@
-import { ConfirmationStatus } from '../../users/types/email-confirmation-db.type';
+import { ConfirmationStatus } from '../types/email-confirmation-db.type';
 
 export class CreateEmailConfirmationDto {
   userId: number;
