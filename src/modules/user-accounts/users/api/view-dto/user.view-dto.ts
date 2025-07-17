@@ -25,13 +25,13 @@ export class MeViewDto extends OmitType(UserViewDto, [
 ] as const) {
   userId: string;
 
-  // static mapToView(user: UserDbType): MeViewDto {
-  //   const dto = new this();
-  //
-  //   dto.email = user.email;
-  //   dto.login = user.login;
-  //   dto.userId = user._id.toString();
-  //
-  //   return dto;
-  // }
+  static mapToView(user: UserDbType): MeViewDto {
+    const dto = new this();
+
+    dto.email = user.email;
+    dto.login = user.login;
+    dto.userId = user.id.toString();
+
+    return dto;
+  }
 }
