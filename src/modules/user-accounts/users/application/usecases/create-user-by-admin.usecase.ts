@@ -4,7 +4,6 @@ import { UserValidationService } from '../services/user-validation.service';
 import { UsersRepository } from '../../infrastructure/users.repository';
 import { UserInputDto } from '../../api/input-dto/user.input-dto';
 import { CryptoService } from '../services/crypto.service';
-import { UserDbType } from '../../types/user-db.type';
 import { CreateEmailConfirmationDto } from '../../../auth/dto/create-email-confirmation.dto';
 import { ConfirmationStatus } from '../../types/email-confirmation-db.type';
 
@@ -23,22 +22,22 @@ export class CreateUserByAdminUseCase
   ) {}
 
   async execute({ dto }: CreateUserCommand): Promise<number> {
-    await this.userValidation.validateUniqueUser(dto);
+    const { login, email, password } = dto;
 
-    const passwordHash: string = await this.cryptoService.createPasswordHash(
-      dto.password,
-    );
+    await this.userValidation.validateUniqueUser(login, email);
+
+    const passwordHash: string =
+      await this.cryptoService.createPasswordHash(password);
     const createUserDto: CreateUserDto = {
-      login: dto.login,
-      email: dto.email,
+      login,
+      email,
       passwordHash,
     };
 
-    const user: UserDbType =
-      await this.usersRepository.insertUser(createUserDto);
+    const userId: number = await this.usersRepository.insertUser(createUserDto);
 
     const createEmailConfirmationDto: CreateEmailConfirmationDto = {
-      userId: user.id,
+      userId,
       confirmationCode: null,
       expirationDate: null,
       confirmationStatus: ConfirmationStatus.Confirmed,
@@ -48,6 +47,6 @@ export class CreateUserByAdminUseCase
       createEmailConfirmationDto,
     );
 
-    return user.id;
+    return userId;
   }
 }
