@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../../infrastructure/users.repository';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
-import { UserInputDto } from '../../api/input-dto/user.input-dto';
 
 @Injectable()
 export class UserValidationService {
@@ -10,10 +9,10 @@ export class UserValidationService {
     // private readonly cryptoService: CryptoService,
   ) {}
 
-  async validateUniqueUser(dto: UserInputDto): Promise<void> {
+  async validateUniqueUser(login: string, email: string): Promise<void> {
     const [byLogin, byEmail] = await Promise.all([
-      this.usersRepository.getByLogin(dto.login),
-      this.usersRepository.getByEmail(dto.email),
+      this.usersRepository.getByLogin(login),
+      this.usersRepository.getByEmail(email),
     ]);
     if (byLogin) {
       throw new ValidationException([
