@@ -28,6 +28,8 @@ import { JwtRefreshAuthGuard } from '../domain/guards/bearer/jwt-refresh-auth.gu
 import { SessionContextDto } from '../domain/guards/dto/session-context.dto';
 import { ExtractSessionFromRequest } from '../domain/guards/decorators/extract-session-from-request.decorator';
 import { LogoutCommand } from '../aplication/usecases/logout.usecase';
+import { PasswordRecoveryInputDto } from './input-dto/password-recovery.input-dto';
+import { PasswordRecoveryCommand } from '../aplication/usecases/password-recovery.usecase';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
@@ -90,14 +92,14 @@ export class AuthController {
     return this.commandBus.execute(new LogoutCommand(session));
   }
 
-  // @Post('password-recovery')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async passwordRecovery(
-  //   @Body() body: PasswordRecoveryInputDto,
-  // ): Promise<void> {
-  //   return this.commandBus.execute(new PasswordRecoveryCommand(body));
-  // }
-  //
+  @Post('password-recovery')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async passwordRecovery(
+    @Body() body: PasswordRecoveryInputDto,
+  ): Promise<void> {
+    return this.commandBus.execute(new PasswordRecoveryCommand(body));
+  }
+
   // @Post('refresh-token')
   // @HttpCode(HttpStatus.OK)
   // @UseGuards(JwtRefreshAuthGuard)
