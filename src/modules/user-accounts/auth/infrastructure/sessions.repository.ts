@@ -1,0 +1,41 @@
+import { Inject, Injectable } from '@nestjs/common';
+import { PG_POOL } from '../../../database/constants/database.constants';
+import { Pool, QueryResult } from 'pg';
+import { CreateSessionDomainDto } from '../domain/dto/create-session.domain.dto';
+
+@Injectable()
+export class SessionsRepository {
+  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+
+  async insertSession(dto: CreateSessionDomainDto): Promise<number> {
+    const queryResult: QueryResult<{ id: number }> = await this.pool.query<{
+      id: number;
+    }>(
+      `
+        INSERT INTO "Sessions" ("userId", "deviceId", "deviceName", "ip", "iat", "exp")
+        VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;
+      `,
+      [dto.userId, dto.deviceId, dto.deviceName, dto.ip, dto.iat, dto.exp],
+    );
+
+    return queryResult.rows[0].id;
+  }
+
+  // async getAllSessionsExceptCurrent(
+  //   userId: string,
+  //   deviceId: string,
+  // ): Promise<SessionDocument[]> {
+  //   return this.SessionModel.find({
+  //     userId,
+  //     deviceId: { $ne: deviceId },
+  //     deletedAt: null,
+  //   });
+  // }
+  //
+  // async getByDeviceId(deviceId: string): Promise<SessionDocument | null> {
+  //   return this.SessionModel.findOne({
+  //     deviceId,
+  //     deletedAt: null,
+  //   });
+  // }
+}
