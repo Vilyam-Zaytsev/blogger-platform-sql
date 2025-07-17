@@ -12,6 +12,7 @@ import {
 } from '../../auth/dto/create-email-confirmation.dto';
 import { CreatePasswordRecoveryDto } from '../../auth/dto/create-password-recovery.dto';
 import { PasswordRecoveryDbType } from '../../auth/types/password-recovery-db.type';
+import { UpdatePassword } from '../../auth/aplication/types/update-password.type';
 
 @Injectable()
 export class UsersRepository {
@@ -162,6 +163,17 @@ export class UsersRepository {
            "confirmationStatus" = $4
        WHERE "userId" = $1`,
       [userId, confirmationCode, expirationDate, confirmationStatus],
+    );
+  }
+
+  async updatePassword(dto: UpdatePassword): Promise<void> {
+    const { userId, newPasswordHash } = dto;
+
+    await this.pool.query(
+      `UPDATE "Users"
+      SET "passwordHash" = $1
+      WHERE "userId" = $2`,
+      [newPasswordHash, userId],
     );
   }
 
