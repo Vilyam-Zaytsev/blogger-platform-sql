@@ -49,6 +49,19 @@ export class SessionsRepository {
     return queryResult.rows[0];
   }
 
+  async updateSessionsTimestamps(
+    id: number,
+    timestamps: { iat: Date; exp: Date },
+  ): Promise<void> {
+    await this.pool.query(
+      `UPDATE "Sessions"
+       SET iat = $1,
+           exp = $2
+       WHERE "id" = $3`,
+      [timestamps.iat, timestamps.exp],
+    );
+  }
+
   async deleteSessionById(id: number): Promise<void> {
     await this.pool.query(
       `DELETE
