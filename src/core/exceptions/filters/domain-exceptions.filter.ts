@@ -1,5 +1,5 @@
 import { ArgumentsHost, Catch, ExceptionFilter } from '@nestjs/common';
-import { DomainException } from '../damain-exceptions';
+import { DomainException } from '../domain-exceptions';
 import { ErrorResponseBody } from './types/error-response-body.type';
 import { Request, Response } from 'express';
 import { DomainExceptionsCodeMapper } from '../utils/domain-exceptions-code.mapper';

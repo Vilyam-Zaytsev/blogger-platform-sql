@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { IdInputDto } from '../../../../../core/dto/id.input-dto';
 import { UsersRepository } from '../../infrastructure/users.repository';
-import { DomainException } from '../../../../../core/exceptions/damain-exceptions';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
 export class DeleteUserCommand {

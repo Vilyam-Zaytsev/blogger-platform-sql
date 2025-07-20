@@ -1,5 +1,5 @@
 import { ValidationError } from '@nestjs/common';
-import { Extension } from '../damain-exceptions';
+import { Extension } from '../domain-exceptions';
 
 export const errorFormatter = (errors: ValidationError[]): Extension[] => {
   const errorsForResponse: Extension[] = [];

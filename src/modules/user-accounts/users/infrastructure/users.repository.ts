@@ -4,7 +4,7 @@ import { Pool, PoolClient, QueryResult } from 'pg';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { EmailConfirmationDbType } from '../../auth/types/email-confirmation-db.type';
 import { UserDbType } from '../types/user-db.type';
-import { DomainException } from 'src/core/exceptions/damain-exceptions';
+import { DomainException } from 'src/core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
 import {
   CreateEmailConfirmationDto,

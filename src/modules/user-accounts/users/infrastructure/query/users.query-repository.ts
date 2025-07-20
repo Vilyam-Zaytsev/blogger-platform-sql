@@ -3,7 +3,7 @@ import { PG_POOL } from '../../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
 import { UserViewDto } from '../../api/view-dto/user.view-dto';
 import { UserDbType } from '../../types/user-db.type';
-import { DomainException } from 'src/core/exceptions/damain-exceptions';
+import { DomainException } from 'src/core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import {
   GetUsersQueryParams,

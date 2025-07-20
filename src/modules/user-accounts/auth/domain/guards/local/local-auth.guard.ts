@@ -6,7 +6,7 @@ import { validateSync } from 'class-validator';
 import { LoginInputDto } from '../../../api/input-dto/login.input-dto';
 import { errorFormatter } from '../../../../../../core/exceptions/utils/error-formatter';
 import { ValidationException } from '../../../../../../core/exceptions/validation-exception';
-import { Extension } from '../../../../../../core/exceptions/damain-exceptions';
+import { Extension } from '../../../../../../core/exceptions/domain-exceptions';
 
 @Injectable()
 export class LocalAuthGuard extends AuthGuard('local') {
