@@ -82,7 +82,7 @@ export class UsersQueryRepository {
         [searchLoginTerm, searchEmailTerm, offset, pageSize],
       );
 
-      const totalCount: QueryResult<{ totalCount: number }> =
+      const totalCountResult: QueryResult<{ totalCount: number }> =
         await this.pool.query(
           `SELECT COUNT(*) AS "totalCount"
            FROM "Users"
@@ -99,9 +99,11 @@ export class UsersQueryRepository {
         (user: UserDbType): UserViewDto => UserViewDto.mapToView(user),
       );
 
+      const totalCount: number = Number(totalCountResult.rows[0].totalCount);
+
       return PaginatedViewDto.mapToView<UserViewDto>({
         items,
-        totalCount: totalCount.rows[0].totalCount,
+        totalCount: totalCount,
         page: pageNumber,
         size: pageSize,
       });
