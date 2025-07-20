@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { UserContextDto } from '../dto/user-context.dto';
 import { DomainException } from '../../../../../../core/exceptions/domain-exceptions';
-import { DomainExceptionCode } from 'src/core/exceptions/domain-exception-codes';
+import { DomainExceptionCode } from '../../../../../../core/exceptions/domain-exception-codes';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {

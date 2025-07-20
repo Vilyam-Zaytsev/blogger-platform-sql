@@ -4,7 +4,6 @@ import { Pool, PoolClient, QueryResult } from 'pg';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { EmailConfirmationDbType } from '../../auth/types/email-confirmation-db.type';
 import { UserDbType } from '../types/user-db.type';
-import { DomainException } from 'src/core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
 import {
   CreateEmailConfirmationDto,
@@ -13,6 +12,7 @@ import {
 import { CreatePasswordRecoveryDto } from '../../auth/dto/create-password-recovery.dto';
 import { PasswordRecoveryDbType } from '../../auth/types/password-recovery-db.type';
 import { UpdatePassword } from '../../auth/aplication/types/update-password.type';
+import { DomainException } from '../../../../core/exceptions/domain-exceptions';
 
 @Injectable()
 export class UsersRepository {

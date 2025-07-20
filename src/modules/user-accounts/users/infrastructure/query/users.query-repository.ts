@@ -3,15 +3,15 @@ import { PG_POOL } from '../../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
 import { UserViewDto } from '../../api/view-dto/user.view-dto';
 import { UserDbType } from '../../types/user-db.type';
-import { DomainException } from 'src/core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import {
   GetUsersQueryParams,
   UsersSortBy,
 } from '../../api/input-dto/get-users-query-params.input-dto';
-import { PaginatedViewDto } from 'src/core/dto/paginated.view-dto';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
+import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 
 @Injectable()
 export class UsersQueryRepository {

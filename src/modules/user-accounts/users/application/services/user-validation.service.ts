@@ -4,8 +4,8 @@ import { ValidationException } from '../../../../../core/exceptions/validation-e
 import { UserContextDto } from 'src/modules/user-accounts/auth/domain/guards/dto/user-context.dto';
 import { UserDbType } from '../../types/user-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
-import { DomainExceptionCode } from 'src/core/exceptions/domain-exception-codes';
 import { CryptoService } from './crypto.service';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
 @Injectable()
 export class UserValidationService {
