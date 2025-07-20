@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateSessionDto } from '../../../dto/create-session.dto';
 import { SessionsRepository } from '../../../infrastructure/sessions.repository';
-import { parseUserAgent } from '../../../../../../core/utils/user-agent-parser';
+import { parseUserAgent } from '../../../../../../core/utils/user-agent.parser';
 import { CreateSessionDomainDto } from '../../../domain/dto/create-session.domain.dto';
 
 export class CreateSessionCommand {
