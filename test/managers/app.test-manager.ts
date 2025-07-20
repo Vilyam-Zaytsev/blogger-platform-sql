@@ -41,15 +41,20 @@ export class AppTestManager {
     await this.app.init();
   }
 
-  async cleanupDb() {
+  async cleanupDb(excludedTables: string[]) {
     const tables = await this.pool.query(
       "SELECT table_name FROM information_schema.tables WHERE table_schema='public'",
     );
 
     await Promise.all(
-      tables.rows.map(async (table) => {
-        await this.pool.query(`DELETE FROM "${table.table_name}"`);
-      }),
+      tables.rows
+        .map((row) => row.table_name)
+        .filter((tableName) => !excludedTables.includes(tableName))
+        .map(async (tableName) => {
+          await this.pool.query(
+            `TRUNCATE TABLE "${tableName}" RESTART IDENTITY CASCADE`,
+          );
+        }),
     );
   }
 
