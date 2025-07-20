@@ -12,12 +12,15 @@ import { RegisterUserUseCase } from './auth/aplication/usecases/register-user.us
 import { ConfirmUserUseCase } from './auth/aplication/usecases/confirm-user.usecase';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { ResendRegistrationEmailUseCase } from './auth/aplication/usecases/resend-registration-email.usecase';
+import { BasicStrategy } from './auth/domain/guards/basic/basic.strategy';
 
 @Module({
   imports: [NotificationsModule],
   controllers: [UsersController, AuthController],
   providers: [
     //🔸 Auth:
+    // strategies
+    BasicStrategy,
     //use-cases
     RegisterUserUseCase,
     ConfirmUserUseCase,
