@@ -177,72 +177,16 @@ export class UsersRepository {
     );
   }
 
-  //TODO: Нормально ли в этой ситуации то, что репозиторий отвечает за логику приложения?
-
-  //TODO: Нормально ли в этом случае использовать транзакцию или лучше разделить на два метода?
-
-  async softDelete(id: number): Promise<UserDbType | null> {
-    const client: PoolClient = await this.pool.connect();
-
-    try {
-      await client.query('BEGIN');
-
-      const userResult: QueryResult<UserDbType> =
-        await client.query<UserDbType>(
-          `UPDATE "Users"
+  async softDelete(id: number): Promise<boolean> {
+    const queryResult: QueryResult = await this.pool.query(
+      `UPDATE "Users"
            SET "deletedAt" = NOW()
            WHERE id = $1
-             AND "deletedAt" IS NULL RETURNING *;`,
-          [id],
-        );
+             AND "deletedAt" IS NULL`,
+      [id],
+    );
 
-      if (userResult.rowCount === 0) {
-        await client.query('ROLLBACK');
-        throw new DomainException({
-          code: DomainExceptionCode.NotFound,
-          message: 'The user with ID (${id}) does not exist',
-        });
-      }
-
-      const user: UserDbType = userResult.rows[0];
-
-      const emailConfirmationResult: QueryResult<EmailConfirmationDbType> =
-        await client.query(
-          `UPDATE "EmailConfirmation"
-           SET "deletedAt" = NOW()
-           WHERE "userId" = $1
-             AND "deletedAt" IS NULL;`,
-          [id],
-        );
-
-      if (emailConfirmationResult.rowCount === 0) {
-        await client.query('ROLLBACK');
-        throw new DomainException({
-          code: DomainExceptionCode.InternalServerError,
-          message:
-            'The user was not deleted because the associated EmailConfirmation was not found',
-        });
-      }
-
-      await client.query('COMMIT');
-      return user;
-    } catch (error) {
-      console.error(
-        'Ошибка при выполнении SQL-запроса в UsersRepository.softDelete():',
-        error,
-      );
-
-      if (error instanceof DomainException) {
-        throw error;
-      }
-
-      throw new DomainException({
-        code: DomainExceptionCode.InternalServerError,
-        message: "Couldn't delete user",
-      });
-    } finally {
-      client.release();
-    }
+    return queryResult.rowCount === 1;
   }
 
   async insertPasswordRecovery(dto: CreatePasswordRecoveryDto): Promise<void> {

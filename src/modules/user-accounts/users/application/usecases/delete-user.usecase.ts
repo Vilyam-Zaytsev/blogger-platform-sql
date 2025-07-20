@@ -13,7 +13,7 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async execute({ dto }: DeleteUserCommand): Promise<void> {
-    const result = await this.usersRepository.softDelete(dto.id);
+    const result: boolean = await this.usersRepository.softDelete(dto.id);
 
     if (!result) {
       throw new DomainException({
