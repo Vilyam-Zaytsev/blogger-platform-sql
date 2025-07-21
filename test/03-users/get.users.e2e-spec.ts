@@ -6,7 +6,6 @@ import request, { Response } from 'supertest';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import { TestUtils } from '../helpers/test.utils';
 import { TestLoggers } from '../helpers/test.loggers';
-import { PaginatedViewDto } from '../../src/core/dto/paginated.view-dto';
 import { Filter } from '../helpers/filter';
 import { HttpStatus } from '@nestjs/common';
 import { UserViewDto } from '../../src/modules/user-accounts/users/api/view-dto/user.view-dto';
