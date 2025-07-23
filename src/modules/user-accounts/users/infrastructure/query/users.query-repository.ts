@@ -12,6 +12,7 @@ import { ValidationException } from '../../../../../core/exceptions/validation-e
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { SearchFilterBuilder } from '../../../../../core/utils/search-filter.builder';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -39,15 +40,22 @@ export class UsersQueryRepository {
   async getAll(
     query: GetUsersQueryParams,
   ): Promise<PaginatedViewDto<UserViewDto>> {
-    const { sortBy, sortDirection, pageSize, pageNumber }: GetUsersQueryParams =
-      query;
+    const {
+      sortBy,
+      sortDirection,
+      pageSize,
+      pageNumber,
+      searchLoginTerm,
+      searchEmailTerm,
+    }: GetUsersQueryParams = query;
     const offset: number = query.calculateSkip();
-    const searchLoginTerm: string = query.searchLoginTerm
-      ? query.searchLoginTerm
-      : '';
-    const searchEmailTerm: string = query.searchEmailTerm
-      ? query.searchEmailTerm
-      : '';
+    const { condition: searchCondition, values: searchValues } =
+      SearchFilterBuilder.buildUserSearchFilter(
+        searchLoginTerm,
+        searchEmailTerm,
+      );
+    const offsetParamIndex: number = searchValues.length + 1;
+    const limitParamIndex: number = searchValues.length + 2;
 
     if (!Object.values(UsersSortBy).includes(sortBy)) {
       throw new ValidationException([
@@ -72,14 +80,10 @@ export class UsersQueryRepository {
         `SELECT *
          FROM "Users"
          WHERE "deletedAt" IS NULL
-           AND (
-             login ILIKE '%' || $1 || '%'
-                 OR
-                 email ILIKE '%' || $2 || '%'
-             )
+           ${searchCondition ? `AND (${searchCondition})` : ''}
          ORDER BY "${sortBy}" ${sortDirection}
-         OFFSET $3 LIMIT $4;`,
-        [searchLoginTerm, searchEmailTerm, offset, pageSize],
+         OFFSET $${offsetParamIndex} LIMIT $${limitParamIndex};`,
+        [...searchValues, offset, pageSize],
       );
 
       const totalCountResult: QueryResult<{ totalCount: number }> =
@@ -87,12 +91,8 @@ export class UsersQueryRepository {
           `SELECT COUNT(*) AS "totalCount"
            FROM "Users"
            WHERE "deletedAt" IS NULL
-             AND (
-               login ILIKE '%' || $1 || '%'
-                   OR
-                   email ILIKE '%' || $2 || '%'
-               )`,
-          [searchLoginTerm, searchEmailTerm],
+             ${searchCondition ? `AND (${searchCondition})` : ''}`,
+          [...searchValues],
         );
 
       const items: UserViewDto[] = users.rows.map(
