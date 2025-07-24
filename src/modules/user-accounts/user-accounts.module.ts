@@ -13,18 +13,26 @@ import { ConfirmUserUseCase } from './auth/aplication/usecases/confirm-user.usec
 import { NotificationsModule } from '../notifications/notifications.module';
 import { ResendRegistrationEmailUseCase } from './auth/aplication/usecases/resend-registration-email.usecase';
 import { BasicStrategy } from './auth/domain/guards/basic/basic.strategy';
+import { LoginUserUseCase } from './auth/aplication/usecases/login-user.usecase';
+import { AccessTokenProvider } from './auth/providers/access-token.provider';
+import { RefreshTokenProvider } from './auth/providers/refresh-token.provider';
+import { UserAccountsConfig } from './config/user-accounts.config';
 
 @Module({
   imports: [NotificationsModule],
   controllers: [UsersController, AuthController],
   providers: [
     //🔸 Auth:
+    //tokens
+    AccessTokenProvider,
+    RefreshTokenProvider,
     // strategies
     BasicStrategy,
     //use-cases
     RegisterUserUseCase,
     ConfirmUserUseCase,
     ResendRegistrationEmailUseCase,
+    LoginUserUseCase,
 
     //🔸 User:
     //use-cases
@@ -38,6 +46,8 @@ import { BasicStrategy } from './auth/domain/guards/basic/basic.strategy';
     //repo
     UsersRepository,
     UsersQueryRepository,
+    //config
+    UserAccountsConfig,
   ],
   exports: [],
 })
