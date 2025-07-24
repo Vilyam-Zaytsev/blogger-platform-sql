@@ -17,6 +17,10 @@ import { LoginUserUseCase } from './auth/aplication/usecases/login-user.usecase'
 import { AccessTokenProvider } from './auth/providers/access-token.provider';
 import { RefreshTokenProvider } from './auth/providers/refresh-token.provider';
 import { UserAccountsConfig } from './config/user-accounts.config';
+import { JwtStrategy } from './auth/domain/guards/bearer/jwt.strategy';
+import { LocalStrategy } from './auth/domain/guards/local/local.strategy';
+import { CreateSessionUseCase } from './auth/aplication/usecases/sessions/create-session.usecase';
+import { SessionsRepository } from './auth/infrastructure/sessions.repository';
 
 @Module({
   imports: [NotificationsModule],
@@ -27,13 +31,17 @@ import { UserAccountsConfig } from './config/user-accounts.config';
     AccessTokenProvider,
     RefreshTokenProvider,
     // strategies
+    LocalStrategy,
+    JwtStrategy,
     BasicStrategy,
     //use-cases
     RegisterUserUseCase,
     ConfirmUserUseCase,
     ResendRegistrationEmailUseCase,
     LoginUserUseCase,
-
+    CreateSessionUseCase,
+    //repo
+    SessionsRepository,
     //🔸 User:
     //use-cases
     CreateUserByAdminUseCase,
