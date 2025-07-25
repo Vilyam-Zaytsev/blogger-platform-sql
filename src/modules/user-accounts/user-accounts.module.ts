@@ -26,6 +26,8 @@ import { RefreshTokenUseCase } from './auth/aplication/usecases/refreah-token.us
 import { LogoutUseCase } from './auth/aplication/usecases/logout.usecase';
 import { GetMeQueryHandler } from './auth/aplication/queries/get-me.query-handler';
 import { AuthQueryRepository } from './auth/infrastructure/query/auth.query-repository';
+import { NewPasswordUseCase } from './auth/aplication/usecases/new-password.usecase';
+import { PasswordRecoveryUseCase } from './auth/aplication/usecases/password-recovery.usecase';
 
 @Module({
   imports: [NotificationsModule],
@@ -48,6 +50,8 @@ import { AuthQueryRepository } from './auth/infrastructure/query/auth.query-repo
     CreateSessionUseCase,
     RefreshTokenUseCase,
     LogoutUseCase,
+    PasswordRecoveryUseCase,
+    NewPasswordUseCase,
     //repo
     SessionsRepository,
     AuthQueryRepository,
