@@ -23,6 +23,7 @@ import { CreateSessionUseCase } from './auth/aplication/usecases/sessions/create
 import { SessionsRepository } from './auth/infrastructure/sessions.repository';
 import { JwtRefreshStrategy } from './auth/domain/guards/bearer/jwt-refresh.strategy';
 import { RefreshTokenUseCase } from './auth/aplication/usecases/refreah-token.usecase';
+import { LogoutUseCase } from './auth/aplication/usecases/logout.usecase';
 
 @Module({
   imports: [NotificationsModule],
@@ -44,6 +45,7 @@ import { RefreshTokenUseCase } from './auth/aplication/usecases/refreah-token.us
     LoginUserUseCase,
     CreateSessionUseCase,
     RefreshTokenUseCase,
+    LogoutUseCase,
     //repo
     SessionsRepository,
     //🔸 User:
