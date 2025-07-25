@@ -62,6 +62,8 @@ export class SessionsRepository {
     );
   }
 
+  //TODO: как лучше удалять сессию (так как у меня или использовать softDelete)?
+
   async deleteSessionById(id: number): Promise<void> {
     await this.pool.query(
       `DELETE
