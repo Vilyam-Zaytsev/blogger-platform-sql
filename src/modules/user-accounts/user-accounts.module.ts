@@ -21,6 +21,8 @@ import { JwtStrategy } from './auth/domain/guards/bearer/jwt.strategy';
 import { LocalStrategy } from './auth/domain/guards/local/local.strategy';
 import { CreateSessionUseCase } from './auth/aplication/usecases/sessions/create-session.usecase';
 import { SessionsRepository } from './auth/infrastructure/sessions.repository';
+import { JwtRefreshStrategy } from './auth/domain/guards/bearer/jwt-refresh.strategy';
+import { RefreshTokenUseCase } from './auth/aplication/usecases/refreah-token.usecase';
 
 @Module({
   imports: [NotificationsModule],
@@ -33,6 +35,7 @@ import { SessionsRepository } from './auth/infrastructure/sessions.repository';
     // strategies
     LocalStrategy,
     JwtStrategy,
+    JwtRefreshStrategy,
     BasicStrategy,
     //use-cases
     RegisterUserUseCase,
@@ -40,6 +43,7 @@ import { SessionsRepository } from './auth/infrastructure/sessions.repository';
     ResendRegistrationEmailUseCase,
     LoginUserUseCase,
     CreateSessionUseCase,
+    RefreshTokenUseCase,
     //repo
     SessionsRepository,
     //🔸 User:
