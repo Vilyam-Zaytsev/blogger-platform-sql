@@ -171,8 +171,8 @@ export class UsersRepository {
 
     await this.pool.query(
       `UPDATE "Users"
-      SET "passwordHash" = $1
-      WHERE "userId" = $2`,
+       SET "passwordHash" = $1
+       WHERE "id" = $2`,
       [newPasswordHash, userId],
     );
   }
@@ -180,9 +180,9 @@ export class UsersRepository {
   async softDelete(id: number): Promise<boolean> {
     const queryResult: QueryResult = await this.pool.query(
       `UPDATE "Users"
-           SET "deletedAt" = NOW()
-           WHERE id = $1
-             AND "deletedAt" IS NULL`,
+       SET "deletedAt" = NOW()
+       WHERE id = $1
+         AND "deletedAt" IS NULL`,
       [id],
     );
 
@@ -192,23 +192,25 @@ export class UsersRepository {
   async insertPasswordRecovery(dto: CreatePasswordRecoveryDto): Promise<void> {
     const { userId, recoveryCode, expirationDate } = dto;
 
-    await this.pool.query<{ confirmationCode: string }>(
+    await this.pool.query(
       `
         INSERT INTO "PasswordRecovery" ("userId",
                                         "recoveryCode",
                                         "expirationDate")
-        VALUES ($1, $2, $3) RETURNING "recoveryCode"
+        VALUES ($1, $2, $3)
       `,
       [userId, recoveryCode, expirationDate],
     );
   }
+
+  //TODO: не стоит ли вынести методы связанные с паролем и email в AuthRepo?
 
   async getPasswordRecoveryByRecoveryCode(
     code: string,
   ): Promise<PasswordRecoveryDbType | null> {
     const queryResult: QueryResult<PasswordRecoveryDbType> =
       await this.pool.query<PasswordRecoveryDbType>(
-        `SELECT
+        `SELECT *
          FROM "PasswordRecovery"
          WHERE "recoveryCode" = $1`,
         [code],
