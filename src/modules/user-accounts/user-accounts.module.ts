@@ -24,6 +24,8 @@ import { SessionsRepository } from './auth/infrastructure/sessions.repository';
 import { JwtRefreshStrategy } from './auth/domain/guards/bearer/jwt-refresh.strategy';
 import { RefreshTokenUseCase } from './auth/aplication/usecases/refreah-token.usecase';
 import { LogoutUseCase } from './auth/aplication/usecases/logout.usecase';
+import { GetMeQueryHandler } from './auth/aplication/queries/get-me.query-handler';
+import { AuthQueryRepository } from './auth/infrastructure/query/auth.query-repository';
 
 @Module({
   imports: [NotificationsModule],
@@ -48,6 +50,10 @@ import { LogoutUseCase } from './auth/aplication/usecases/logout.usecase';
     LogoutUseCase,
     //repo
     SessionsRepository,
+    AuthQueryRepository,
+    //query-handlers
+    GetMeQueryHandler,
+
     //🔸 User:
     //use-cases
     CreateUserByAdminUseCase,
