@@ -81,6 +81,49 @@ describe('AuthController - registrationEmailResending() (POST: /auth/registratio
     }
   });
 
+  it('should not send a confirmation code if the user has sent more than 5 requests from one IP to "/login/registration-email-resending" in the last 10 seconds.', async () => {
+    // 🔻 Генерируем массив из 5 DTO пользователей
+    const dtos: UserInputDto[] = TestDtoFactory.generateUserInputDto(5);
+
+    // 🔻 Регистрируем 5 пользователей
+    for (let i = 0; i < dtos.length; i++) {
+      await usersTestManager.registration(dtos[i]);
+    }
+
+    // 🔻 Отправляем по 1 запросу на повторную отправку письма каждому из 5 пользователей (всего 5 запросов)
+    for (let i = 0; i < 5; i++) {
+      await request(server)
+        .post(`/${GLOBAL_PREFIX}/auth/registration-email-resending`)
+        .send({
+          email: dtos[i].email,
+        })
+        // 🔸 Ожидаем статус 204 No Content, так как лимит ещё не превышен
+        .expect(HttpStatus.NO_CONTENT);
+    }
+
+    // 🔻 Отправляем 6-й запрос на повторную отправку письма с того же IP (по тому же email, но это не важно)
+    const resRegistrationEmailResending: Response = await request(server)
+      .post(`/${GLOBAL_PREFIX}/auth/registration-email-resending`)
+      .send({
+        email: dtos[0].email,
+      })
+      // 🔸 Ожидаем статус 429 Too Many Requests, так как лимит превышен
+      .expect(HttpStatus.TOO_MANY_REQUESTS);
+
+    // 🔻 Проверяем, что sendEmailMock был вызван ровно 10 раз:
+    // 5 раз при регистрации + 5 раз при ручной отправке кода
+    expect(sendEmailMock).toHaveBeenCalled();
+    expect(sendEmailMock).toHaveBeenCalledTimes(10);
+
+    if (testLoggingEnabled) {
+      TestLoggers.logE2E(
+        resRegistrationEmailResending.body,
+        resRegistrationEmailResending.statusCode,
+        'Test №2: AuthController - registrationEmailResending() (POST: /auth/registration-email-resending)',
+      );
+    }
+  });
+
   it('should not resend the verification code if the user has sent incorrect data - an empty object is passed', async () => {
     // 🔻 Выполняем POST-запрос на повторную отправку письма, передавая пустой объект (некорректные данные)
     const resRegistrationEmailResending: Response = await request(server)
