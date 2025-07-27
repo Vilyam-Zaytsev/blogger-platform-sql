@@ -36,6 +36,6 @@ export class DeleteSessionUseCase
       });
     }
 
-    await this.sessionsRepository.softDelete(session.id);
+    await this.sessionsRepository.softDeleteSession(session.id);
   }
 }
