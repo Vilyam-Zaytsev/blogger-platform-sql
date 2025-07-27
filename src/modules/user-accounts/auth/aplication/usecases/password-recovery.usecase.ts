@@ -37,7 +37,7 @@ export class PasswordRecoveryUseCase
       expirationDate,
     };
 
-    await this.usersRepository.insertPasswordRecovery(
+    await this.usersRepository.insertOrUpdatePasswordRecovery(
       createPasswordRecoveryDto,
     );
 

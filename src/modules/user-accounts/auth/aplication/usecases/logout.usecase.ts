@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { DomainException } from '../../../../../core/exceptions/damain-exceptions';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { SessionContextDto } from '../../domain/guards/dto/session-context.dto';
 import { SessionsRepository } from '../../infrastructure/sessions.repository';

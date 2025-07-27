@@ -1,11 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NewPasswordInputDto } from '../../api/input-dto/new-password-input.dto';
-import { UsersRepository } from 'src/modules/user-accounts/users/infrastructure/users.repository';
-import { CryptoService } from 'src/modules/user-accounts/users/application/services/crypto.service';
-import { DomainException } from '../../../../../core/exceptions/damain-exceptions';
-import { DomainExceptionCode } from 'src/core/exceptions/domain-exception-codes';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { PasswordRecoveryDbType } from '../../types/password-recovery-db.type';
 import { UpdatePassword } from '../types/update-password.type';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { CryptoService } from '../../../users/application/services/crypto.service';
+import { UsersRepository } from '../../../users/infrastructure/users.repository';
+import { CreatePasswordRecoveryDto } from '../../dto/create-password-recovery.dto';
 
 export class NewPasswordCommand {
   constructor(public readonly dto: NewPasswordInputDto) {}
@@ -50,6 +51,15 @@ export class NewPasswordUseCase implements ICommandHandler<NewPasswordCommand> {
       newPasswordHash: hash,
     };
 
+    const updatePasswordRecoveryDto: CreatePasswordRecoveryDto = {
+      userId: passwordRecovery.userId,
+      recoveryCode: null,
+      expirationDate: null,
+    };
+
     await this.usersRepository.updatePassword(updatePasswordDto);
+    await this.usersRepository.insertOrUpdatePasswordRecovery(
+      updatePasswordRecoveryDto,
+    );
   }
 }

@@ -12,16 +12,51 @@ import { RegisterUserUseCase } from './auth/aplication/usecases/register-user.us
 import { ConfirmUserUseCase } from './auth/aplication/usecases/confirm-user.usecase';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { ResendRegistrationEmailUseCase } from './auth/aplication/usecases/resend-registration-email.usecase';
+import { BasicStrategy } from './auth/domain/guards/basic/basic.strategy';
+import { LoginUserUseCase } from './auth/aplication/usecases/login-user.usecase';
+import { AccessTokenProvider } from './auth/providers/access-token.provider';
+import { RefreshTokenProvider } from './auth/providers/refresh-token.provider';
+import { UserAccountsConfig } from './config/user-accounts.config';
+import { JwtStrategy } from './auth/domain/guards/bearer/jwt.strategy';
+import { LocalStrategy } from './auth/domain/guards/local/local.strategy';
+import { CreateSessionUseCase } from './auth/aplication/usecases/sessions/create-session.usecase';
+import { SessionsRepository } from './auth/infrastructure/sessions.repository';
+import { JwtRefreshStrategy } from './auth/domain/guards/bearer/jwt-refresh.strategy';
+import { RefreshTokenUseCase } from './auth/aplication/usecases/refreah-token.usecase';
+import { LogoutUseCase } from './auth/aplication/usecases/logout.usecase';
+import { GetMeQueryHandler } from './auth/aplication/queries/get-me.query-handler';
+import { AuthQueryRepository } from './auth/infrastructure/query/auth.query-repository';
+import { NewPasswordUseCase } from './auth/aplication/usecases/new-password.usecase';
+import { PasswordRecoveryUseCase } from './auth/aplication/usecases/password-recovery.usecase';
 
 @Module({
   imports: [NotificationsModule],
   controllers: [UsersController, AuthController],
   providers: [
     //🔸 Auth:
+    //tokens
+    AccessTokenProvider,
+    RefreshTokenProvider,
+    // strategies
+    LocalStrategy,
+    JwtStrategy,
+    JwtRefreshStrategy,
+    BasicStrategy,
     //use-cases
     RegisterUserUseCase,
     ConfirmUserUseCase,
     ResendRegistrationEmailUseCase,
+    LoginUserUseCase,
+    CreateSessionUseCase,
+    RefreshTokenUseCase,
+    LogoutUseCase,
+    PasswordRecoveryUseCase,
+    NewPasswordUseCase,
+    //repo
+    SessionsRepository,
+    AuthQueryRepository,
+    //query-handlers
+    GetMeQueryHandler,
 
     //🔸 User:
     //use-cases
@@ -35,6 +70,8 @@ import { ResendRegistrationEmailUseCase } from './auth/aplication/usecases/resen
     //repo
     UsersRepository,
     UsersQueryRepository,
+    //config
+    UserAccountsConfig,
   ],
   exports: [],
 })

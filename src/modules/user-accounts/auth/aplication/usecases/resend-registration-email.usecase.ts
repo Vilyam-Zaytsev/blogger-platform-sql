@@ -9,7 +9,7 @@ import {
   ConfirmationStatus,
   EmailConfirmationDbType,
 } from '../../types/email-confirmation-db.type';
-import { DomainException } from '../../../../../core/exceptions/damain-exceptions';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { UpdateEmailConfirmationDto } from '../../dto/create-email-confirmation.dto';
 import { UserResendRegisteredEvent } from '../../domain/events/user-resend-registered.event';

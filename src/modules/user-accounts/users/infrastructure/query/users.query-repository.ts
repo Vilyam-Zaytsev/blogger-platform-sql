@@ -3,15 +3,16 @@ import { PG_POOL } from '../../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
 import { UserViewDto } from '../../api/view-dto/user.view-dto';
 import { UserDbType } from '../../types/user-db.type';
-import { DomainException } from 'src/core/exceptions/damain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import {
   GetUsersQueryParams,
   UsersSortBy,
 } from '../../api/input-dto/get-users-query-params.input-dto';
-import { PaginatedViewDto } from 'src/core/dto/paginated.view-dto';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
+import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { SearchFilterBuilder } from '../../../../../core/utils/search-filter.builder';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -39,15 +40,22 @@ export class UsersQueryRepository {
   async getAll(
     query: GetUsersQueryParams,
   ): Promise<PaginatedViewDto<UserViewDto>> {
-    const { sortBy, sortDirection, pageSize, pageNumber }: GetUsersQueryParams =
-      query;
+    const {
+      sortBy,
+      sortDirection,
+      pageSize,
+      pageNumber,
+      searchLoginTerm,
+      searchEmailTerm,
+    }: GetUsersQueryParams = query;
     const offset: number = query.calculateSkip();
-    const searchLoginTerm: string = query.searchLoginTerm
-      ? query.searchLoginTerm
-      : '';
-    const searchEmailTerm: string = query.searchEmailTerm
-      ? query.searchEmailTerm
-      : '';
+    const { condition: searchCondition, values: searchValues } =
+      SearchFilterBuilder.buildUserSearchFilter(
+        searchLoginTerm,
+        searchEmailTerm,
+      );
+    const offsetParamIndex: number = searchValues.length + 1;
+    const limitParamIndex: number = searchValues.length + 2;
 
     if (!Object.values(UsersSortBy).includes(sortBy)) {
       throw new ValidationException([
@@ -72,36 +80,30 @@ export class UsersQueryRepository {
         `SELECT *
          FROM "Users"
          WHERE "deletedAt" IS NULL
-           AND (
-             login ILIKE '%' || $1 || '%'
-                 OR
-                 email ILIKE '%' || $2 || '%'
-             )
+           ${searchCondition ? `AND (${searchCondition})` : ''}
          ORDER BY "${sortBy}" ${sortDirection}
-         OFFSET $3 LIMIT $4;`,
-        [searchLoginTerm, searchEmailTerm, offset, pageSize],
+         OFFSET $${offsetParamIndex} LIMIT $${limitParamIndex};`,
+        [...searchValues, offset, pageSize],
       );
 
-      const totalCount: QueryResult<{ totalCount: number }> =
+      const totalCountResult: QueryResult<{ totalCount: number }> =
         await this.pool.query(
           `SELECT COUNT(*) AS "totalCount"
            FROM "Users"
            WHERE "deletedAt" IS NULL
-             AND (
-               login ILIKE '%' || $1 || '%'
-                   OR
-                   email ILIKE '%' || $2 || '%'
-               )`,
-          [searchLoginTerm, searchEmailTerm],
+             ${searchCondition ? `AND (${searchCondition})` : ''}`,
+          [...searchValues],
         );
 
       const items: UserViewDto[] = users.rows.map(
         (user: UserDbType): UserViewDto => UserViewDto.mapToView(user),
       );
 
+      const totalCount: number = Number(totalCountResult.rows[0].totalCount);
+
       return PaginatedViewDto.mapToView<UserViewDto>({
         items,
-        totalCount: totalCount.rows[0].totalCount,
+        totalCount: totalCount,
         page: pageNumber,
         size: pageSize,
       });
