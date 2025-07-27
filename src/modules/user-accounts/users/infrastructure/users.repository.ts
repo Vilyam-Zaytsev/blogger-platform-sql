@@ -192,7 +192,9 @@ export class UsersRepository {
     return queryResult.rowCount === 1;
   }
 
-  async insertPasswordRecovery(dto: CreatePasswordRecoveryDto): Promise<void> {
+  async insertOrUpdatePasswordRecovery(
+    dto: CreatePasswordRecoveryDto,
+  ): Promise<void> {
     const { userId, recoveryCode, expirationDate } = dto;
     await this.pool.query(
       `
@@ -205,20 +207,6 @@ export class UsersRepository {
       [userId, recoveryCode, expirationDate],
     );
   }
-
-  async updatePasswordRecovery(dto: UpdatePasswordRecoveryDto): Promise<void> {
-    const { userId, recoveryCode, expirationDate } = dto;
-    await this.pool.query(
-      `UPDATE "PasswordRecovery"
-       SET 
-           "recoveryCode"   = $1,
-           "expirationDate"     = $2
-       WHERE "userId" = $3`,
-      [recoveryCode, expirationDate, userId],
-    );
-  }
-
-  //TODO: не стоит ли вынести методы связанные с паролем и email в AuthRepo?
 
   async getPasswordRecoveryByRecoveryCode(
     code: string,
