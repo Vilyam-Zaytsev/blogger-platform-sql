@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../database/constants/database.constants';
-import { Pool, PoolClient, QueryResult } from 'pg';
+import { Pool, QueryResult } from 'pg';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { EmailConfirmationDbType } from '../../auth/types/email-confirmation-db.type';
 import { UserDbType } from '../types/user-db.type';
@@ -9,10 +9,7 @@ import {
   CreateEmailConfirmationDto,
   UpdateEmailConfirmationDto,
 } from '../../auth/dto/create-email-confirmation.dto';
-import {
-  CreatePasswordRecoveryDto,
-  UpdatePasswordRecoveryDto,
-} from '../../auth/dto/create-password-recovery.dto';
+import { CreatePasswordRecoveryDto } from '../../auth/dto/create-password-recovery.dto';
 import { PasswordRecoveryDbType } from '../../auth/types/password-recovery-db.type';
 import { UpdatePassword } from '../../auth/aplication/types/update-password.type';
 import { DomainException } from '../../../../core/exceptions/domain-exceptions';
