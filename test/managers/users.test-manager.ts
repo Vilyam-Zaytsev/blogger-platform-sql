@@ -23,7 +23,7 @@ export class UsersTestManager {
       const user: UserInputDto = dtos[i];
 
       const response: Response = await request(this.server)
-        .post(`/${GLOBAL_PREFIX}/users`)
+        .post(`/${GLOBAL_PREFIX}/sa/users`)
         .send(user)
         .set('Authorization', this.adminCredentialsInBase64)
         .expect(HttpStatus.CREATED);
