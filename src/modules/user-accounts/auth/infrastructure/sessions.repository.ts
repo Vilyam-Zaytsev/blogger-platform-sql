@@ -4,6 +4,7 @@ import { Pool, QueryResult } from 'pg';
 import { CreateSessionDomainDto } from '../domain/dto/create-session.domain.dto';
 import { SessionDbType } from '../types/session-db.type';
 import { UpdateSessionTimestamps } from '../aplication/types/update-session-timestamps.type';
+import { SessionContextDto } from '../domain/guards/dto/session-context.dto';
 
 @Injectable()
 export class SessionsRepository {
@@ -64,13 +65,26 @@ export class SessionsRepository {
     );
   }
 
-  async softDelete(id: number): Promise<void> {
+  async softDeleteSession(id: number): Promise<void> {
     await this.pool.query(
       `UPDATE "Sessions"
        SET "deletedAt" = NOW()
        WHERE id = $1
          AND "deletedAt" IS NULL`,
       [id],
+    );
+  }
+
+  async softDeleteAllSessionsExceptCurrent(
+    dto: SessionContextDto,
+  ): Promise<void> {
+    await this.pool.query(
+      `UPDATE "Sessions"
+       SET "deletedAt" = NOW()
+       WHERE "userId" = $1
+         AND "deviceId" <> $2
+         AND "deletedAt" IS NULL`,
+      [dto.userId, dto.deviceId],
     );
   }
 }
