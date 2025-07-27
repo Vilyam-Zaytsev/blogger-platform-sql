@@ -3,5 +3,3 @@ export class CreatePasswordRecoveryDto {
   recoveryCode: string | null;
   expirationDate: Date | null;
 }
-
-export class UpdatePasswordRecoveryDto extends CreatePasswordRecoveryDto {}
