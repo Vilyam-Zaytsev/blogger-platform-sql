@@ -2,8 +2,8 @@ import { Type } from 'class-transformer';
 import { IsEnum, IsNumber } from 'class-validator';
 
 export enum SortDirection {
-  Ascending = 'ASC',
-  Descending = 'DESC',
+  Ascending = 'asc',
+  Descending = 'desc',
 }
 
 export abstract class BaseQueryParams<T> {

@@ -81,7 +81,7 @@ export class UsersQueryRepository {
          FROM "Users"
          WHERE "deletedAt" IS NULL
            ${searchCondition ? `AND (${searchCondition})` : ''}
-         ORDER BY "${sortBy}" ${sortDirection}
+         ORDER BY "${sortBy}" ${sortDirection.toUpperCase()}
          OFFSET $${offsetParamIndex} LIMIT $${limitParamIndex};`,
         [...searchValues, offset, pageSize],
       );

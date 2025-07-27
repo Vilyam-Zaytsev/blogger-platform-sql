@@ -23,7 +23,7 @@ import { IdInputDto } from '../../../../core/dto/id.input-dto';
 import { DeleteUserCommand } from '../application/usecases/delete-user.usecase';
 import { BasicAuthGuard } from '../../auth/domain/guards/basic/basic-auth.guard';
 
-@Controller('users')
+@Controller('sa/users')
 @UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
