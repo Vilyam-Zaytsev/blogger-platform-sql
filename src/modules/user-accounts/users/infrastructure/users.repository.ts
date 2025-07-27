@@ -9,7 +9,10 @@ import {
   CreateEmailConfirmationDto,
   UpdateEmailConfirmationDto,
 } from '../../auth/dto/create-email-confirmation.dto';
-import { CreatePasswordRecoveryDto } from '../../auth/dto/create-password-recovery.dto';
+import {
+  CreatePasswordRecoveryDto,
+  UpdatePasswordRecoveryDto,
+} from '../../auth/dto/create-password-recovery.dto';
 import { PasswordRecoveryDbType } from '../../auth/types/password-recovery-db.type';
 import { UpdatePassword } from '../../auth/aplication/types/update-password.type';
 import { DomainException } from '../../../../core/exceptions/domain-exceptions';
@@ -200,6 +203,18 @@ export class UsersRepository {
           UPDATE SET "recoveryCode" = $2, "expirationDate" = $3;
         `,
       [userId, recoveryCode, expirationDate],
+    );
+  }
+
+  async updatePasswordRecovery(dto: UpdatePasswordRecoveryDto): Promise<void> {
+    const { userId, recoveryCode, expirationDate } = dto;
+    await this.pool.query(
+      `UPDATE "PasswordRecovery"
+       SET 
+           "recoveryCode"   = $1,
+           "expirationDate"     = $2
+       WHERE "userId" = $3`,
+      [recoveryCode, expirationDate, userId],
     );
   }
 
