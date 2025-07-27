@@ -33,13 +33,14 @@ export class SessionsRepository {
   //     deletedAt: null,
   //   });
   // }
-  //
+
   async getByDeviceId(deviceId: string): Promise<SessionDbType | null> {
     const queryResult: QueryResult<SessionDbType> =
       await this.pool.query<SessionDbType>(
         `SELECT *
          FROM "Sessions"
-         WHERE "deviceId" = $1`,
+         WHERE "deviceId" = $1
+           AND "deletedAt" IS NULL`,
         [deviceId],
       );
 
@@ -57,18 +58,18 @@ export class SessionsRepository {
       `UPDATE "Sessions"
        SET iat = $1,
            exp = $2
-       WHERE "id" = $3`,
+       WHERE "id" = $3
+         AND "deletedAt" IS NULL`,
       [iat, exp, sessionId],
     );
   }
 
-  //TODO: как лучше удалять сессию (так как у меня или использовать softDelete)?
-
-  async deleteSessionById(id: number): Promise<void> {
+  async softDelete(id: number): Promise<void> {
     await this.pool.query(
-      `DELETE
-       FROM "Sessions"
-       WHERE id = $1`,
+      `UPDATE "Sessions"
+       SET "deletedAt" = NOW()
+       WHERE id = $1
+         AND "deletedAt" IS NULL`,
       [id],
     );
   }
