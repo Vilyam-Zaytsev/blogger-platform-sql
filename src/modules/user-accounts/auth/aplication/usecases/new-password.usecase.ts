@@ -6,6 +6,7 @@ import { UpdatePassword } from '../types/update-password.type';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { CryptoService } from '../../../users/application/services/crypto.service';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
+import { UpdatePasswordRecoveryDto } from '../../dto/create-password-recovery.dto';
 
 export class NewPasswordCommand {
   constructor(public readonly dto: NewPasswordInputDto) {}
@@ -50,6 +51,15 @@ export class NewPasswordUseCase implements ICommandHandler<NewPasswordCommand> {
       newPasswordHash: hash,
     };
 
+    const updatePasswordRecoveryDto: UpdatePasswordRecoveryDto = {
+      userId: passwordRecovery.userId,
+      recoveryCode: null,
+      expirationDate: null,
+    };
+
     await this.usersRepository.updatePassword(updatePasswordDto);
+    await this.usersRepository.updatePasswordRecovery(
+      updatePasswordRecoveryDto,
+    );
   }
 }
