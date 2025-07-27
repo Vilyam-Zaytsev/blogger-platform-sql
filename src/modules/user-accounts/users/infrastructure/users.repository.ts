@@ -191,14 +191,14 @@ export class UsersRepository {
 
   async insertPasswordRecovery(dto: CreatePasswordRecoveryDto): Promise<void> {
     const { userId, recoveryCode, expirationDate } = dto;
-
     await this.pool.query(
       `
-        INSERT INTO "PasswordRecovery" ("userId",
-                                        "recoveryCode",
-                                        "expirationDate")
-        VALUES ($1, $2, $3)
-      `,
+          INSERT INTO "PasswordRecovery" ("userId",
+                                          "recoveryCode",
+                                          "expirationDate")
+          VALUES ($1, $2, $3) ON CONFLICT("userId") DO
+          UPDATE SET "recoveryCode" = $2, "expirationDate" = $3;
+        `,
       [userId, recoveryCode, expirationDate],
     );
   }
