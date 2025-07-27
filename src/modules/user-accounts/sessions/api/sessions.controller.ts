@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseUUIDPipe,
   UseGuards,
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -12,6 +13,9 @@ import { JwtRefreshAuthGuard } from '../../auth/domain/guards/bearer/jwt-refresh
 import { ExtractSessionFromRequest } from '../../auth/domain/guards/decorators/extract-session-from-request.decorator';
 import { SessionContextDto } from '../../auth/domain/guards/dto/session-context.dto';
 import { SessionViewDto } from './view-dto/session.view-dto';
+import { GetSessionsQuery } from '../application/queries/get-sessions.query-handler';
+import { DeleteSessionCommand } from '../application/usecases/delete-session.usecase';
+import { DeleteSessionsCommand } from '../application/usecases/delete-sessions.usecase';
 
 @Controller('security/devices')
 @UseGuards(JwtRefreshAuthGuard)
@@ -25,18 +29,16 @@ export class SessionsController {
   async getAll(
     @ExtractSessionFromRequest() session: SessionContextDto,
   ): Promise<SessionViewDto> {
-    return this.queryBus.execute(new GetSessionsQuery(session));
+    return await this.queryBus.execute(new GetSessionsQuery(session));
   }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSession(
     @ExtractSessionFromRequest() session: SessionContextDto,
-    @Param() params: IdInputDto,
+    @Param('id', ParseUUIDPipe) id: string,
   ): Promise<void> {
-    return this.commandBus.execute(
-      new DeleteSessionCommand(session, params.id),
-    );
+    return await this.commandBus.execute(new DeleteSessionCommand(session, id));
   }
 
   @Delete()
@@ -44,6 +46,6 @@ export class SessionsController {
   async deleteSessions(
     @ExtractSessionFromRequest() session: SessionContextDto,
   ): Promise<void> {
-    return this.commandBus.execute(new DeleteSessionsCommand(session));
+    return await this.commandBus.execute(new DeleteSessionsCommand(session));
   }
 }
