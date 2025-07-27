@@ -155,7 +155,39 @@ describe('AuthController - newPassword() (POST: /auth/new-password)', () => {
       );
     }
   });
-  //TODO: как правильно написать тест на rate limit
+
+  it('should update the password if the user has sent the correct data: (newPassword, recoveryCode)', async () => {
+    // 🔻 Создаём одного пользователя
+    const [user]: UserViewDto[] = await usersTestManager.createUser(1);
+
+    // 🔻 Отправляем запрос на восстановление пароля — в этот момент срабатывает шпион spy на отправку кода
+    await usersTestManager.passwordRecovery(user.email);
+
+    // 🔻 Отправляем 5 подряд запросов на смену пароля с валидным recoveryCode, чтобы превысить лимит
+    for (let i = 0; i < 5; i++) {
+      await request(server).post(`/${GLOBAL_PREFIX}/auth/new-password`).send({
+        newPassword: 'qwerty', // 🔸 Новый пароль
+        recoveryCode: spy.mock.results[0].value, // 🔸 Валидный код восстановления из мокнутой отправки письма
+      });
+    }
+
+    // 🔻 Пытаемся отправить 6-й запрос — ожидаем ограничение по частоте (rate limit)
+    const resNewPassword: Response = await request(server)
+      .post(`/${GLOBAL_PREFIX}/auth/new-password`)
+      .send({
+        newPassword: 'qwerty', // 🔸 Тот же валидный пароль
+        recoveryCode: spy.mock.results[0].value, // 🔸 Тот же код
+      })
+      .expect(HttpStatus.TOO_MANY_REQUESTS); // 🔸 Ожидаем статус 429 (слишком много запросов)
+
+    if (testLoggingEnabled) {
+      TestLoggers.logE2E(
+        resNewPassword.body,
+        resNewPassword.statusCode,
+        'Test №2: AuthController - newPassword() (POST: /auth/new-password)',
+      );
+    }
+  });
 
   it('should not update the password if the user has sent incorrect data: (newPassword: less than 6 characters)', async () => {
     // 🔻 Создаём одного пользователя;
