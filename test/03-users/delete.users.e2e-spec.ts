@@ -53,7 +53,7 @@ describe('UsersController - deleteUser() (DELETE: /users)', () => {
 
     // 🔻 Отправляем DELETE-запрос на удаление созданного пользователя
     const resDeleteUser: Response = await request(server)
-      .delete(`/${GLOBAL_PREFIX}/users/${createdUser.id}`)
+      .delete(`/${GLOBAL_PREFIX}/sa/users/${createdUser.id}`)
       .set('Authorization', adminCredentialsInBase64)
       .expect(HttpStatus.NO_CONTENT);
 
@@ -78,7 +78,7 @@ describe('UsersController - deleteUser() (DELETE: /users)', () => {
 
     // 🔻 Пытаемся удалить пользователя с некорректными правами доступа
     const resDeleteUser: Response = await request(server)
-      .delete(`/${GLOBAL_PREFIX}/users/${createdUser.id}`)
+      .delete(`/${GLOBAL_PREFIX}/sa/users/${createdUser.id}`)
       .set('Authorization', 'incorrect admin credentials')
       .expect(HttpStatus.UNAUTHORIZED);
 
@@ -108,7 +108,7 @@ describe('UsersController - deleteUser() (DELETE: /users)', () => {
 
     // 🔻 Пытаемся удалить несуществующий пользователь с корректным токеном
     const resDeleteUser: Response = await request(server)
-      .delete(`/${GLOBAL_PREFIX}/users/${incorrectUserId}`)
+      .delete(`/${GLOBAL_PREFIX}/sa/users/${incorrectUserId}`)
       .set('Authorization', adminCredentialsInBase64)
       .expect(HttpStatus.NOT_FOUND);
 

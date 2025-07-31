@@ -89,7 +89,7 @@ export class UsersTestManager {
     query: Partial<GetUsersQueryParams> = {},
   ): Promise<PaginatedViewDto<UserViewDto>> {
     const response: Response = await request(this.server)
-      .get(`/${GLOBAL_PREFIX}/users`)
+      .get(`/${GLOBAL_PREFIX}/sa/users`)
       .query(query)
       .set('Authorization', this.adminCredentialsInBase64)
       .expect(HttpStatus.OK);

@@ -45,7 +45,7 @@ describe('UsersController - getUser() (GET: /users)', () => {
   it('should return an empty array, the admin is authenticated.', async () => {
     // 🔻 Выполняем GET-запрос для получения списка пользователей
     const resGetUsers: Response = await request(server)
-      .get(`/${GLOBAL_PREFIX}/users`)
+      .get(`/${GLOBAL_PREFIX}/sa/users`)
       .set('Authorization', adminCredentialsInBase64)
       .expect(HttpStatus.OK);
 
@@ -70,7 +70,7 @@ describe('UsersController - getUser() (GET: /users)', () => {
   it('should return a 401 error if the admin is not authenticated', async () => {
     // 🔻 Выполняем GET-запрос для получения списка пользователей с некорректными правами доступа
     const resGetUsers: Response = await request(server)
-      .get(`/${GLOBAL_PREFIX}/users`)
+      .get(`/${GLOBAL_PREFIX}/sa/users`)
       .set('Authorization', 'incorrect admin credentials')
       .expect(HttpStatus.UNAUTHORIZED);
 
@@ -89,7 +89,7 @@ describe('UsersController - getUser() (GET: /users)', () => {
 
     // 🔻 Выполняем GET-запрос для получения списка пользователей
     const resGetUsers: Response = await request(server)
-      .get(`/${GLOBAL_PREFIX}/users`)
+      .get(`/${GLOBAL_PREFIX}/sa/users`)
       .set('Authorization', adminCredentialsInBase64)
       .expect(HttpStatus.OK);
 
@@ -113,7 +113,7 @@ describe('UsersController - getUser() (GET: /users)', () => {
 
     // 🔻 Выполняем GET-запрос для получения списка пользователей
     const resGetUsers: Response = await request(server)
-      .get(`/${GLOBAL_PREFIX}/users`)
+      .get(`/${GLOBAL_PREFIX}/sa/users`)
       .set('Authorization', adminCredentialsInBase64)
       .expect(HttpStatus.OK);
 

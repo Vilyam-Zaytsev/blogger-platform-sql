@@ -49,7 +49,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
 
     // 🔻 Отправляем POST-запрос на создание пользователя
     const resCreateUser: Response = await request(server)
-      .post(`/${GLOBAL_PREFIX}/users`)
+      .post(`/${GLOBAL_PREFIX}/sa/users`)
       .send(dto)
       .set('Authorization', adminCredentialsInBase64)
       .expect(HttpStatus.CREATED);
@@ -89,7 +89,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
 
     // 🔻 Отправляем POST-запрос на создание пользователя с некорректными правами доступа
     const resCreateUser: Response = await request(server)
-      .post(`/${GLOBAL_PREFIX}/users`)
+      .post(`/${GLOBAL_PREFIX}/sa/users`)
       .send(dto)
       .set('Authorization', 'incorrect admin credentials')
       .expect(HttpStatus.UNAUTHORIZED);
@@ -113,7 +113,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
   it('should not create a user if the data in the request body is incorrect (an empty object is passed).', async () => {
     // 🔻 Отправляем POST-запрос на создание пользователя с пустым объектом в теле запроса
     const resCreateUser: Response = await request(server)
-      .post(`/${GLOBAL_PREFIX}/users`)
+      .post(`/${GLOBAL_PREFIX}/sa/users`)
       .send({})
       .set('Authorization', adminCredentialsInBase64)
       .expect(HttpStatus.BAD_REQUEST);
@@ -156,7 +156,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
   it('should not create a user if the data in the request body is incorrect (login: empty line, email: empty line, password: empty line).', async () => {
     // 🔻 Отправляем POST-запрос на создание пользователя с некорректно заполненными полям
     const resCreateUser: Response = await request(server)
-      .post(`/${GLOBAL_PREFIX}/users`)
+      .post(`/${GLOBAL_PREFIX}/sa/users`)
       .send({
         login: '   ',
         email: '   ',
@@ -210,7 +210,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
 
     // 🔻 Отправляем POST-запрос на создание пользователя с некорректно сгенерированными данными
     const resCreateUser: Response = await request(server)
-      .post(`/${GLOBAL_PREFIX}/users`)
+      .post(`/${GLOBAL_PREFIX}/sa/users`)
       .send({
         login,
         email,
@@ -261,7 +261,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
 
     // 🔻 Отправляем POST-запрос на создание пользователя с некорректно сгенерированными данными
     const resCreateUser: Response = await request(server)
-      .post(`/${GLOBAL_PREFIX}/users`)
+      .post(`/${GLOBAL_PREFIX}/sa/users`)
       .send({
         login,
         email,
@@ -307,7 +307,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
   it('should not create a user if the data in the request body is incorrect (login: type number,  email: type number, password: type number).', async () => {
     // 🔻 Отправляем POST-запрос на создание пользователя с некорректными типами данных (числа вместо строк)
     const resCreateUser: Response = await request(server)
-      .post(`/${GLOBAL_PREFIX}/users`)
+      .post(`/${GLOBAL_PREFIX}/sa/users`)
       .send({
         login: 123,
         email: 123,
