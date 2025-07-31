@@ -17,7 +17,7 @@
     "test:watch": "cross-env NODE_ENV=testing jest --watch",
     "test:cov": "cross-env NODE_ENV=testing jest --coverage",
     "test:debug": "cross-env NODE_ENV=testing jest --config ./test/jest-e2e.json --runInBand --detectOpenHandles %npm_config_testfile%",
-    "test:e2e": "cross-env NODE_ENV=testing jest --config ./test/jest-e2e.json --runInBand --detectOpenHandles %npm_config_testfile%",
+    "test:e2e": "cross-env NODE_ENV=testing jest --config ./test/jest-e2e.json --runInBand --detectOpenHandles",
     "test:e2e-all": "cross-env NODE_ENV=testing jest --config ./test/jest-e2e.json --runInBand",
     "test:unit": "cross-env NODE_ENV=testing jest --config test/jest-unit.json --runInBand --detectOpenHandles",
     "test:int": "cross-env NODE_ENV=testing jest --config test/jest-int.json --runInBand --detectOpenHandles %npm_config_testfile%"
@@ -79,11 +79,11 @@
     "prettier": "^3.4.2",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",
-    "ts-jest": "^29.2.5",
+    "ts-jest": "^29.4.0",
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
-    "typescript": "^5.7.3",
+    "typescript": "^5.8.3",
     "typescript-eslint": "^8.20.0"
   }
 }

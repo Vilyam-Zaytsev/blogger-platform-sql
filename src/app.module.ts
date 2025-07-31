@@ -9,9 +9,26 @@ import { APP_FILTER } from '@nestjs/core';
 import { AllHttpExceptionsFilter } from './core/exceptions/filters/all-exceptions.filter';
 import { DomainHttpExceptionsFilter } from './core/exceptions/filters/domain-exceptions.filter';
 import { ValidationExceptionFilter } from './core/exceptions/filters/validation-exception.filter';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { NotificationsModule } from './modules/notifications/notifications.module';
 
 @Module({
-  imports: [configModule, CoreModule, DatabaseModule, UserAccountsModule],
+  imports: [
+    configModule,
+    CoreModule,
+    DatabaseModule,
+    UserAccountsModule,
+    NotificationsModule,
+    ThrottlerModule.forRootAsync({
+      inject: [CoreConfig],
+      useFactory: (coreConfig: CoreConfig) => [
+        {
+          ttl: coreConfig.throttleTtl,
+          limit: coreConfig.throttleLimit,
+        },
+      ],
+    }),
+  ],
   controllers: [],
   providers: [
     {
