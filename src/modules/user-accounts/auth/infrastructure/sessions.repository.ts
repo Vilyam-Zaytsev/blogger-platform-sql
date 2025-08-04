@@ -4,6 +4,7 @@ import { Pool, QueryResult } from 'pg';
 import { CreateSessionDomainDto } from '../domain/dto/create-session.domain.dto';
 import { SessionDbType } from '../types/session-db.type';
 import { UpdateSessionTimestamps } from '../aplication/types/update-session-timestamps.type';
+import { SessionContextDto } from '../domain/guards/dto/session-context.dto';
 
 @Injectable()
 export class SessionsRepository {
@@ -33,13 +34,14 @@ export class SessionsRepository {
   //     deletedAt: null,
   //   });
   // }
-  //
+
   async getByDeviceId(deviceId: string): Promise<SessionDbType | null> {
     const queryResult: QueryResult<SessionDbType> =
       await this.pool.query<SessionDbType>(
         `SELECT *
          FROM "Sessions"
-         WHERE "deviceId" = $1`,
+         WHERE "deviceId" = $1
+           AND "deletedAt" IS NULL`,
         [deviceId],
       );
 
@@ -57,19 +59,32 @@ export class SessionsRepository {
       `UPDATE "Sessions"
        SET iat = $1,
            exp = $2
-       WHERE "id" = $3`,
+       WHERE "id" = $3
+         AND "deletedAt" IS NULL`,
       [iat, exp, sessionId],
     );
   }
 
-  //TODO: как лучше удалять сессию (так как у меня или использовать softDelete)?
-
-  async deleteSessionById(id: number): Promise<void> {
+  async softDeleteSession(id: number): Promise<void> {
     await this.pool.query(
-      `DELETE
-       FROM "Sessions"
-       WHERE id = $1`,
+      `UPDATE "Sessions"
+       SET "deletedAt" = NOW()
+       WHERE id = $1
+         AND "deletedAt" IS NULL`,
       [id],
+    );
+  }
+
+  async softDeleteAllSessionsExceptCurrent(
+    dto: SessionContextDto,
+  ): Promise<void> {
+    await this.pool.query(
+      `UPDATE "Sessions"
+       SET "deletedAt" = NOW()
+       WHERE "userId" = $1
+         AND "deviceId" <> $2
+         AND "deletedAt" IS NULL`,
+      [dto.userId, dto.deviceId],
     );
   }
 }

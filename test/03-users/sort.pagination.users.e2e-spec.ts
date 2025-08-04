@@ -52,7 +52,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
 
     // 🔻 Выполняем GET-запрос для получения списка пользователей
     const resGetUsers: Response = await request(server)
-      .get(`/${GLOBAL_PREFIX}/users`)
+      .get(`/${GLOBAL_PREFIX}/sa/users`)
       .set('Authorization', adminCredentialsInBase64)
       .expect(HttpStatus.OK);
 
@@ -100,7 +100,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
 
     // 🔻 Выполняем GET-запрос с указанными параметрами
     const resGetUsers: Response = await request(server)
-      .get(`/${GLOBAL_PREFIX}/users`)
+      .get(`/${GLOBAL_PREFIX}/sa/users`)
       .set('Authorization', adminCredentialsInBase64)
       .query(query)
       .expect(HttpStatus.OK);
@@ -146,7 +146,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
 
     // 🔻 Выполняем GET-запрос с указанными параметрами
     const resGetUsers: Response = await request(server)
-      .get(`/${GLOBAL_PREFIX}/users`)
+      .get(`/${GLOBAL_PREFIX}/sa/users`)
       .set('Authorization', adminCredentialsInBase64)
       .query(query)
       .expect(HttpStatus.OK);
@@ -195,7 +195,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
 
     // 🔻 Выполняем GET-запрос к эндпоинту /users с параметром поиска
     const resGetUsers: Response = await request(server)
-      .get(`/${GLOBAL_PREFIX}/users`)
+      .get(`/${GLOBAL_PREFIX}/sa/users`)
       .set('Authorization', adminCredentialsInBase64)
       .query(query)
       .expect(HttpStatus.OK);
@@ -244,7 +244,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
 
     // 🔻 Выполняем GET-запрос с параметром поиска по email
     const resGetUsers: Response = await request(server)
-      .get(`/${GLOBAL_PREFIX}/users`)
+      .get(`/${GLOBAL_PREFIX}/sa/users`)
       .set('Authorization', adminCredentialsInBase64)
       .query(query)
       .expect(HttpStatus.OK);
@@ -295,7 +295,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
 
     // 🔻 Выполняем GET-запрос с обоими параметрами поиска
     const resGetUsers: Response = await request(server)
-      .get(`/${GLOBAL_PREFIX}/users`)
+      .get(`/${GLOBAL_PREFIX}/sa/users`)
       .set('Authorization', adminCredentialsInBase64)
       .query(query)
       .expect(HttpStatus.OK);
@@ -335,7 +335,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
 
     // 🔻 Выполняем GET-запрос с заведомо некорректными значениями параметров
     const resGetUsers: Response = await request(server)
-      .get(`/${GLOBAL_PREFIX}/users`)
+      .get(`/${GLOBAL_PREFIX}/sa/users`)
       .set('Authorization', adminCredentialsInBase64)
       .query({
         pageNumber: 'xxx', // некорректное значение — ожидается число
@@ -353,7 +353,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
         {
           field: 'sortDirection',
           message:
-            'sortDirection must be one of the following values: ASC, DESC; Received value: xxx',
+            'sortDirection must be one of the following values: asc, desc; Received value: xxx',
         },
         {
           field: 'pageSize',

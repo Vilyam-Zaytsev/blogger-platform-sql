@@ -28,10 +28,15 @@ import { GetMeQueryHandler } from './auth/aplication/queries/get-me.query-handle
 import { AuthQueryRepository } from './auth/infrastructure/query/auth.query-repository';
 import { NewPasswordUseCase } from './auth/aplication/usecases/new-password.usecase';
 import { PasswordRecoveryUseCase } from './auth/aplication/usecases/password-recovery.usecase';
+import { SessionsController } from './sessions/api/sessions.controller';
+import { GetSessionsQueryHandler } from './sessions/application/queries/get-sessions.query-handler';
+import { SessionsQueryRepository } from './sessions/infrastructure/query/sessions.query-repository';
+import { DeleteSessionsUseCase } from './sessions/application/usecases/delete-sessions.usecase';
+import { DeleteSessionUseCase } from './sessions/application/usecases/delete-session.usecase';
 
 @Module({
   imports: [NotificationsModule],
-  controllers: [UsersController, AuthController],
+  controllers: [UsersController, AuthController, SessionsController],
   providers: [
     //🔸 Auth:
     //tokens
@@ -52,11 +57,15 @@ import { PasswordRecoveryUseCase } from './auth/aplication/usecases/password-rec
     LogoutUseCase,
     PasswordRecoveryUseCase,
     NewPasswordUseCase,
+    DeleteSessionsUseCase,
+    DeleteSessionUseCase,
     //repo
-    SessionsRepository,
     AuthQueryRepository,
+    SessionsRepository,
+    SessionsQueryRepository,
     //query-handlers
     GetMeQueryHandler,
+    GetSessionsQueryHandler,
 
     //🔸 User:
     //use-cases
