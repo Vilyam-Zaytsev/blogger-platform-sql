@@ -13,6 +13,7 @@ export class SessionsQueryRepository {
       `SELECT *
        FROM "Sessions"
        WHERE "userId" = $1
+         AND "deletedAt" IS NULL
        ORDER BY "id" ASC
        `,
       [userId],
