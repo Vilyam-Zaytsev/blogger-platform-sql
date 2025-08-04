@@ -12,7 +12,9 @@ export class SessionsQueryRepository {
     const { rows } = await this.pool.query(
       `SELECT *
        FROM "Sessions"
-       WHERE "userId" = $1`,
+       WHERE "userId" = $1
+       ORDER BY "id" ASC
+       `,
       [userId],
     );
 
