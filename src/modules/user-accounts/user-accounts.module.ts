@@ -32,6 +32,7 @@ import { SessionsController } from './sessions/api/sessions.controller';
 import { GetSessionsQueryHandler } from './sessions/application/queries/get-sessions.query-handler';
 import { SessionsQueryRepository } from './sessions/infrastructure/query/sessions.query-repository';
 import { DeleteSessionsUseCase } from './sessions/application/usecases/delete-sessions.usecase';
+import { DeleteSessionUseCase } from './sessions/application/usecases/delete-session.usecase';
 
 @Module({
   imports: [NotificationsModule],
@@ -57,6 +58,7 @@ import { DeleteSessionsUseCase } from './sessions/application/usecases/delete-se
     PasswordRecoveryUseCase,
     NewPasswordUseCase,
     DeleteSessionsUseCase,
+    DeleteSessionUseCase,
     //repo
     AuthQueryRepository,
     SessionsRepository,
