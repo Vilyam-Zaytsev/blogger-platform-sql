@@ -11,7 +11,6 @@ import { UserAccountsConfig } from '../../src/modules/user-accounts/config/user-
 import { JwtService } from '@nestjs/jwt';
 import { REFRESH_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/modules/user-accounts/auth/constants/auth-tokens.inject-constants';
 import { UserViewDto } from '../../src/modules/user-accounts/users/api/view-dto/user.view-dto';
-import { SessionViewDto } from '../../src/modules/user-accounts/sessions/api/view-dto/session.view-dto';
 import { parseUserAgent } from '../../src/core/utils/user-agent.parser';
 
 describe('SessionsController - getAll() (GET: /security/devices)', () => {
