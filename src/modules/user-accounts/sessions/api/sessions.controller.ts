@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  NotFoundException,
   Param,
   ParseUUIDPipe,
   UseGuards,
@@ -36,7 +37,18 @@ export class SessionsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteSession(
     @ExtractSessionFromRequest() session: SessionContextDto,
-    @Param('id', ParseUUIDPipe) id: string,
+    //TODO: как правильно провалидировать id в параметрах?
+
+    // @Param('id', ParseUUIDPipe) id: string,
+    @Param(
+      'id',
+      new ParseUUIDPipe({
+        exceptionFactory: () => {
+          return new NotFoundException('Session not found');
+        },
+      }),
+    )
+    id: string,
   ): Promise<void> {
     return await this.commandBus.execute(new DeleteSessionCommand(session, id));
   }
