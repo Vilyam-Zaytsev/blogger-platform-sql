@@ -13,7 +13,6 @@ import { BasicAuthGuard } from '../../../user-accounts/auth/domain/guards/basic/
 import { BlogsQueryRepository } from '../infrastructure/query/blogs.query-repository';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
-import { Public } from '../../../user-accounts/decorators/public.decorator';
 import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
@@ -30,7 +29,6 @@ export class BlogsController {
     private readonly queryBus: QueryBus,
   ) {}
   @Get()
-  @Public()
   async getAll(
     @Query() query: GetBlogsQueryParams,
   ): Promise<PaginatedViewDto<BlogViewDto>> {
@@ -38,14 +36,12 @@ export class BlogsController {
   }
 
   @Get(':id')
-  @Public()
   async getById(@Param() params: IdInputDto): Promise<BlogViewDto> {
     return this.queryBus.execute(new GetBlogQuery(params.id));
   }
 
   // @Get(':blogId/posts')
   // @UseGuards(OptionalJwtAuthGuard)
-  // @Public()
   // async getPostsForBlog(
   //   @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
   //   @Param('blogId', ObjectIdValidationPipe) blogId: string,
