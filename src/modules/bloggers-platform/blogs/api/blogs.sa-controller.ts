@@ -1,10 +1,14 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { BlogInputDto } from './input-dto/blog-input.dto';
 import { BlogViewDto } from './view-dto/blog-view.dto';
 import { BasicAuthGuard } from '../../../user-accounts/auth/domain/guards/basic/basic-auth.guard';
 import { BlogsQueryRepository } from '../infrastructure/query/blogs.query-repository';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
+import { Public } from '../../../user-accounts/decorators/public.decorator';
+import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
+import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
+import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -15,21 +19,20 @@ export class BlogsController {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
-  // @Get()
-  // @Public()
-  // async getAll(
-  //   @Query() query: GetBlogsQueryParams,
-  // ): Promise<PaginatedViewDto<BlogViewDto>> {
-  //   return this.queryBus.execute(new GetBlogsQuery(query));
-  // }
-  // query;
-
+  @Get()
+  @Public()
+  async getAll(
+    @Query() query: GetBlogsQueryParams,
+  ): Promise<PaginatedViewDto<BlogViewDto>> {
+    return this.queryBus.execute(new GetBlogsQuery(query));
+  }
+  //
   // @Get(':id')
   // @Public()
   // async getById(@Param() params: IdInputDto): Promise<BlogViewDto> {
   //   return this.queryBus.execute(new GetBlogQuery(params.id));
   // }
-  //
+
   // @Get(':blogId/posts')
   // @UseGuards(OptionalJwtAuthGuard)
   // @Public()
