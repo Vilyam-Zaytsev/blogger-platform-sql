@@ -29,7 +29,7 @@ import { CreateBlogDto } from '../dto/create-blog.dto';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
-export class BlogsController {
+export class BlogsAdminController {
   constructor(
     private readonly blogsQueryRepository: BlogsQueryRepository,
     // private readonly postsQueryRepository: PostsQueryRepository,

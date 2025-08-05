@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
-import { BlogsController } from './blogs/api/blogs.sa-controller';
+import { BlogsAdminController } from './blogs/api/blogs.sa-controller';
 import { BlogsRepository } from './blogs/infrastructure/blogs.repository';
 import { BlogsQueryRepository } from './blogs/infrastructure/query/blogs.query-repository';
 import { CreateBlogUseCase } from './blogs/application/usecases/create-blog.usecase';
 
 @Module({
   imports: [UserAccountsModule],
-  controllers: [BlogsController],
+  controllers: [BlogsAdminController],
   providers: [
     //🔸 Blogs:
     //repo
