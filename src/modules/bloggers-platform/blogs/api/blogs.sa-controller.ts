@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpCode,
   HttpStatus,
@@ -23,6 +24,7 @@ import { IdInputDto } from '../../../../core/dto/id.input-dto';
 import { GetBlogQuery } from '../application/queries/get-blog.query-handler';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
+import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -98,9 +100,9 @@ export class BlogsController {
     await this.commandBus.execute(new UpdateBlogCommand(dto));
   }
 
-  // @Delete(':id')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async deleteBlog(@Param() params: IdInputDto): Promise<void> {
-  //   await this.commandBus.execute(new DeleteBlogCommand(params.id));
-  // }
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteBlog(@Param() params: IdInputDto): Promise<void> {
+    await this.commandBus.execute(new DeleteBlogCommand(params.id));
+  }
 }
