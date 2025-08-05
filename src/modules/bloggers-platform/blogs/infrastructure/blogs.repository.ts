@@ -48,13 +48,27 @@ export class BlogsRepository {
 
     await this.pool.query(
       `
-    UPDATE "Blogs"
-    SET "name" = $1,
-        "description" = $2,
-        "websiteUrl" = $3
-    WHERE "id" = $4
-    `,
+        UPDATE "Blogs"
+        SET "name"        = $1,
+            "description" = $2,
+            "websiteUrl"  = $3
+        WHERE "id" = $4
+      `,
       [name, description, websiteUrl, id],
     );
+  }
+
+  async softDelete(id: number): Promise<boolean> {
+    const queryResult: QueryResult = await this.pool.query(
+      `
+        UPDATE "Blogs"
+        SET "deletedAt" = NOW()
+        WHERE id = $1
+          AND "deletedAt" IS NULL
+      `,
+      [id],
+    );
+
+    return queryResult.rowCount === 1;
   }
 }
