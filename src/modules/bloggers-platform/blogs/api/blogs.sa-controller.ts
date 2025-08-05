@@ -2,8 +2,11 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   UseGuards,
 } from '@nestjs/common';
@@ -18,6 +21,8 @@ import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
 import { IdInputDto } from '../../../../core/dto/id.input-dto';
 import { GetBlogQuery } from '../application/queries/get-blog.query-handler';
+import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
+import { UpdateBlogDto } from '../dto/update-blog.dto';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -75,16 +80,24 @@ export class BlogsController {
   //
   //   return this.postsQueryRepository.getByIdOrNotFoundFail(postId);
   // }
-  //
-  // @Put(':id')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // async updateBlog(
-  //   @Param() params: IdInputDto,
-  //   @Body() body: BlogInputDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(new UpdateBlogCommand(body, params.id));
-  // }
-  //
+
+  //TODO: почему в документации Swagger нет ошибки 404 при обновлении блога
+  @Put(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updateBlog(
+    @Param() params: IdInputDto,
+    @Body() body: BlogInputDto,
+  ): Promise<void> {
+    const dto: UpdateBlogDto = new UpdateBlogDto(
+      params.id,
+      body.name,
+      body.description,
+      body.websiteUrl,
+    );
+
+    await this.commandBus.execute(new UpdateBlogCommand(dto));
+  }
+
   // @Delete(':id')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // async deleteBlog(@Param() params: IdInputDto): Promise<void> {
