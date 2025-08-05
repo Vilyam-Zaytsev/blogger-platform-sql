@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { BlogInputDto } from './input-dto/blog-input.dto';
 import { BlogViewDto } from './view-dto/blog-view.dto';
 import { BasicAuthGuard } from '../../../user-accounts/auth/domain/guards/basic/basic-auth.guard';
@@ -9,6 +17,8 @@ import { Public } from '../../../user-accounts/decorators/public.decorator';
 import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
+import { IdInputDto } from '../../../../core/dto/id.input-dto';
+import { GetBlogQuery } from '../application/queries/get-blog.query-handler';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -26,12 +36,12 @@ export class BlogsController {
   ): Promise<PaginatedViewDto<BlogViewDto>> {
     return this.queryBus.execute(new GetBlogsQuery(query));
   }
-  //
-  // @Get(':id')
-  // @Public()
-  // async getById(@Param() params: IdInputDto): Promise<BlogViewDto> {
-  //   return this.queryBus.execute(new GetBlogQuery(params.id));
-  // }
+
+  @Get(':id')
+  @Public()
+  async getById(@Param() params: IdInputDto): Promise<BlogViewDto> {
+    return this.queryBus.execute(new GetBlogQuery(params.id));
+  }
 
   // @Get(':blogId/posts')
   // @UseGuards(OptionalJwtAuthGuard)
