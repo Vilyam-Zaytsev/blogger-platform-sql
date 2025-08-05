@@ -5,6 +5,14 @@ import { PG_POOL } from '../../../../database/constants/database.constants';
 import { BlogDbType } from '../../types/blog-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import {
+  BlogsSortBy,
+  GetBlogsQueryParams,
+} from '../../api/input-dto/get-blogs-query-params.input-dto';
+import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
+import { SearchFilterBuilder } from '../../../../../core/utils/search-filter.builder';
+import { ValidationException } from '../../../../../core/exceptions/validation-exception';
+import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 
 @Injectable()
 export class BlogsQueryRepository {
@@ -31,36 +39,86 @@ export class BlogsQueryRepository {
     return BlogViewDto.mapToView(rows[0]);
   }
 
-  // async getAll(
-  //   query: GetBlogsQueryParams,
-  // ): Promise<PaginatedViewDto<BlogViewDto>> {
-  //   const filter: FilterQuery<Blog> = {
-  //     deletedAt: null,
-  //   };
-  //
-  //   if (query.searchNameTerm) {
-  //     filter.$or = filter.$or || [];
-  //     filter.$or.push({
-  //       name: { $regex: query.searchNameTerm, $options: 'i' },
-  //     });
-  //   }
-  //
-  //   const blogs: BlogDocument[] = await this.BlogModel.find(filter)
-  //     .sort({ [query.sortBy]: query.sortDirection })
-  //     .skip(query.calculateSkip())
-  //     .limit(query.pageSize);
-  //
-  //   const totalCount: number = await this.BlogModel.countDocuments(filter);
-  //
-  //   const items: BlogViewDto[] = blogs.map(
-  //     (blog: BlogDocument): BlogViewDto => BlogViewDto.mapToView(blog),
-  //   );
-  //
-  //   return PaginatedViewDto.mapToView<BlogViewDto>({
-  //     items,
-  //     totalCount,
-  //     page: query.pageNumber,
-  //     size: query.pageSize,
-  //   });
-  // }
+  async getAll(
+    query: GetBlogsQueryParams,
+  ): Promise<PaginatedViewDto<BlogViewDto>> {
+    const {
+      sortBy,
+      sortDirection,
+      pageSize,
+      pageNumber,
+      searchNameTerm,
+    }: GetBlogsQueryParams = query;
+
+    if (!Object.values(BlogsSortBy).includes(sortBy)) {
+      throw new ValidationException([
+        {
+          message: `Invalid sortBy: ${sortBy}`,
+          field: 'sortBy',
+        },
+      ]);
+    }
+
+    if (!Object.values(SortDirection).includes(sortDirection)) {
+      throw new ValidationException([
+        {
+          message: `Invalid sortDirection: ${sortDirection}`,
+          field: 'sortDirection',
+        },
+      ]);
+    }
+
+    const offset: number = query.calculateSkip();
+    const { condition: searchCondition, values: searchValues } =
+      SearchFilterBuilder.buildBlogsSearchFilter(searchNameTerm);
+    const offsetParamIndex: number = searchValues.length + 1;
+    const limitParamIndex: number = searchValues.length + 2;
+
+    try {
+      const { rows: blogs }: QueryResult<BlogDbType> = await this.pool.query(
+        `
+          SELECT *
+          FROM "Blogs"
+          WHERE "deletedAt" IS NULL
+            ${searchCondition ? `AND (${searchCondition})` : ''}
+          ORDER BY "${sortBy}" ${sortDirection.toUpperCase()}
+          OFFSET $${offsetParamIndex} LIMIT $${limitParamIndex};
+        `,
+        [...searchValues, offset, pageSize],
+      );
+
+      const { rows: rowsCount }: QueryResult<{ totalCount: number }> =
+        await this.pool.query(
+          `
+            SELECT COUNT(*) AS "totalCount"
+            FROM "Blogs"
+            WHERE "deletedAt" IS NULL
+              ${searchCondition ? `AND (${searchCondition})` : ''}
+          `,
+          [...searchValues],
+        );
+
+      const items: BlogViewDto[] = blogs.map(
+        (blog: BlogDbType): BlogViewDto => BlogViewDto.mapToView(blog),
+      );
+
+      const totalCount: number = Number(rowsCount[0].totalCount);
+
+      return PaginatedViewDto.mapToView({
+        items,
+        totalCount,
+        page: pageNumber,
+        size: pageSize,
+      });
+    } catch (error) {
+      console.error(
+        'Ошибка при выполнении SQL-запроса в BlogsQueryRepository.getAll():',
+        error,
+      );
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message: 'The list of users could not be retrieved',
+      });
+    }
+  }
 }
