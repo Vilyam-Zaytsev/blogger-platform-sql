@@ -25,6 +25,7 @@ import { GetBlogQuery } from '../application/queries/get-blog.query-handler';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
+import { CreateBlogDto } from '../dto/create-blog.dto';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -59,8 +60,13 @@ export class BlogsController {
 
   @Post()
   async createBlog(@Body() body: BlogInputDto): Promise<BlogViewDto> {
+    const dto: CreateBlogDto = new CreateBlogDto(
+      body.name,
+      body.description,
+      body.websiteUrl,
+    );
     const idCreatedBlog: number = await this.commandBus.execute(
-      new CreateBlogCommand(body),
+      new CreateBlogCommand(dto),
     );
 
     return this.blogsQueryRepository.getByIdOrNotFoundFail(idCreatedBlog);
