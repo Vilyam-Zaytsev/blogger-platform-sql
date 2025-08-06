@@ -3,7 +3,7 @@ export class CreatePostDomainDto {
     public readonly title: string,
     public readonly shortDescription: string,
     public readonly content: string,
-    public readonly blogId: string,
+    public readonly blogId: number,
     public readonly blogName: string,
   ) {}
 }
