@@ -46,8 +46,7 @@ export class BlogsTestManager {
     query: Partial<GetBlogsQueryParams> = {},
   ): Promise<PaginatedViewDto<BlogViewDto>> {
     const response: Response = await request(this.server)
-      .get(`/${GLOBAL_PREFIX}/sa/blogs`)
-      .set('Authorization', this.adminCredentialsInBase64)
+      .get(`/${GLOBAL_PREFIX}/blogs`)
       .query(query)
       .expect(HttpStatus.OK);
 
@@ -56,8 +55,7 @@ export class BlogsTestManager {
 
   async getById(id: number): Promise<BlogViewDto> {
     const response: Response = await request(this.server)
-      .get(`/${GLOBAL_PREFIX}/sa/blogs/${id}`)
-      .set('Authorization', this.adminCredentialsInBase64)
+      .get(`/${GLOBAL_PREFIX}/blogs/${id}`)
       .expect(HttpStatus.OK);
 
     return response.body as BlogViewDto;
