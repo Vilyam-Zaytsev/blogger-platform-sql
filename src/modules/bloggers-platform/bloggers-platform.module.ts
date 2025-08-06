@@ -11,10 +11,13 @@ import { DeleteBlogUseCase } from './blogs/application/usecases/delete-blog.usec
 import { BlogsPublicController } from './blogs/api/blogs.public-controller';
 import { PostsRepository } from './posts/infrastructure/posts.repository';
 import { CreatePostUseCase } from './posts/application/usecases/create-post.usecase';
+import { PostsQueryRepository } from './posts/infrastructure/query/posts.query-repository';
+import { PostsController } from './posts/api/posts.controller';
+import { ReactionsRepository } from './reactions/infrastructure/reactions-repository';
 
 @Module({
   imports: [UserAccountsModule],
-  controllers: [BlogsAdminController, BlogsPublicController],
+  controllers: [BlogsAdminController, BlogsPublicController, PostsController],
   providers: [
     //🔸 Blogs:
     //repo
@@ -31,7 +34,7 @@ import { CreatePostUseCase } from './posts/application/usecases/create-post.usec
     // //🔸 Posts:
     // //repo
     PostsRepository,
-    // PostsQueryRepository,
+    PostsQueryRepository,
     // //use-cases
     CreatePostUseCase,
     // UpdatePostUseCase,
@@ -54,7 +57,7 @@ import { CreatePostUseCase } from './posts/application/usecases/create-post.usec
     // GetCommentsQueryHandler,
     // //🔸 Reactions:
     // //repo
-    // ReactionsRepository,
+    ReactionsRepository,
     // //use-cases
     // UpdateReactionUseCase,
     // CreateReactionUseCase,
