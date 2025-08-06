@@ -4,6 +4,8 @@ import { BlogsAdminController } from './blogs/api/blogs.sa-controller';
 import { BlogsRepository } from './blogs/infrastructure/blogs.repository';
 import { BlogsQueryRepository } from './blogs/infrastructure/query/blogs.query-repository';
 import { CreateBlogUseCase } from './blogs/application/usecases/create-blog.usecase';
+import { GetBlogQueryHandler } from './blogs/application/queries/get-blog.query-handler';
+import { GetBlogsQueryHandler } from './blogs/application/queries/get-blogs.query-handler';
 
 @Module({
   imports: [UserAccountsModule],
@@ -18,8 +20,8 @@ import { CreateBlogUseCase } from './blogs/application/usecases/create-blog.usec
     // UpdateBlogUseCase,
     // DeleteBlogUseCase,
     // //query-handlers
-    // GetBlogsQueryHandler,
-    // GetBlogQueryHandler,
+    GetBlogsQueryHandler,
+    GetBlogQueryHandler,
     // GetPostsForBlogQueryHandler,
     // //🔸 Posts:
     // //repo
