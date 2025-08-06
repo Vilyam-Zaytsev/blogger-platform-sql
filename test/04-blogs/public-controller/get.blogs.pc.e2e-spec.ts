@@ -124,4 +124,46 @@ describe('BlogsPublicController - getBlog() (GET: /blogs)', () => {
       );
     }
   });
+
+  it('should return the blog found by ID.', async () => {
+    // 🔻 Создаем один блог через менеджер тестов
+    const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
+
+    // 🔻 Отправляем GET-запрос на получение блога по ID на публичный URI
+    const resGetBlogs: Response = await request(server)
+      .get(`/${GLOBAL_PREFIX}/blogs/${createdBlog.id}`)
+      .expect(HttpStatus.OK);
+
+    // 🔸 Ожидаем, что ответ содержит ранее созданный блог
+    expect(resGetBlogs.body).toEqual(createdBlog);
+
+    if (testLoggingEnabled) {
+      TestLoggers.logE2E(
+        resGetBlogs.body,
+        resGetBlogs.statusCode,
+        'Test №4: BlogsPublicController - getBlog() (GET: /blogs/:id)',
+      );
+    }
+  });
+
+  it('should not return the blog if there is no blog with this ID.', async () => {
+    // 🔻 Создаем один блог для заполнения базы, но для теста используем несуществующий ID
+    await blogsTestManager.createBlog(1);
+    const incorrectId: string = '1000000';
+
+    // 🔻 Отправляем GET-запрос на публичный эндпоинт получения блога по ID, которого нет в базе
+    const resGetBlogs: Response = await request(server)
+      .get(`/${GLOBAL_PREFIX}/blogs/${incorrectId}`)
+      .expect(HttpStatus.NOT_FOUND);
+
+    // 🔸 Проверяем, что сервер возвращает статус 404 Not Found — блог с таким ID отсутствует
+
+    if (testLoggingEnabled) {
+      TestLoggers.logE2E(
+        resGetBlogs.body,
+        resGetBlogs.statusCode,
+        'Test №5: BlogsPublicController - getBlog() (GET: /blogs/:id)',
+      );
+    }
+  });
 });
