@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
 import { PostDbType } from '../types/post-db.type';
-import { CreatePostDomainDto } from '../domain/dto/create-post.domain.dto';
+import { CreatePostDto } from '../dto/create-post.dto';
 
 @Injectable()
 export class PostsRepository {
@@ -24,13 +24,13 @@ export class PostsRepository {
   //   return post;
   // }
 
-  async insertPost(dto: CreatePostDomainDto): Promise<number> {
+  async insertPost(dto: CreatePostDto): Promise<number> {
     const { rows }: QueryResult<PostDbType> = await this.pool.query(
       `
-        INSERT INTO "Posts" ("title", "shortDescription", "content", "blogId", "blogName")
-        VALUES ($1, $2, $3, $4, $5) RETURNING "id"
+        INSERT INTO "Posts" ("title", "shortDescription", "content", "blogId")
+        VALUES ($1, $2, $3, $4) RETURNING "id"
       `,
-      [dto.title, dto.shortDescription, dto.content, dto.blogId, dto.blogName],
+      [dto.title, dto.shortDescription, dto.content, dto.blogId],
     );
 
     return rows[0].id;
