@@ -24,12 +24,12 @@ export class PostsQueryRepository {
       `
         WITH "LikesCount" AS (SELECT "postId", COUNT(*) AS "count"
                               FROM "PostsReactions"
-                              WHERE "status" = ${ReactionStatus.Like}
+                              WHERE "status" = 'Like'
                               GROUP BY "postId"),
 
              "DislikesCount" AS (SELECT "postId", COUNT(*) AS "count"
                                  FROM "PostsReactions"
-                                 WHERE "status" = ${ReactionStatus.Dislike}
+                                 WHERE "status" = 'Dislike'
                                  GROUP BY "postId"),
 
              "NewestLikes" AS (SELECT "postId",
@@ -39,7 +39,7 @@ export class PostsQueryRepository {
                                           'userId', pr."userId",
                                           'login', u."login"
                                         ) ORDER BY pr."createdAt" DESC
-                                      ) FILTER (WHERE pr."status" = ${ReactionStatus.Like}) AS "likes"
+                                      ) FILTER (WHERE pr."status" = 'Like') AS "likes"
                                FROM "PostsReactions" pr
                                       JOIN "Users" u ON u."id" = pr."userId"
                                GROUP BY "postId")
@@ -54,8 +54,8 @@ export class PostsQueryRepository {
                json_build_object(
                  'likesCount', COALESCE(lc.count, 0),
                  'dislikesCount', COALESCE(dc.count, 0),
-                 'myStatus', COALESCE(pr."status", ${ReactionStatus.None}),
-                 'newestLikes', COALESCE(nl.likes, '[]'),
+                 'myStatus', COALESCE(pr."status", 'None'),
+                 'newestLikes', COALESCE(nl.likes, '[]')
                ) AS "extendedLikesInfo"
         FROM "Posts" p
                JOIN "Blogs" b ON b."id" = p."blogId"
@@ -65,7 +65,7 @@ export class PostsQueryRepository {
           AND pr."userId" = $2
                LEFT JOIN "NewestLikes" nl ON nl."postId" = p."id"
         WHERE p."id" = $1
-          AND p."deletedAt" = IS NULL;
+          AND p."deletedAt" IS NULL;
       `,
       [id, user],
     );
@@ -77,6 +77,7 @@ export class PostsQueryRepository {
       });
     }
 
+    console.log(posts);
     return {} as PostViewDto;
   }
 
