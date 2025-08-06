@@ -8,10 +8,11 @@ import { GetBlogQueryHandler } from './blogs/application/queries/get-blog.query-
 import { GetBlogsQueryHandler } from './blogs/application/queries/get-blogs.query-handler';
 import { UpdateBlogUseCase } from './blogs/application/usecases/update-blog.usecase';
 import { DeleteBlogUseCase } from './blogs/application/usecases/delete-blog.usecase';
+import { BlogsPublicController } from './blogs/api/blogs.public-controller';
 
 @Module({
   imports: [UserAccountsModule],
-  controllers: [BlogsAdminController],
+  controllers: [BlogsAdminController, BlogsPublicController],
   providers: [
     //🔸 Blogs:
     //repo
