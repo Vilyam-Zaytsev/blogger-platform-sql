@@ -1,0 +1,2 @@
+ALTER TABLE "Blogs"
+    ADD COLUMN "isMembership" BOOLEAN NOT NULL DEFAULT false;
