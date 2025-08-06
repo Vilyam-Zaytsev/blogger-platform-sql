@@ -3,6 +3,8 @@ import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/api/view-
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import { HttpStatus } from '@nestjs/common';
 import request, { Response } from 'supertest';
+import { GetBlogsQueryParams } from '../../src/modules/bloggers-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
+import { PaginatedViewDto } from '../../src/core/dto/paginated.view-dto';
 
 export class BlogsTestManager {
   constructor(
@@ -37,21 +39,23 @@ export class BlogsTestManager {
   //
   //   return newBlogs;
   // }
-  //
-  // async getAll(
-  //   query: Partial<GetBlogsQueryParams> = {},
-  // ): Promise<PaginatedViewDto<BlogViewDto>> {
-  //   const response: Response = await request(this.server)
-  //     .get(`/${GLOBAL_PREFIX}/blogs`)
-  //     .query(query)
-  //     .expect(HttpStatus.OK);
-  //
-  //   return response.body as PaginatedViewDto<BlogViewDto>;
-  // }
-  //
+
+  async getAll(
+    query: Partial<GetBlogsQueryParams> = {},
+  ): Promise<PaginatedViewDto<BlogViewDto>> {
+    const response: Response = await request(this.server)
+      .get(`/${GLOBAL_PREFIX}/sa/blogs`)
+      .set('Authorization', this.adminCredentialsInBase64)
+      .query(query)
+      .expect(HttpStatus.OK);
+
+    return response.body as PaginatedViewDto<BlogViewDto>;
+  }
+
   async getById(id: number): Promise<BlogViewDto> {
     const response: Response = await request(this.server)
       .get(`/${GLOBAL_PREFIX}/sa/blogs/${id}`)
+      .set('Authorization', this.adminCredentialsInBase64)
       .expect(HttpStatus.OK);
 
     return response.body as BlogViewDto;
