@@ -13,10 +13,10 @@ export class BlogsRepository {
   async insertBlog(dto: CreateBlogDto): Promise<number> {
     const { rows }: QueryResult<BlogDbType> = await this.pool.query(
       `
-        INSERT INTO "Blogs" ("name", "description", "websiteUrl")
-          VVALUES ($1, $2 $3) RETURNING "id";
+        INSERT INTO "Blogs" ("name", "description", "websiteUrl", "isMembership")
+          VALUES ($1, $2, $3, $4) RETURNING "id";
       `,
-      [dto.name, dto.description, dto.websiteUrl],
+      [dto.name, dto.description, dto.websiteUrl, dto.isMembership],
     );
 
     return rows[0].id;
