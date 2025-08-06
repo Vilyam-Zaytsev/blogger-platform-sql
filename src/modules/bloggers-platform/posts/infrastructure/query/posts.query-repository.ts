@@ -35,13 +35,13 @@ export class PostsQueryRepository {
              "NewestLikes" AS (SELECT "postId",
                                       json_agg(
                                         json_build_object(
-                                          'addedAt', r."createdAt",
-                                          'userId', r."userId",
+                                          'addedAt', pr."createdAt",
+                                          'userId', pr."userId",
                                           'login', u."login"
-                                        ) ORDER BY r."createdAt" DESC
-                                      ) FILTER (WHERE r."status" = ${ReactionStatus.Like}) AS "likes"
-                               FROM "PostsReactions" r
-                                      JOIN "Users" u ON u."id" = r."userId"
+                                        ) ORDER BY pr."createdAt" DESC
+                                      ) FILTER (WHERE pr."status" = ${ReactionStatus.Like}) AS "likes"
+                               FROM "PostsReactions" pr
+                                      JOIN "Users" u ON u."id" = pr."userId"
                                GROUP BY "postId")
 
         SELECT p."id",
@@ -61,8 +61,8 @@ export class PostsQueryRepository {
                JOIN "Blogs" b ON b."id" = p."blogId"
                LEFT JOIN "LikesCount" lc ON lc."postId" = p."id"
                LEFT JOIN "DislikesCount" dc ON dc."postId" = p."id"
-               LEFT JOIN "PostsReactions" r ON r."postId" = p."id"
-          AND r."userId" = $2
+               LEFT JOIN "PostsReactions" pr ON pr."postId" = p."id"
+          AND pr."userId" = $2
                LEFT JOIN "NewestLikes" nl ON nl."postId" = p."id"
         WHERE p."id" = $1
           AND p."deletedAt" = IS NULL;
