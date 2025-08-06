@@ -9,6 +9,8 @@ import { GetBlogsQueryHandler } from './blogs/application/queries/get-blogs.quer
 import { UpdateBlogUseCase } from './blogs/application/usecases/update-blog.usecase';
 import { DeleteBlogUseCase } from './blogs/application/usecases/delete-blog.usecase';
 import { BlogsPublicController } from './blogs/api/blogs.public-controller';
+import { PostsRepository } from './posts/infrastructure/posts.repository';
+import { CreatePostUseCase } from './posts/application/usecases/create-post.usecase';
 
 @Module({
   imports: [UserAccountsModule],
@@ -28,10 +30,10 @@ import { BlogsPublicController } from './blogs/api/blogs.public-controller';
     // GetPostsForBlogQueryHandler,
     // //🔸 Posts:
     // //repo
-    // PostsRepository,
+    PostsRepository,
     // PostsQueryRepository,
     // //use-cases
-    // CreatePostUseCase,
+    CreatePostUseCase,
     // UpdatePostUseCase,
     // DeletePostUseCase,
     // UpdatePostReactionUseCase,
