@@ -22,17 +22,17 @@ export class PostsQueryRepository {
   ): Promise<PostViewDto> {
     const { rows: posts }: QueryResult<PostDbType> = await this.pool.query(
       `
-        WITH "LikesCount" AS (SELECT "parentId", COUNT(*) AS "count"
-                              FROM "Reactions"
+        WITH "LikesCount" AS (SELECT "postId", COUNT(*) AS "count"
+                              FROM "PostsReactions"
                               WHERE "status" = ${ReactionStatus.Like}
-                              GROUP BY "parentId"),
+                              GROUP BY "postId"),
 
-             "DislikesCount" AS (SELECT "parentId", COUNT(*) AS "count"
-                                 FROM "Reactions"
+             "DislikesCount" AS (SELECT "postId", COUNT(*) AS "count"
+                                 FROM "PostsReactions"
                                  WHERE "status" = ${ReactionStatus.Dislike}
-                                 GROUP BY "parentId"),
+                                 GROUP BY "postId"),
 
-             "NewestLikes" AS (SELECT "parentId",
+             "NewestLikes" AS (SELECT "postId",
                                       json_agg(
                                         json_build_object(
                                           'addedAt', r."createdAt",
@@ -40,9 +40,9 @@ export class PostsQueryRepository {
                                           'login', u."login"
                                         ) ORDER BY r."createdAt" DESC
                                       ) FILTER (WHERE r."status" = ${ReactionStatus.Like}) AS "likes"
-                               FROM "Reactions" r
+                               FROM "PostsReactions" r
                                       JOIN "Users" u ON u."id" = r."userId"
-                               GROUP BY "parentId")
+                               GROUP BY "postId")
 
         SELECT p."id",
                p."title",
@@ -59,11 +59,11 @@ export class PostsQueryRepository {
                ) AS "extendedLikesInfo"
         FROM "Posts" p
                JOIN "Blogs" b ON b."id" = p."blogId"
-               LEFT JOIN "LikesCount" lc ON lc."parentId" = p."id"
-               LEFT JOIN "DislikesCount" dc ON dc."parentId" = p."id"
-               LEFT JOIN "Reactions" r ON r."parentId" = p."id"
+               LEFT JOIN "LikesCount" lc ON lc."postId" = p."id"
+               LEFT JOIN "DislikesCount" dc ON dc."postId" = p."id"
+               LEFT JOIN "PostsReactions" r ON r."postId" = p."id"
           AND r."userId" = $2
-               LEFT JOIN "NewestLikes" nl ON nl."parentId" = p."id"
+               LEFT JOIN "NewestLikes" nl ON nl."postId" = p."id"
         WHERE p."id" = $1
           AND p."deletedAt" = IS NULL;
       `,
