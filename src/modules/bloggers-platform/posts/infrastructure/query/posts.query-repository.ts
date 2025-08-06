@@ -48,8 +48,8 @@ export class PostsQueryRepository {
                p."title",
                p."shortDescription",
                p."content",
-               p."blogId",
-               p."blogName",
+               b."id" AS "blogId",
+               b."name" AS "blogName",
                p."createdAt",
                json_build_object(
                  'likesCount', COALESCE(lc.count, 0),
@@ -58,6 +58,7 @@ export class PostsQueryRepository {
                  'newestLikes', COALESCE(nl.likes, '[]'),
                ) AS "extendedLikesInfo"
         FROM "Posts" p
+               JOIN "Blogs" b ON b."id" = p."blogId"
                LEFT JOIN "LikesCount" lc ON lc."parentId" = p."id"
                LEFT JOIN "DislikesCount" dc ON dc."parentId" = p."id"
                LEFT JOIN "Reactions" r ON r."parentId" = p."id"
