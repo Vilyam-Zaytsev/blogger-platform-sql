@@ -42,4 +42,22 @@ export class SearchFilterBuilder {
     const condition: string = filters.length > 0 ? filters.join(' OR ') : '';
     return { condition, values };
   }
+
+  static buildBlogsSearchFilter(
+    searchNameTerm: string | null,
+    startIndex = 1,
+  ): { condition: string; values: string[] } {
+    const filters: string[] = [];
+    const values: string[] = [];
+    let index: number = startIndex;
+
+    if (searchNameTerm) {
+      filters.push(`name ILIKE '%' || $${index} || '%'`);
+      values.push(searchNameTerm);
+      index++;
+    }
+
+    const condition: string = filters.length > 0 ? filters.join(' OR ') : '';
+    return { condition, values };
+  }
 }

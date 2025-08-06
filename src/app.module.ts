@@ -11,6 +11,7 @@ import { DomainHttpExceptionsFilter } from './core/exceptions/filters/domain-exc
 import { ValidationExceptionFilter } from './core/exceptions/filters/validation-exception.filter';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { NotificationsModule } from './modules/notifications/notifications.module';
+import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
     DatabaseModule,
     UserAccountsModule,
     NotificationsModule,
+    BloggersPlatformModule,
     ThrottlerModule.forRootAsync({
       inject: [CoreConfig],
       useFactory: (coreConfig: CoreConfig) => [

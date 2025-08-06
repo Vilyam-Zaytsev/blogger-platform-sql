@@ -82,6 +82,6 @@ import { DeleteSessionUseCase } from './sessions/application/usecases/delete-ses
     //config
     UserAccountsConfig,
   ],
-  exports: [],
+  exports: [BasicStrategy],
 })
 export class UserAccountsModule {}
