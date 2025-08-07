@@ -32,6 +32,11 @@ import { PostViewDto } from '../../posts/api/view-dto/post-view.dto';
 import { CreatePostDto } from '../../posts/dto/create-post.dto';
 import { CreatePostCommand } from '../../posts/application/usecases/create-post.usecase';
 import { PostsQueryRepository } from '../../posts/infrastructure/query/posts.query-repository';
+import { OptionalJwtAuthGuard } from '../../../user-accounts/auth/domain/guards/bearer/optional-jwt-auth.guard';
+import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/auth/domain/guards/decorators/extract-user-if-exists-from-request.decorator';
+import { UserContextDto } from '../../../user-accounts/auth/domain/guards/dto/user-context.dto';
+import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
+import { GetPostsForBlogQuery } from '../../posts/application/queries/get-posts-for-blog.query-handler';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -54,15 +59,15 @@ export class BlogsAdminController {
     return this.queryBus.execute(new GetBlogQuery(params.id));
   }
 
-  // @Get(':blogId/posts')
-  // @UseGuards(OptionalJwtAuthGuard)
-  // async getPostsForBlog(
-  //   @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-  //   @Param('blogId', ObjectIdValidationPipe) blogId: string,
-  //   @Query() query: GetPostsQueryParams,
-  // ): Promise<PaginatedViewDto<PostViewDto>> {
-  //   return this.queryBus.execute(new GetPostsForBlogQuery(query, user, blogId));
-  // }
+  @Get(':blogId/posts')
+  @UseGuards(OptionalJwtAuthGuard)
+  async getPostsForBlog(
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    @Param('blogId', ParseIntPipe) blogId: number,
+    @Query() query: GetPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostViewDto>> {
+    return this.queryBus.execute(new GetPostsForBlogQuery(query, user, blogId));
+  }
 
   @Post()
   async createBlog(@Body() body: BlogInputDto): Promise<BlogViewDto> {
