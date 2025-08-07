@@ -48,27 +48,8 @@ export class BlogsAdminController {
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
-  @Get()
-  async getAll(
-    @Query() query: GetBlogsQueryParams,
-  ): Promise<PaginatedViewDto<BlogViewDto>> {
-    return this.queryBus.execute(new GetBlogsQuery(query));
-  }
 
-  @Get(':id')
-  async getById(@Param('id', ParseIntPipe) id: number): Promise<BlogViewDto> {
-    return this.queryBus.execute(new GetBlogQuery(id));
-  }
-
-  @Get(':blogId/posts')
-  @UseGuards(OptionalJwtAuthGuard)
-  async getPostsForBlog(
-    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-    @Param('blogId', ParseIntPipe) blogId: number,
-    @Query() query: GetPostsQueryParams,
-  ): Promise<PaginatedViewDto<PostViewDto>> {
-    return this.queryBus.execute(new GetPostsForBlogQuery(query, user, blogId));
-  }
+  //🔸 Blogs:
 
   @Post()
   async createBlog(@Body() body: BlogInputDto): Promise<BlogViewDto> {
@@ -83,6 +64,44 @@ export class BlogsAdminController {
 
     return this.blogsQueryRepository.getByIdOrNotFoundFail(idCreatedBlog);
   }
+
+  @Put(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updateBlog(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() body: BlogInputDto,
+  ): Promise<void> {
+    const dto: UpdateBlogDto = new UpdateBlogDto(
+      id,
+      body.name,
+      body.description,
+      body.websiteUrl,
+    );
+
+    await this.commandBus.execute(new UpdateBlogCommand(dto));
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteBlog(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.commandBus.execute(new DeleteBlogCommand(id));
+  }
+
+  @Get()
+  async getAllBlogs(
+    @Query() query: GetBlogsQueryParams,
+  ): Promise<PaginatedViewDto<BlogViewDto>> {
+    return this.queryBus.execute(new GetBlogsQuery(query));
+  }
+
+  @Get(':id')
+  async getBlogById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<BlogViewDto> {
+    return this.queryBus.execute(new GetBlogQuery(id));
+  }
+
+  //🔸 Posts:
 
   @Post(':blogId/posts')
   async createPost(
@@ -103,22 +122,6 @@ export class BlogsAdminController {
     return this.postsQueryRepository.getByIdOrNotFoundFail(idCreatedPost, null);
   }
 
-  @Put(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async updateBlog(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: BlogInputDto,
-  ): Promise<void> {
-    const dto: UpdateBlogDto = new UpdateBlogDto(
-      id,
-      body.name,
-      body.description,
-      body.websiteUrl,
-    );
-
-    await this.commandBus.execute(new UpdateBlogCommand(dto));
-  }
-
   @Put(':blogId/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(
@@ -135,9 +138,13 @@ export class BlogsAdminController {
     await this.commandBus.execute(new UpdatePostCommand(dto));
   }
 
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteBlog(@Param('id', ParseIntPipe) id: number): Promise<void> {
-    await this.commandBus.execute(new DeleteBlogCommand(id));
+  @Get(':blogId/posts')
+  @UseGuards(OptionalJwtAuthGuard)
+  async getPostsForBlog(
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    @Param('blogId', ParseIntPipe) blogId: number,
+    @Query() query: GetPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostViewDto>> {
+    return this.queryBus.execute(new GetPostsForBlogQuery(query, user, blogId));
   }
 }
