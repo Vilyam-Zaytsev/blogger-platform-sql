@@ -21,7 +21,6 @@ import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
 import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
-import { IdInputDto } from '../../../../core/dto/id.input-dto';
 import { GetBlogQuery } from '../application/queries/get-blog.query-handler';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
@@ -55,8 +54,8 @@ export class BlogsAdminController {
   }
 
   @Get(':id')
-  async getById(@Param() params: IdInputDto): Promise<BlogViewDto> {
-    return this.queryBus.execute(new GetBlogQuery(params.id));
+  async getById(@Param('id', ParseIntPipe) id: number): Promise<BlogViewDto> {
+    return this.queryBus.execute(new GetBlogQuery(id));
   }
 
   @Get(':blogId/posts')
@@ -105,11 +104,11 @@ export class BlogsAdminController {
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
-    @Param() params: IdInputDto,
+    @Param('id', ParseIntPipe) id: number,
     @Body() body: BlogInputDto,
   ): Promise<void> {
     const dto: UpdateBlogDto = new UpdateBlogDto(
-      params.id,
+      id,
       body.name,
       body.description,
       body.websiteUrl,
@@ -120,7 +119,7 @@ export class BlogsAdminController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteBlog(@Param() params: IdInputDto): Promise<void> {
-    await this.commandBus.execute(new DeleteBlogCommand(params.id));
+  async deleteBlog(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.commandBus.execute(new DeleteBlogCommand(id));
   }
 }
