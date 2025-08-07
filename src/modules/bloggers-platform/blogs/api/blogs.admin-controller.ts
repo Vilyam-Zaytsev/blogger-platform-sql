@@ -36,6 +36,8 @@ import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/auth/doma
 import { UserContextDto } from '../../../user-accounts/auth/domain/guards/dto/user-context.dto';
 import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
 import { GetPostsForBlogQuery } from '../../posts/application/queries/get-posts-for-blog.query-handler';
+import { UpdatePostDto } from '../../posts/dto/update-post.dto';
+import { UpdatePostCommand } from '../../posts/application/usecases/update-post.usecase';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -83,7 +85,7 @@ export class BlogsAdminController {
   }
 
   @Post(':blogId/posts')
-  async createPostForBlog(
+  async createPost(
     @Param('blogId', ParseIntPipe) blogId: number,
     @Body() { title, shortDescription, content }: PostInputDto,
   ): Promise<PostViewDto> {
@@ -115,6 +117,22 @@ export class BlogsAdminController {
     );
 
     await this.commandBus.execute(new UpdateBlogCommand(dto));
+  }
+
+  @Put(':blogId/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async updatePost(
+    @Param('postId', ParseIntPipe) postId: number,
+    @Body() body: PostInputDto,
+  ): Promise<void> {
+    const dto: UpdatePostDto = new UpdatePostDto(
+      postId,
+      body.title,
+      body.shortDescription,
+      body.content,
+    );
+
+    await this.commandBus.execute(new UpdatePostCommand(dto));
   }
 
   @Delete(':id')
