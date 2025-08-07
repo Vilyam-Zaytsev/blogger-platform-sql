@@ -38,6 +38,7 @@ import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-p
 import { GetPostsForBlogQuery } from '../../posts/application/queries/get-posts-for-blog.query-handler';
 import { UpdatePostDto } from '../../posts/dto/update-post.dto';
 import { UpdatePostCommand } from '../../posts/application/usecases/update-post.usecase';
+import { DeletePostCommand } from '../../posts/application/usecases/delete-post.usecase';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
@@ -122,7 +123,7 @@ export class BlogsAdminController {
     return this.postsQueryRepository.getByIdOrNotFoundFail(idCreatedPost, null);
   }
 
-  @Put(':blogId/:postId')
+  @Put(':blogId/posts/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(
     @Param('postId', ParseIntPipe) postId: number,
@@ -146,5 +147,13 @@ export class BlogsAdminController {
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto>> {
     return this.queryBus.execute(new GetPostsForBlogQuery(query, user, blogId));
+  }
+
+  @Delete(':blogId/posts/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deletePost(
+    @Param('postId', ParseIntPipe) postId: number,
+  ): Promise<void> {
+    await this.commandBus.execute(new DeletePostCommand(postId));
   }
 }
