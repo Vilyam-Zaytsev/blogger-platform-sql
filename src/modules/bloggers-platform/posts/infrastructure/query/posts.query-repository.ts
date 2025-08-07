@@ -109,12 +109,12 @@ export class PostsQueryRepository {
     const { rows }: QueryResult = await this.pool.query(
       `
         WITH "LikesCount" AS (SELECT "postId", COUNT(*) AS "count"
-                              FROM "PostReaction"
+                              FROM "PostsReactions"
                               WHERE "status" = 'Like'
                               GROUP BY "postId"),
 
              "DislikesCount" AS (SELECT "postId", COUNT(*) AS "count"
-                                 FROM "PostsReaction"
+                                 FROM "PostsReactions"
                                  WHERE "status" = 'Dislike'
                                  GROUP BY "postId"),
 
@@ -123,14 +123,14 @@ export class PostsQueryRepository {
                                         json_build_object(
                                           'addedAt', pr."createdAt"::text,
                                           'userId', pr."userId"::text,
-                                          'login', u."login",
+                                          'login', u."login"
                                         ) ORDER BY pr."createdAt" DESC
-                                      )
-                               FROM "PostsReaction" pr
+                                      ) AS "likes"
+                               FROM "PostsReactions" pr
                                       JOIN "Users" u ON u."id" = pr."userId"
                                GROUP BY "postId")
 
-        SELECT COUNT(*) OVNER() AS "totalCount", p."id"::text, p."title",
+        SELECT COUNT(*) OVER() AS "totalCount", p."id"::text, p."title",
                p."shortDescription",
                p."content",
                b."id"::text AS "blogId", b."name" AS "blogName",
@@ -148,7 +148,7 @@ export class PostsQueryRepository {
                LEFT JOIN "NewestLikes" nl ON nl."postId" = p."id"
         WHERE p."deletedAt" IS NULL
         ORDER BY p."${sortBy}" ${sortDirection.toUpperCase()}
-        OFSET $1 LIMIT $2
+        OFFSET $1 LIMIT $2
       `,
       [offset, pageSize, user],
     );
