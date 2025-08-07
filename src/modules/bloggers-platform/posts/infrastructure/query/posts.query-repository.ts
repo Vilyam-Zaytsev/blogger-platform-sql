@@ -3,69 +3,61 @@ import { PostViewDto } from '../../api/view-dto/post-view.dto';
 import { PG_POOL } from '../../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
 import { UserContextDto } from '../../../../user-accounts/auth/domain/guards/dto/user-context.dto';
-import { PostDbType } from '../../types/post-db.type';
-import { ReactionsRepository } from '../../../reactions/infrastructure/reactions-repository';
-import { ReactionStatus } from '../../../reactions/types/reaction-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
 @Injectable()
 export class PostsQueryRepository {
-  constructor(
-    @Inject(PG_POOL) private readonly pool: Pool,
-    private readonly reactionsRepository: ReactionsRepository,
-  ) {}
+  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getByIdOrNotFoundFail(
     id: number,
     user: UserContextDto | null,
   ): Promise<PostViewDto> {
-    const { rows: posts }: QueryResult<PostDbType> = await this.pool.query(
+    const { rows: posts }: QueryResult<PostViewDto> = await this.pool.query(
       `
-        WITH "LikesCount" AS (SELECT "postId", COUNT(*) AS "count"
-                              FROM "PostsReactions"
-                              WHERE "status" = 'Like'
-                              GROUP BY "postId"),
+          WITH "LikesCount" AS (SELECT "postId", COUNT(*) AS "count"
+                                FROM "PostsReactions"
+                                WHERE "status" = 'Like'
+                                GROUP BY "postId"),
 
-             "DislikesCount" AS (SELECT "postId", COUNT(*) AS "count"
-                                 FROM "PostsReactions"
-                                 WHERE "status" = 'Dislike'
-                                 GROUP BY "postId"),
+               "DislikesCount" AS (SELECT "postId", COUNT(*) AS "count"
+                                   FROM "PostsReactions"
+                                   WHERE "status" = 'Dislike'
+                                   GROUP BY "postId"),
 
-             "NewestLikes" AS (SELECT "postId",
-                                      json_agg(
-                                        json_build_object(
-                                          'addedAt', pr."createdAt",
-                                          'userId', pr."userId",
-                                          'login', u."login"
-                                        ) ORDER BY pr."createdAt" DESC
-                                      ) FILTER (WHERE pr."status" = 'Like') AS "likes"
-                               FROM "PostsReactions" pr
-                                      JOIN "Users" u ON u."id" = pr."userId"
-                               GROUP BY "postId")
+               "NewestLikes" AS (SELECT "postId",
+                                        json_agg(
+                                                json_build_object(
+                                                        'addedAt', pr."createdAt"::text,
+                                                        'userId', pr."userId"::text,
+                                                        'login', u."login"
+                                                ) ORDER BY pr."createdAt" DESC
+                                        ) FILTER (WHERE pr."status" = 'Like') AS "likes"
+                                 FROM "PostsReactions" pr
+                                          JOIN "Users" u ON u."id" = pr."userId"
+                                 GROUP BY "postId")
 
-        SELECT p."id",
-               p."title",
-               p."shortDescription",
-               p."content",
-               b."id" AS "blogId",
-               b."name" AS "blogName",
-               p."createdAt",
-               json_build_object(
-                 'likesCount', COALESCE(lc.count, 0),
-                 'dislikesCount', COALESCE(dc.count, 0),
-                 'myStatus', COALESCE(pr."status", 'None'),
-                 'newestLikes', COALESCE(nl.likes, '[]')
-               ) AS "extendedLikesInfo"
-        FROM "Posts" p
-               JOIN "Blogs" b ON b."id" = p."blogId"
-               LEFT JOIN "LikesCount" lc ON lc."postId" = p."id"
-               LEFT JOIN "DislikesCount" dc ON dc."postId" = p."id"
-               LEFT JOIN "PostsReactions" pr ON pr."postId" = p."id"
-          AND pr."userId" = $2
-               LEFT JOIN "NewestLikes" nl ON nl."postId" = p."id"
-        WHERE p."id" = $1
-          AND p."deletedAt" IS NULL;
+          SELECT p."id"::text, p."title",
+                 p."shortDescription",
+                 p."content",
+                 b."id"::text AS "blogId",
+                 b."name" AS "blogName",
+                 p."createdAt"::text, json_build_object(
+                  'likesCount', COALESCE(lc.count, 0),
+                  'dislikesCount', COALESCE(dc.count, 0),
+                  'myStatus', COALESCE(pr."status", 'None'),
+                  'newestLikes', COALESCE(nl.likes, '[]')
+                                      ) AS "extendedLikesInfo"
+          FROM "Posts" p
+                   JOIN "Blogs" b ON b."id" = p."blogId"
+                   LEFT JOIN "LikesCount" lc ON lc."postId" = p."id"
+                   LEFT JOIN "DislikesCount" dc ON dc."postId" = p."id"
+                   LEFT JOIN "PostsReactions" pr ON pr."postId" = p."id"
+              AND pr."userId" = $2
+                   LEFT JOIN "NewestLikes" nl ON nl."postId" = p."id"
+          WHERE p."id" = $1
+            AND p."deletedAt" IS NULL;
       `,
       [id, user],
     );
@@ -77,8 +69,7 @@ export class PostsQueryRepository {
       });
     }
 
-    console.log(posts);
-    return {} as PostViewDto;
+    return posts[0];
   }
 
   // let userReactionStatus: ReactionStatus = ReactionStatus.None;
