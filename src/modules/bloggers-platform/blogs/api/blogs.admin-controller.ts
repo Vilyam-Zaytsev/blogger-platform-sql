@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -26,13 +27,18 @@ import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
 import { CreateBlogDto } from '../dto/create-blog.dto';
+import { PostInputDto } from '../../posts/api/input-dto/post-input.dto';
+import { PostViewDto } from '../../posts/api/view-dto/post-view.dto';
+import { CreatePostDto } from '../../posts/dto/create-post.dto';
+import { CreatePostCommand } from '../../posts/application/usecases/create-post.usecase';
+import { PostsQueryRepository } from '../../posts/infrastructure/query/posts.query-repository';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
 export class BlogsAdminController {
   constructor(
     private readonly blogsQueryRepository: BlogsQueryRepository,
-    // private readonly postsQueryRepository: PostsQueryRepository,
+    private readonly postsQueryRepository: PostsQueryRepository,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
@@ -72,24 +78,25 @@ export class BlogsAdminController {
     return this.blogsQueryRepository.getByIdOrNotFoundFail(idCreatedBlog);
   }
 
-  // @Post(':blogId/posts')
-  // async createPostForBlog(
-  //   @Param('blogId', ObjectIdValidationPipe) blogId: string,
-  //   @Body() body: CreatePostForBlogInputDto,
-  // ): Promise<PostViewDto> {
-  //   const createPostDto: CreatePostDto = {
-  //     ...body,
-  //     blogId,
-  //   };
-  //
-  //   const postId: string = await this.commandBus.execute(
-  //     new CreatePostCommand(createPostDto),
-  //   );
-  //
-  //   return this.postsQueryRepository.getByIdOrNotFoundFail(postId);
-  // }
+  @Post(':blogId/posts')
+  async createPostForBlog(
+    @Param('blogId', ParseIntPipe) blogId: number,
+    @Body() { title, shortDescription, content }: PostInputDto,
+  ): Promise<PostViewDto> {
+    const dto: CreatePostDto = new CreatePostDto(
+      title,
+      shortDescription,
+      content,
+      blogId,
+    );
 
-  //TODO: почему в документации Swagger нет ошибки 404 при обновлении блога
+    const idCreatedPost: number = await this.commandBus.execute(
+      new CreatePostCommand(dto),
+    );
+
+    return this.postsQueryRepository.getByIdOrNotFoundFail(idCreatedPost, null);
+  }
+
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(

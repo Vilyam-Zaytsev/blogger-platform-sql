@@ -1,11 +1,6 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { PostInputDto } from './input-dto/post-input.dto';
-import { PostViewDto } from './view-dto/post-view.dto';
+import { Controller } from '@nestjs/common';
 
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
-import { BasicAuthGuard } from '../../../user-accounts/auth/domain/guards/basic/basic-auth.guard';
-import { CreatePostDto } from '../dto/create-post.dto';
-import { CreatePostCommand } from '../application/usecases/create-post.usecase';
 import { PostsQueryRepository } from '../infrastructure/query/posts.query-repository';
 
 @Controller('posts')
@@ -44,23 +39,6 @@ export class PostsController {
   // ): Promise<PaginatedViewDto<CommentViewDto>> {
   //   return this.queryBus.execute(new GetCommentsQuery(query, user, postId));
   // }
-  //
-  @Post()
-  @UseGuards(BasicAuthGuard)
-  async createPost(@Body() body: PostInputDto): Promise<PostViewDto> {
-    const dto: CreatePostDto = new CreatePostDto(
-      body.title,
-      body.shortDescription,
-      body.content,
-      +body.blogId,
-    );
-
-    const idCreatedPost: number = await this.commandBus.execute(
-      new CreatePostCommand(dto),
-    );
-
-    return this.postsQueryRepository.getByIdOrNotFoundFail(idCreatedPost, null);
-  }
 
   // @Post(':postId/comments')
   // @UseGuards(JwtAuthGuard)
