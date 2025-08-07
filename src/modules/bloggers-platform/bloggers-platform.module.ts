@@ -13,7 +13,7 @@ import { PostsRepository } from './posts/infrastructure/posts.repository';
 import { CreatePostUseCase } from './posts/application/usecases/create-post.usecase';
 import { PostsQueryRepository } from './posts/infrastructure/query/posts.query-repository';
 import { PostsController } from './posts/api/posts.controller';
-import { ReactionsRepository } from './reactions/infrastructure/reactions-repository';
+import { GetPostsForBlogQueryHandler } from './posts/application/queries/get-posts-for-blog.query-handler';
 
 @Module({
   imports: [UserAccountsModule],
@@ -30,7 +30,7 @@ import { ReactionsRepository } from './reactions/infrastructure/reactions-reposi
     //query-handlers
     GetBlogsQueryHandler,
     GetBlogQueryHandler,
-    // GetPostsForBlogQueryHandler,
+    GetPostsForBlogQueryHandler,
     // //🔸 Posts:
     // //repo
     PostsRepository,
@@ -57,7 +57,7 @@ import { ReactionsRepository } from './reactions/infrastructure/reactions-reposi
     // GetCommentsQueryHandler,
     // //🔸 Reactions:
     // //repo
-    ReactionsRepository,
+    // ReactionsRepository,
     // //use-cases
     // UpdateReactionUseCase,
     // CreateReactionUseCase,
