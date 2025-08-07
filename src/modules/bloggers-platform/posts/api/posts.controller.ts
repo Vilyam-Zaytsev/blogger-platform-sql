@@ -1,7 +1,14 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { PostsQueryRepository } from '../infrastructure/query/posts.query-repository';
+import { OptionalJwtAuthGuard } from '../../../user-accounts/auth/domain/guards/bearer/optional-jwt-auth.guard';
+import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/auth/domain/guards/decorators/extract-user-if-exists-from-request.decorator';
+import { UserContextDto } from '../../../user-accounts/auth/domain/guards/dto/user-context.dto';
+import { GetPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
+import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
+import { PostViewDto } from './view-dto/post-view.dto';
+import { GetPostsQuery } from '../application/queries/get-posts.query-handler';
 
 @Controller('posts')
 export class PostsController {
@@ -12,14 +19,14 @@ export class PostsController {
     private readonly queryBus: QueryBus,
   ) {}
 
-  // @Get()
-  // @UseGuards(OptionalJwtAuthGuard)
-  // async getAll(
-  //   @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-  //   @Query() query: GetPostsQueryParams,
-  // ): Promise<PaginatedViewDto<PostViewDto>> {
-  //   return this.queryBus.execute(new GetPostsQuery(query, user));
-  // }
+  @Get()
+  @UseGuards(OptionalJwtAuthGuard)
+  async getAllPosts(
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    @Query() query: GetPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostViewDto>> {
+    return this.queryBus.execute(new GetPostsQuery(query, user));
+  }
 
   // @Get(':id')
   // @UseGuards(OptionalJwtAuthGuard)
