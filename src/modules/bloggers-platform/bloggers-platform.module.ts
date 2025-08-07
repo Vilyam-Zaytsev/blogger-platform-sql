@@ -14,6 +14,7 @@ import { CreatePostUseCase } from './posts/application/usecases/create-post.usec
 import { PostsQueryRepository } from './posts/infrastructure/query/posts.query-repository';
 import { PostsController } from './posts/api/posts.controller';
 import { GetPostsForBlogQueryHandler } from './posts/application/queries/get-posts-for-blog.query-handler';
+import { UpdatePostUseCase } from './posts/application/usecases/update-post.usecase';
 
 @Module({
   imports: [UserAccountsModule],
@@ -37,7 +38,7 @@ import { GetPostsForBlogQueryHandler } from './posts/application/queries/get-pos
     PostsQueryRepository,
     // //use-cases
     CreatePostUseCase,
-    // UpdatePostUseCase,
+    UpdatePostUseCase,
     // DeletePostUseCase,
     // UpdatePostReactionUseCase,
     // //query-handlers
