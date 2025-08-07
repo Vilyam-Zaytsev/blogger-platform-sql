@@ -1,4 +1,11 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { PostsQueryRepository } from '../infrastructure/query/posts.query-repository';
@@ -9,6 +16,7 @@ import { GetPostsQueryParams } from './input-dto/get-posts-query-params.input-dt
 import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { PostViewDto } from './view-dto/post-view.dto';
 import { GetPostsQuery } from '../application/queries/get-posts.query-handler';
+import { GetPostQuery } from '../application/queries/get-post.query-handler';
 
 @Controller('posts')
 export class PostsController {
@@ -28,15 +36,15 @@ export class PostsController {
     return this.queryBus.execute(new GetPostsQuery(query, user));
   }
 
-  // @Get(':id')
-  // @UseGuards(OptionalJwtAuthGuard)
-  // async getById(
-  //   @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-  //   @Param() params: IdInputDto,
-  // ): Promise<PostViewDto> {
-  //   return this.queryBus.execute(new GetPostQuery(params.id, user));
-  // }
-  //
+  @Get(':id')
+  @UseGuards(OptionalJwtAuthGuard)
+  async getPostById(
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<PostViewDto> {
+    return this.queryBus.execute(new GetPostQuery(id, user));
+  }
+
   // @Get(':postId/comments')
   // @UseGuards(OptionalJwtAuthGuard)
   // async getComments(
