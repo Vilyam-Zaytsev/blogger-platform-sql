@@ -56,4 +56,18 @@ export class PostsRepository {
       [dto.title, dto.shortDescription, dto.content],
     );
   }
+
+  async softDelete(id: number): Promise<boolean> {
+    const { rowCount }: QueryResult = await this.pool.query(
+      `
+      UPDATE "Posts"
+      SET "deletedAt" = NOW()
+      WHERE "id" = $1
+      AND "deletedAt" IS NULL
+      `,
+      [id],
+    );
+
+    return rowCount === 1;
+  }
 }
