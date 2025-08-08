@@ -3,6 +3,8 @@ import { PostViewDto } from '../../src/modules/bloggers-platform/posts/api/view-
 import request, { Response } from 'supertest';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import { HttpStatus } from '@nestjs/common';
+import { GetPostsQueryParams } from '../../src/modules/bloggers-platform/posts/api/input-dto/get-posts-query-params.input-dto';
+import { PaginatedViewDto } from '../../src/core/dto/paginated.view-dto';
 
 export class PostsTestManager {
   constructor(
@@ -46,22 +48,22 @@ export class PostsTestManager {
   //
   //   return newPosts;
   // }
-  //
-  // async getAll(
-  //   query: Partial<GetPostsQueryParams> = {},
-  //   accessToken?: string,
-  // ): Promise<PaginatedViewDto<PostViewDto>> {
-  //   let req = request(this.server).get(`/${GLOBAL_PREFIX}/posts`).query(query);
-  //
-  //   if (accessToken) {
-  //     req = req.set('Authorization', `Bearer ${accessToken}`);
-  //   }
-  //
-  //   const res: Response = await req.expect(HttpStatus.OK);
-  //
-  //   return res.body as PaginatedViewDto<PostViewDto>;
-  // }
-  //
+
+  async getAllPosts(
+    query: Partial<GetPostsQueryParams> = {},
+    accessToken?: string,
+  ): Promise<PaginatedViewDto<PostViewDto>> {
+    let req = request(this.server).get(`/${GLOBAL_PREFIX}/posts`).query(query);
+
+    if (accessToken) {
+      req = req.set('Authorization', `Bearer ${accessToken}`);
+    }
+
+    const res: Response = await req.expect(HttpStatus.OK);
+
+    return res.body as PaginatedViewDto<PostViewDto>;
+  }
+
   async getPostById(id: string, accessToken?: string): Promise<PostViewDto> {
     let req = request(this.server).get(`/${GLOBAL_PREFIX}/posts/${id}`);
 
