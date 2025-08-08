@@ -36,7 +36,7 @@ export class PostsQueryRepository {
              "NewestLikes" AS (SELECT "postId",
                                       json_agg(
                                         json_build_object(
-                                          'addedAt', pr."createdAt"::text,
+                                          'addedAt', pr."createdAt",
                                           'userId', pr."userId"::text,
                                           'login', u."login"
                                         ) ORDER BY pr."createdAt" DESC
@@ -49,7 +49,7 @@ export class PostsQueryRepository {
                p."shortDescription",
                p."content",
                b."id"::text AS "blogId", b."name" AS "blogName",
-               p."createdAt"::text, json_build_object(
+               p."createdAt", json_build_object(
           'likesCount', COALESCE(lc.count, 0),
           'dislikesCount', COALESCE(dc.count, 0),
           'myStatus', COALESCE(pr."status", 'None'),
@@ -121,7 +121,7 @@ export class PostsQueryRepository {
              "NewestLikes" AS (SELECT "postId",
                                       json_agg(
                                         json_build_object(
-                                          'addedAt', pr."createdAt"::text,
+                                          'addedAt', pr."createdAt",
                                           'userId', pr."userId"::text,
                                           'login', u."login"
                                         ) ORDER BY pr."createdAt" DESC
@@ -134,7 +134,7 @@ export class PostsQueryRepository {
                p."shortDescription",
                p."content",
                b."id"::text AS "blogId", b."name" AS "blogName",
-               p."createdAt"::text, json_build_object(
+               p."createdAt", json_build_object(
           'likesCount', COALESCE(lc."count", 0),
           'dislikesCount', COALESCE(dc."count", 0),
           'myStatus', COALESCE(pr."status", 'None'),
