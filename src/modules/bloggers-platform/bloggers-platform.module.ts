@@ -9,10 +9,19 @@ import { GetBlogsQueryHandler } from './blogs/application/queries/get-blogs.quer
 import { UpdateBlogUseCase } from './blogs/application/usecases/update-blog.usecase';
 import { DeleteBlogUseCase } from './blogs/application/usecases/delete-blog.usecase';
 import { BlogsPublicController } from './blogs/api/blogs.public-controller';
+import { PostsRepository } from './posts/infrastructure/posts.repository';
+import { CreatePostUseCase } from './posts/application/usecases/create-post.usecase';
+import { PostsQueryRepository } from './posts/infrastructure/query/posts.query-repository';
+import { PostsController } from './posts/api/posts.controller';
+import { GetPostsForBlogQueryHandler } from './posts/application/queries/get-posts-for-blog.query-handler';
+import { UpdatePostUseCase } from './posts/application/usecases/update-post.usecase';
+import { DeletePostUseCase } from './posts/application/usecases/delete-post.usecase';
+import { GetPostsQueryHandler } from './posts/application/queries/get-posts.query-handler';
+import { GetPostQueryHandler } from './posts/application/queries/get-post.query-handler';
 
 @Module({
   imports: [UserAccountsModule],
-  controllers: [BlogsAdminController, BlogsPublicController],
+  controllers: [BlogsAdminController, BlogsPublicController, PostsController],
   providers: [
     //🔸 Blogs:
     //repo
@@ -25,19 +34,19 @@ import { BlogsPublicController } from './blogs/api/blogs.public-controller';
     //query-handlers
     GetBlogsQueryHandler,
     GetBlogQueryHandler,
-    // GetPostsForBlogQueryHandler,
     // //🔸 Posts:
     // //repo
-    // PostsRepository,
-    // PostsQueryRepository,
+    PostsRepository,
+    PostsQueryRepository,
     // //use-cases
-    // CreatePostUseCase,
-    // UpdatePostUseCase,
-    // DeletePostUseCase,
+    CreatePostUseCase,
+    UpdatePostUseCase,
+    DeletePostUseCase,
     // UpdatePostReactionUseCase,
-    // //query-handlers
-    // GetPostsQueryHandler,
-    // GetPostQueryHandler,
+    //query-handlers
+    GetPostsForBlogQueryHandler,
+    GetPostsQueryHandler,
+    GetPostQueryHandler,
     // //🔸 Comments:
     // //repo
     // CommentsRepository,

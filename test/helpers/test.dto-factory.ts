@@ -1,5 +1,6 @@
 import { UserInputDto } from '../../src/modules/user-accounts/users/api/input-dto/user.input-dto';
 import { BlogInputDto } from '../../src/modules/bloggers-platform/blogs/api/input-dto/blog-input.dto';
+import { PostInputDto } from '../../src/modules/bloggers-platform/posts/api/input-dto/post-input.dto';
 
 export class TestDtoFactory {
   static generateUserInputDto(quantity: number): UserInputDto[] {
@@ -30,24 +31,20 @@ export class TestDtoFactory {
     return dtos;
   }
 
-  // static generatePostInputDto(
-  //   quantity: number,
-  //   blogId: string,
-  // ): PostInputDto[] {
-  //   const dtos: PostInputDto[] = [];
-  //
-  //   for (let i = 0; i < quantity; i++) {
-  //     dtos.push({
-  //       title: `testTitle${i}`,
-  //       shortDescription: `test shortDescription post - ${i}`,
-  //       content: `test content post - ${i}`,
-  //       blogId,
-  //     });
-  //   }
-  //
-  //   return dtos;
-  // }
-  //
+  static generatePostInputDto(quantity: number): PostInputDto[] {
+    const dtos: PostInputDto[] = [];
+
+    for (let i = 0; i < quantity; i++) {
+      dtos.push({
+        title: `testTitle${i}`,
+        shortDescription: `test shortDescription post - ${i}`,
+        content: `test content post - ${i}`,
+      });
+    }
+
+    return dtos;
+  }
+
   // static generateCommentInputDto(quantity: number): CommentInputDto[] {
   //   const dtos: CommentInputDto[] = [];
   //

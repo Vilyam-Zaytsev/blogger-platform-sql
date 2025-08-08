@@ -208,9 +208,6 @@ describe('BlogsAdminController - createBlog() (POST: /sa/blogs)', () => {
 
   it('should not create a blog if the data in the request body is incorrect (name: exceeds max length, description: exceeds max length, website Url: exceeds max length).', async () => {
     // 🔻 Генерируем данные, которые превышают допустимые ограничения:
-    // - name: более 15 символов
-    // - description: более 500 символов
-    // - websiteUrl: более 100 символов и невалидный формат
     const name: string = TestUtils.generateRandomString(16);
     const description: string = TestUtils.generateRandomString(501);
     const websiteUrl: string = TestUtils.generateRandomString(101);
@@ -264,9 +261,6 @@ describe('BlogsAdminController - createBlog() (POST: /sa/blogs)', () => {
 
   it('should not create a blog if the data in the request body is incorrect (name: type number, description: type number, website Url: type number).', async () => {
     // 🔻 Отправляем некорректные данные:
-    // - name: число вместо строки
-    // - description: число вместо строки
-    // - websiteUrl: число вместо строки (и невалидный формат URL)
     const resCreateBlog: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/sa/blogs`)
       .send({
