@@ -57,8 +57,8 @@ export class PostsRepository {
     );
   }
 
-  async softDelete(id: number): Promise<boolean> {
-    const { rowCount }: QueryResult = await this.pool.query(
+  async softDelete(id: number): Promise<void> {
+    await this.pool.query(
       `
       UPDATE "Posts"
       SET "deletedAt" = NOW()
@@ -67,7 +67,5 @@ export class PostsRepository {
       `,
       [id],
     );
-
-    return rowCount === 1;
   }
 }

@@ -152,8 +152,9 @@ export class BlogsAdminController {
   @Delete(':blogId/posts/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deletePost(
+    @Param('blogId', ParseIntPipe) blogId: number,
     @Param('postId', ParseIntPipe) postId: number,
   ): Promise<void> {
-    await this.commandBus.execute(new DeletePostCommand(postId));
+    await this.commandBus.execute(new DeletePostCommand(blogId, postId));
   }
 }
