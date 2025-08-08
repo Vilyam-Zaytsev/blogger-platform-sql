@@ -12,6 +12,7 @@ import {
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
+import { PostRawRow } from '../../types/post-raw-row.type';
 
 @Injectable()
 export class PostsQueryRepository {
@@ -106,7 +107,7 @@ export class PostsQueryRepository {
 
     const offset: number = query.calculateSkip();
 
-    const { rows }: QueryResult = await this.pool.query(
+    const { rows }: QueryResult<PostRawRow> = await this.pool.query(
       `
         WITH "LikesCount" AS (SELECT "postId", COUNT(*) AS "count"
                               FROM "PostsReactions"
@@ -147,14 +148,33 @@ export class PostsQueryRepository {
                LEFT JOIN "PostsReactions" pr ON pr."postId" = p."id" AND pr."userId" = $3
                LEFT JOIN "NewestLikes" nl ON nl."postId" = p."id"
         WHERE p."deletedAt" IS NULL
+        AND ($4::int IS NULL OR p."blogId" = $4)
         ORDER BY p."${sortBy}" ${sortDirection.toUpperCase()}
         OFFSET $1 LIMIT $2
       `,
-      [offset, pageSize, user],
+      [offset, pageSize, user?.id ?? null, blogId ?? null],
     );
 
-    console.log(rows);
+    const totalCount: number = rows.length > 0 ? +rows[0].totalCount : 0;
+    const pagesCount: number = Math.ceil(totalCount / pageSize);
 
-    return {} as PaginatedViewDto<PostViewDto>;
+    return {
+      pagesCount,
+      page: pageNumber,
+      pageSize,
+      totalCount,
+      items: rows.map(
+        (row): PostViewDto => ({
+          id: row.id,
+          title: row.title,
+          shortDescription: row.shortDescription,
+          content: row.content,
+          blogId: row.blogId,
+          blogName: row.blogName,
+          createdAt: row.createdAt,
+          extendedLikesInfo: row.extendedLikesInfo,
+        }),
+      ),
+    };
   }
 }

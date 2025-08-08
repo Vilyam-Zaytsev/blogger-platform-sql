@@ -1,9 +1,9 @@
 export abstract class PaginatedViewDto<T> {
-  abstract items: T[];
-  totalCount: number;
   pagesCount: number;
   page: number;
   pageSize: number;
+  totalCount: number;
+  abstract items: T[];
 
   static mapToView<T>(data: {
     items: T[];
