@@ -68,9 +68,9 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
       .put(
         `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`,
       )
-      .send(dto) // 🔸 Передаём данные для обновления
-      .set('Authorization', adminCredentialsInBase64) // 🔸 Указываем авторизацию администратора
-      .expect(HttpStatus.NO_CONTENT); // 🔸 Ожидаем 204 No Content в ответ
+      .send(dto)
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.NO_CONTENT);
 
     // 🔻 Получаем обновленный пост из базы данных
     const updatedPost: PostViewDto = await postsTestManager.getPostById(
@@ -128,9 +128,9 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
       .put(
         `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`,
       )
-      .send(dto) // 🔸 Передаем тело запроса с обновлением поста
-      .set('Authorization', 'incorrect admin credentials') // 🔸 Указываем невалидные данные авторизации
-      .expect(HttpStatus.UNAUTHORIZED); // 🔸 Ожидаем 401 Unauthorized
+      .send(dto)
+      .set('Authorization', 'incorrect admin credentials')
+      .expect(HttpStatus.UNAUTHORIZED);
 
     // 🔻 Получаем пост из базы данных, чтобы убедиться, что он не был изменен
     const post: PostViewDto = await postsTestManager.getPostById(
@@ -164,9 +164,9 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
       .put(
         `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`,
       )
-      .send({}) // 🔸 Пустой объект вместо корректных данных
-      .set('Authorization', adminCredentialsInBase64) // 🔸 Авторизуемся под админом
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем 400 Bad Request
+      .send({})
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔻 Проверяем тело ответа на наличие ошибок валидации
     expect(resUpdatePost.body).toEqual({
@@ -220,12 +220,12 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
         `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`,
       )
       .send({
-        title: '   ', // 🔸 Некорректное значение (только пробелы)
-        shortDescription: '   ', // 🔸 Некорректное значение (только пробелы)
-        content: '   ', // 🔸 Некорректное значение (только пробелы)
+        title: '   ',
+        shortDescription: '   ',
+        content: '   ',
       })
-      .set('Authorization', adminCredentialsInBase64) // 🔸 Авторизация под админом
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем 400 Bad Request
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔻 Проверяем, что ответ содержит ошибки валидации по title, shortDescription и content
     expect(resUpdatePost.body).toEqual({
@@ -276,9 +276,9 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
     );
 
     // 🔻 Генерируем строки, превышающие допустимую длину
-    const title: string = TestUtils.generateRandomString(31); // 🔸 Превышает лимит в 30 символов
-    const shortDescription: string = TestUtils.generateRandomString(101); // 🔸 Превышает лимит в 100 символов
-    const content: string = TestUtils.generateRandomString(1001); // 🔸 Превышает лимит в 1000 символов
+    const title: string = TestUtils.generateRandomString(31);
+    const shortDescription: string = TestUtils.generateRandomString(101);
+    const content: string = TestUtils.generateRandomString(1001);
 
     // 🔻 Отправляем PUT-запрос на обновление поста с некорректными данными
     const resUpdatePost: Response = await request(server)
@@ -290,8 +290,8 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
         shortDescription,
         content,
       })
-      .set('Authorization', adminCredentialsInBase64) // 🔸 Авторизация под админом
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем 400 Bad Request
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔻 Проверяем, что ответ содержит ошибки валидации
     expect(resUpdatePost.body).toEqual({
@@ -344,12 +344,12 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
         `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`,
       )
       .send({
-        title: 123, // 🔸 Неверный тип: ожидалась строка
-        shortDescription: 123, // 🔸 Неверный тип: ожидалась строка
-        content: 123, // 🔸 Неверный тип: ожидалась строка
+        title: 123,
+        shortDescription: 123,
+        content: 123,
       })
-      .set('Authorization', adminCredentialsInBase64) // 🔸 Авторизация под админом
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем 400 Bad Request
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔻 Проверяем, что ответ содержит ошибки валидации по типу
     expect(resUpdatePost.body).toEqual({
@@ -412,8 +412,8 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
         `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${incorrectPostId}`,
       )
       .send(dto)
-      .set('Authorization', adminCredentialsInBase64) // 🔸 Админская авторизация
-      .expect(HttpStatus.NOT_FOUND); // 🔸 Ожидаем статус 404 Not Found
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.NOT_FOUND);
 
     // 🔻 Получаем оригинальный пост из базы, чтобы убедиться, что он не изменился
     const post: PostViewDto = await postsTestManager.getPostById(

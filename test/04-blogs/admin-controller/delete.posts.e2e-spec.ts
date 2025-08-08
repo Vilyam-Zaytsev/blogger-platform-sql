@@ -60,8 +60,8 @@ describe('BlogsAdminController - deletePost() (DELETE: /sa/blogs/:blogId/posts/:
       .delete(
         `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`,
       )
-      .set('Authorization', adminCredentialsInBase64) // 🔸 Авторизация администратора присутствует
-      .expect(HttpStatus.NO_CONTENT); // 🔸 Ожидаем статус 204 No Content (успешное удаление без тела ответа)
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.NO_CONTENT);
 
     // 🔻 Получаем список всех постов после удаления
     const posts: PaginatedViewDto<PostViewDto> =
@@ -94,8 +94,8 @@ describe('BlogsAdminController - deletePost() (DELETE: /sa/blogs/:blogId/posts/:
       .delete(
         `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`,
       )
-      .set('Authorization', 'incorrect admin credentials') // 🔸 Подставлены неверные данные авторизации
-      .expect(HttpStatus.UNAUTHORIZED); // 🔸 Ожидаем статус 401 Unauthorized
+      .set('Authorization', 'incorrect admin credentials')
+      .expect(HttpStatus.UNAUTHORIZED);
 
     // 🔻 Получаем пост по его ID, чтобы убедиться, что он не был удален
     const post: PostViewDto = await postsTestManager.getPostById(
@@ -132,8 +132,8 @@ describe('BlogsAdminController - deletePost() (DELETE: /sa/blogs/:blogId/posts/:
       .delete(
         `/${GLOBAL_PREFIX}/sa/blogs/${incorrectBlogId}/posts/${createdPost.id}`,
       )
-      .set('Authorization', adminCredentialsInBase64) // 🔸 Передаём валидную авторизацию
-      .expect(HttpStatus.NOT_FOUND); // 🔸 Ожидаем статус 404 Not Found
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.NOT_FOUND);
 
     // 🔻 Получаем пост по ID, чтобы убедиться, что он всё ещё существует
     const post: PostViewDto = await postsTestManager.getPostById(
@@ -170,8 +170,8 @@ describe('BlogsAdminController - deletePost() (DELETE: /sa/blogs/:blogId/posts/:
       .delete(
         `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${incorrectPostId}`,
       )
-      .set('Authorization', adminCredentialsInBase64) // 🔸 Передаём валидную авторизацию
-      .expect(HttpStatus.NOT_FOUND); // 🔸 Ожидаем статус 404 Not Found
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.NOT_FOUND);
 
     // 🔻 Получаем пост по его корректному ID, чтобы убедиться, что он остался в базе
     const post: PostViewDto = await postsTestManager.getPostById(
@@ -210,8 +210,8 @@ describe('BlogsAdminController - deletePost() (DELETE: /sa/blogs/:blogId/posts/:
       .delete(
         `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog_2.id}/posts/${createdPost_1.id}`,
       )
-      .set('Authorization', adminCredentialsInBase64) // 🔸 Передаем валидную авторизацию
-      .expect(HttpStatus.FORBIDDEN); // 🔸 Ожидаем ошибку 403 Forbidden (пост не принадлежит блогу)
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.FORBIDDEN);
 
     // 🔻 Убеждаемся, что post_1 остался в системе
     const post_1: PostViewDto = await postsTestManager.getPostById(
@@ -225,7 +225,7 @@ describe('BlogsAdminController - deletePost() (DELETE: /sa/blogs/:blogId/posts/:
         `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog_1.id}/posts/${createdPost_2.id}`,
       )
       .set('Authorization', adminCredentialsInBase64)
-      .expect(HttpStatus.FORBIDDEN); // 🔸 Ожидаем ту же ошибку 403 Forbidden
+      .expect(HttpStatus.FORBIDDEN);
 
     // 🔻 Убеждаемся, что post_2 остался в системе
     const post_2: PostViewDto = await postsTestManager.getPostById(

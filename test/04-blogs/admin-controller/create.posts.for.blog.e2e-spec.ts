@@ -134,7 +134,7 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
       .post(`/${GLOBAL_PREFIX}/sa/blogs/${blog.id}/posts`)
       .send({})
       .set('Authorization', adminCredentialsInBase64)
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем статус 400, так как тело запроса невалидно
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔸 Проверяем, что в ответе указаны ошибки валидации для всех обязательных полей
     expect(resCreatePosts.body).toEqual({
@@ -182,8 +182,8 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
         shortDescription: '   ',
         content: '   ',
       })
-      .set('Authorization', adminCredentialsInBase64) // 🔸 Админ авторизован корректно
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем ошибку 400, так как поля невалидны
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔸 Проверяем, что в теле ответа возвращены ошибки валидации по всем трем полям
     expect(resCreatePosts.body).toEqual({
@@ -226,7 +226,6 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
     const [blog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Подготавливаем данные, превышающие допустимые лимиты:
-    // title: > 30 символов, shortDescription: > 100 символов, content: > 1000 символов
     const title: string = TestUtils.generateRandomString(31);
     const shortDescription: string = TestUtils.generateRandomString(101);
     const content: string = TestUtils.generateRandomString(1001);
@@ -239,8 +238,8 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
         shortDescription,
         content,
       })
-      .set('Authorization', adminCredentialsInBase64) // 🔸 Админ авторизован
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем ошибку 400 — данные не прошли валидацию
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔸 Проверяем, что API вернул три ошибки валидации по всем полям
     expect(resCreatePosts.body).toEqual({
@@ -287,8 +286,8 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
         shortDescription: 123,
         content: 123,
       })
-      .set('Authorization', adminCredentialsInBase64) // 🔸 Админ авторизован
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем ошибку 400 — типы данных невалидны
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔸 Проверяем, что API вернул корректные ошибки валидации по каждому полю
     expect(resCreatePosts.body).toEqual({
@@ -324,12 +323,14 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
   });
 
   it('should return a 404 error if the blog for which the post is being created does not exist.', async () => {
+    // 🔻 Создаём один блог
     await blogsTestManager.createBlog(1);
 
+    // 🔻 Генерируем DTO для создания поста
     const [dto]: PostInputDto[] = TestDtoFactory.generatePostInputDto(1);
-
     const incorrectBlogId: string = '1000000';
 
+    // 🔻 Отправляем POST-запрос на создание поста с несуществующим blogId
     const resCreatePosts: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/sa/blogs/${incorrectBlogId}/posts`)
       .send({
@@ -340,9 +341,9 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
       .set('Authorization', adminCredentialsInBase64)
       .expect(HttpStatus.NOT_FOUND);
 
+    // 🔻 Проверяем, что ни один пост не был создан
     const posts: PaginatedViewDto<PostViewDto> =
       await postsTestManager.getAllPosts();
-
     expect(posts.items).toHaveLength(0);
 
     if (testLoggingEnabled) {

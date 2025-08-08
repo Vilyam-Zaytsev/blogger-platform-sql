@@ -63,14 +63,13 @@ describe('BlogsPublicController - getPostsForBlog() (GET: /blogs/{blogId}/posts)
       .expect(HttpStatus.OK); // 🔸 Ожидаем успешный ответ 200
 
     // 🔻 Имитация стандартных query-параметров (по умолчанию):
-    // pageSize = 10, page = 1, sortBy = 'createdAt', sortDirection = 'desc'
     const query: GetPostsQueryParams = new GetPostsQueryParams();
 
     // 🔻 Применяем фильтрацию и сортировку к созданным постам так же, как это делает контроллер
     const filteredCreatedPosts: PostViewDto[] = new Filter<PostViewDto>(posts)
-      .sort({ [query.sortBy]: query.sortDirection }) // 🔸 сортировка по `createdAt` по убыванию
-      .skip(query.calculateSkip()) // 🔸 пропускаем 0 элементов (первая страница)
-      .limit(query.pageSize) // 🔸 берем до 10 элементов (всего 3)
+      .sort({ [query.sortBy]: query.sortDirection })
+      .skip(query.calculateSkip())
+      .limit(query.pageSize)
       .getResult();
 
     // 🔸 Проверяем, что структура и содержимое ответа совпадает с ожиданиями
@@ -103,27 +102,27 @@ describe('BlogsPublicController - getPostsForBlog() (GET: /blogs/{blogId}/posts)
 
     // 🔻 Определяем кастомные query-параметры, которые будут переданы клиентом:
     const query: GetPostsQueryParams = new GetPostsQueryParams();
-    query.sortBy = PostsSortBy.Title; // 🔸 сортировка по заголовку
-    query.sortDirection = SortDirection.Ascending; // 🔸 по возрастанию
-    query.pageNumber = 2; // 🔸 вторая страница
-    query.pageSize = 3; // 🔸 по 3 элемента на страницу
+    query.sortBy = PostsSortBy.Title;
+    query.sortDirection = SortDirection.Ascending;
+    query.pageNumber = 2;
+    query.pageSize = 3;
 
     // 🔻 Отправляем GET-запрос с кастомными параметрами пагинации и сортировки
     const resGetPosts: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/blogs/${blog.id}/posts`)
-      .query(query) // 🔸 передаем query-параметры
-      .expect(HttpStatus.OK); // 🔸 ожидаем статус 200 OK
+      .query(query)
+      .expect(HttpStatus.OK);
 
     // 🔻 Применяем к созданным постам ту же сортировку и пагинацию, что и контроллер
     const filteredCreatedPosts: PostViewDto[] = new Filter<PostViewDto>(posts)
-      .sort({ [query.sortBy]: query.sortDirection }) // 🔸 сортировка по title ASC
-      .skip(query.calculateSkip()) // 🔸 пропускаем (page - 1) * pageSize = 3 элементов
-      .limit(query.pageSize) // 🔸 берем 3 элемента (вторая страница)
+      .sort({ [query.sortBy]: query.sortDirection })
+      .skip(query.calculateSkip())
+      .limit(query.pageSize)
       .getResult();
 
     // 🔸 Проверяем, что ответ соответствует ожиданиям с учетом переданных query-параметров
     expect(resGetPosts.body).toEqual({
-      pagesCount: 4, // 🔸 всего 4 страницы (12 / 3)
+      pagesCount: 4,
       page: 2,
       pageSize: 3,
       totalCount: 12,
@@ -155,12 +154,12 @@ describe('BlogsPublicController - getPostsForBlog() (GET: /blogs/{blogId}/posts)
     // 🔻 Пытаемся получить посты по несуществующему блогу
     const resGetPosts_1: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/blogs/${incorrectBlogId}/posts`)
-      .expect(HttpStatus.NOT_FOUND); // 🔸 ожидаем 404 Not Found
+      .expect(HttpStatus.NOT_FOUND);
 
     // 🔻 Получаем посты по существующему блогу (контрольный запрос)
     const resGetPosts_2: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/blogs/${blog.id}/posts`)
-      .expect(HttpStatus.OK); // 🔸 ожидаем 200 OK
+      .expect(HttpStatus.OK);
 
     // 🔸 Убеждаемся, что вернулось 10 постов по умолчанию (pageSize = 10)
     expect(resGetPosts_2.body.items).toHaveLength(10);
@@ -187,12 +186,12 @@ describe('BlogsPublicController - getPostsForBlog() (GET: /blogs/{blogId}/posts)
     // 🔻 Выполняем запрос с невалидным blogId
     const resGetPosts_1: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/blogs/${invalidBlogId}/posts`)
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем 400 Bad Request
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔻 Повторяем запрос с корректным blogId для сравнения
     const resGetPosts_2: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/blogs/${blog.id}/posts`)
-      .expect(HttpStatus.OK); // 🔸 Ожидаем 200 OK
+      .expect(HttpStatus.OK);
 
     // 🔸 Проверяем, что пост действительно существует (1 шт.)
     expect(resGetPosts_2.body.items).toHaveLength(1);
