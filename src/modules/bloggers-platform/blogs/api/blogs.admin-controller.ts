@@ -118,10 +118,12 @@ export class BlogsAdminController {
   @Put(':blogId/posts/:postId')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updatePost(
+    @Param('blogId', ParseIntPipe) blogId: number,
     @Param('postId', ParseIntPipe) postId: number,
     @Body() body: PostInputDto,
   ): Promise<void> {
     const dto: UpdatePostDto = new UpdatePostDto(
+      blogId,
       postId,
       body.title,
       body.shortDescription,
