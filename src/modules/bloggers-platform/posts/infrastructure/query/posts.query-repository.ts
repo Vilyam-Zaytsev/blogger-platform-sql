@@ -50,12 +50,13 @@ export class PostsQueryRepository {
                p."shortDescription",
                p."content",
                b."id"::text AS "blogId", b."name" AS "blogName",
-               p."createdAt", json_build_object(
-          'likesCount', COALESCE(lc.count, 0),
-          'dislikesCount', COALESCE(dc.count, 0),
-          'myStatus', COALESCE(pr."status", 'None'),
-          'newestLikes', COALESCE(nl.likes, '[]')
-                                    ) AS "extendedLikesInfo"
+               p."createdAt",
+               json_build_object(
+                 'likesCount', COALESCE(lc.count, 0),
+                 'dislikesCount', COALESCE(dc.count, 0),
+                 'myStatus', COALESCE(pr."status", 'None'),
+                 'newestLikes', COALESCE(nl.likes, '[]')
+               ) AS "extendedLikesInfo"
         FROM "Posts" p
                JOIN "Blogs" b ON b."id" = p."blogId"
                LEFT JOIN "LikesCount" lc ON lc."postId" = p."id"
@@ -105,6 +106,9 @@ export class PostsQueryRepository {
       ]);
     }
 
+    const orderByColumn: string =
+      sortBy !== PostsSortBy.BlogName ? `p."${sortBy}"` : 'b."name"';
+
     const offset: number = query.calculateSkip();
 
     const { rows }: QueryResult<PostRawRow> = await this.pool.query(
@@ -135,12 +139,13 @@ export class PostsQueryRepository {
                p."shortDescription",
                p."content",
                b."id"::text AS "blogId", b."name" AS "blogName",
-               p."createdAt", json_build_object(
-          'likesCount', COALESCE(lc."count", 0),
-          'dislikesCount', COALESCE(dc."count", 0),
-          'myStatus', COALESCE(pr."status", 'None'),
-          'newestLikes', COALESCE(nl."likes", '[]')
-                                    ) AS "extendedLikesInfo"
+               p."createdAt",
+               json_build_object(
+                 'likesCount', COALESCE(lc."count", 0),
+                 'dislikesCount', COALESCE(dc."count", 0),
+                 'myStatus', COALESCE(pr."status", 'None'),
+                 'newestLikes', COALESCE(nl."likes", '[]')
+               ) AS     "extendedLikesInfo"
         FROM "Posts" p
                JOIN "Blogs" b ON b."id" = p."blogId"
                LEFT JOIN "LikesCount" lc ON lc."postId" = p."id"
@@ -148,8 +153,9 @@ export class PostsQueryRepository {
                LEFT JOIN "PostsReactions" pr ON pr."postId" = p."id" AND pr."userId" = $3
                LEFT JOIN "NewestLikes" nl ON nl."postId" = p."id"
         WHERE p."deletedAt" IS NULL
-        AND ($4::int IS NULL OR p."blogId" = $4)
-        ORDER BY p."${sortBy}" ${sortDirection.toUpperCase()}
+          AND ($4::int IS NULL OR p."blogId" = $4)
+--         ORDER BY p."${sortBy}" ${sortDirection.toUpperCase()}
+        ORDER BY ${orderByColumn} ${sortDirection.toUpperCase()}
         OFFSET $1 LIMIT $2
       `,
       [offset, pageSize, user?.id ?? null, blogId ?? null],

@@ -16,6 +16,8 @@ import { Filter } from '../helpers/filter';
 import { TestLoggers } from '../helpers/test.loggers';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
+import { PostInputDto } from '../../src/modules/bloggers-platform/posts/api/input-dto/post-input.dto';
+import { TestDtoFactory } from '../helpers/test.dto-factory';
 
 describe('PostsController - getPost() (GET: /posts (pagination, sort, search in term))', () => {
   let appTestManager: AppTestManager;
@@ -248,6 +250,67 @@ describe('PostsController - getPost() (GET: /posts (pagination, sort, search in 
       );
     }
   });
+
+  // TODO: дописать тест!!!
+
+  // it.only('should use client-provided pagination values to return the correct subset of data(3).', async () => {
+  //   const blogs: BlogViewDto[] = await blogsTestManager.createBlog(12);
+  //   const posts: PostViewDto[] = [];
+  //   const dtos: PostInputDto[] = TestDtoFactory.generatePostInputDto(
+  //     blogs.length * 5,
+  //   );
+  //
+  //   for (let i = 0; i < blogs.length; i++) {
+  //     for (let j = 0; j < 5; j++) {
+  //       const dto: PostInputDto = dtos[j];
+  //
+  //       const response: Response = await request(server)
+  //         .post(`/${GLOBAL_PREFIX}/sa/blogs/${blogs[i].id}/posts`)
+  //         .send(dto)
+  //         .set('Authorization', adminCredentialsInBase64)
+  //         .expect(HttpStatus.CREATED);
+  //
+  //       posts.push(response.body);
+  //     }
+  //   }
+  //
+  //   const query: GetPostsQueryParams = new GetPostsQueryParams();
+  //   query.sortBy = PostsSortBy.BlogName;
+  //   query.sortDirection = SortDirection.Descending;
+  //   query.pageNumber = 2;
+  //   query.pageSize = 5;
+  //
+  //   const resGetPosts: Response = await request(server)
+  //     .get(`/${GLOBAL_PREFIX}/posts`)
+  //     .query(query)
+  //     .expect(HttpStatus.OK);
+  //
+  //   const filteredCreatedPosts: PostViewDto[] = new Filter<PostViewDto>(posts)
+  //     .sort({ [query.sortBy]: query.sortDirection })
+  //     .skip(query.calculateSkip())
+  //     .limit(query.pageSize)
+  //     .getResult();
+  //
+  //   console.log(resGetPosts.body);
+  //   console.log(filteredCreatedPosts);
+  //   // expect(resGetPosts.body).toEqual({
+  //   //   pagesCount: 12,
+  //   //   page: 2,
+  //   //   pageSize: 5,
+  //   //   totalCount: 60,
+  //   //   items: filteredCreatedPosts,
+  //   // });
+  //
+  //   // expect(resGetPosts.body.items).toHaveLength(1);
+  //   //
+  //   // if (testLoggingEnabled) {
+  //   //   TestLoggers.logE2E(
+  //   //     resGetPosts.body,
+  //   //     resGetPosts.statusCode,
+  //   //     'Test №4: PostsController - getPost() (GET: /posts (pagination, sort, search in term))',
+  //   //   );
+  //   // }
+  // });
 
   it('should return a 400 error if the client has passed invalid pagination values.', async () => {
     // 🔻 Создаем блог и создаем 12 постов для него
