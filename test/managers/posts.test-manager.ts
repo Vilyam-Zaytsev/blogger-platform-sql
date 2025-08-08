@@ -1,4 +1,8 @@
 import { Server } from 'http';
+import { PostViewDto } from '../../src/modules/bloggers-platform/posts/api/view-dto/post-view.dto';
+import request, { Response } from 'supertest';
+import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
+import { HttpStatus } from '@nestjs/common';
 
 export class PostsTestManager {
   constructor(
@@ -58,15 +62,15 @@ export class PostsTestManager {
   //   return res.body as PaginatedViewDto<PostViewDto>;
   // }
   //
-  // async getById(id: string, accessToken?: string): Promise<PostViewDto> {
-  //   let req = request(this.server).get(`/${GLOBAL_PREFIX}/posts/${id}`);
-  //
-  //   if (accessToken) {
-  //     req = req.set('Authorization', `Bearer ${accessToken}`);
-  //   }
-  //
-  //   const res: Response = await req.expect(HttpStatus.OK);
-  //
-  //   return res.body as PostViewDto;
-  // }
+  async getPostById(id: string, accessToken?: string): Promise<PostViewDto> {
+    let req = request(this.server).get(`/${GLOBAL_PREFIX}/posts/${id}`);
+
+    if (accessToken) {
+      req = req.set('Authorization', `Bearer ${accessToken}`);
+    }
+
+    const res: Response = await req.expect(HttpStatus.OK);
+
+    return res.body as PostViewDto;
+  }
 }
