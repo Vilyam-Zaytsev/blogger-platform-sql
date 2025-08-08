@@ -53,7 +53,7 @@ export class PostsRepository {
             "content"          = $3
         WHERE "id" = $4
       `,
-      [dto.title, dto.shortDescription, dto.content],
+      [dto.title, dto.shortDescription, dto.content, dto.postId],
     );
   }
 
