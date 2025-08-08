@@ -21,7 +21,6 @@ import { CreateBlogCommand } from '../application/usecases/create-blog.usecase';
 import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
-import { GetBlogQuery } from '../application/queries/get-blog.query-handler';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
@@ -95,13 +94,6 @@ export class BlogsAdminController {
     return this.queryBus.execute(new GetBlogsQuery(query));
   }
 
-  @Get(':id')
-  async getBlogById(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<BlogViewDto> {
-    return this.queryBus.execute(new GetBlogQuery(id));
-  }
-
   //🔸 Posts:
 
   @Post(':blogId/posts')
@@ -139,6 +131,15 @@ export class BlogsAdminController {
     await this.commandBus.execute(new UpdatePostCommand(dto));
   }
 
+  @Delete(':blogId/posts/:postId')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deletePost(
+    @Param('blogId', ParseIntPipe) blogId: number,
+    @Param('postId', ParseIntPipe) postId: number,
+  ): Promise<void> {
+    await this.commandBus.execute(new DeletePostCommand(blogId, postId));
+  }
+
   @Get(':blogId/posts')
   @UseGuards(OptionalJwtAuthGuard)
   async getPostsForBlog(
@@ -147,14 +148,5 @@ export class BlogsAdminController {
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto>> {
     return this.queryBus.execute(new GetPostsForBlogQuery(query, user, blogId));
-  }
-
-  @Delete(':blogId/posts/:postId')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deletePost(
-    @Param('blogId', ParseIntPipe) blogId: number,
-    @Param('postId', ParseIntPipe) postId: number,
-  ): Promise<void> {
-    await this.commandBus.execute(new DeletePostCommand(blogId, postId));
   }
 }

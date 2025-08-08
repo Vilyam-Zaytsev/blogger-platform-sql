@@ -11,7 +11,6 @@ import { QueryBus } from '@nestjs/cqrs';
 import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
-import { IdInputDto } from '../../../../core/dto/id.input-dto';
 import { GetBlogQuery } from '../application/queries/get-blog.query-handler';
 import { OptionalJwtAuthGuard } from '../../../user-accounts/auth/domain/guards/bearer/optional-jwt-auth.guard';
 import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/auth/domain/guards/decorators/extract-user-if-exists-from-request.decorator';
@@ -23,6 +22,7 @@ import { GetPostsForBlogQuery } from '../../posts/application/queries/get-posts-
 @Controller('blogs')
 export class BlogsPublicController {
   constructor(private readonly queryBus: QueryBus) {}
+
   @Get()
   async getAllBogs(
     @Query() query: GetBlogsQueryParams,
@@ -31,8 +31,10 @@ export class BlogsPublicController {
   }
 
   @Get(':id')
-  async getBlogById(@Param() params: IdInputDto): Promise<BlogViewDto> {
-    return this.queryBus.execute(new GetBlogQuery(params.id));
+  async getBlogById(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<BlogViewDto> {
+    return this.queryBus.execute(new GetBlogQuery(id));
   }
 
   @Get(':blogId/posts')
