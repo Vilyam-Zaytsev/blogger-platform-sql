@@ -34,11 +34,23 @@ export class CommentsRepository {
   async updateContent(dto: UpdateCommentContentDto): Promise<void> {
     await this.pool.query(
       `
-      UPDATE "Comments"
-      SET "content" = $1
-      WHERE "id" = $2
+        UPDATE "Comments"
+        SET "content" = $1
+        WHERE "id" = $2
       `,
       [dto.content, dto.commentId],
+    );
+  }
+
+  async softDelete(id: number): Promise<void> {
+    await this.pool.query(
+      `
+        UPDATE "Comments"
+        SET "deletedAt" = NOW()
+        WHERE "id" = $1
+          AND "deletedAt" IS NULL
+      `,
+      [id],
     );
   }
 }
