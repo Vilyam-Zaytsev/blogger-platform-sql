@@ -17,6 +17,7 @@ import { ExtractUserFromRequest } from '../../../user-accounts/auth/domain/guard
 import { UserContextDto } from '../../../user-accounts/auth/domain/guards/dto/user-context.dto';
 import { UpdateCommentDto } from '../dto/update-comment.dto';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
+import { DeleteCommentCommand } from '../application/usecases/delete-comment.usecase';
 
 @Controller('comments')
 export class CommentsController {
@@ -39,7 +40,22 @@ export class CommentsController {
       body.content,
     );
 
-    return await this.commandBus.execute(new UpdateCommentCommand(dto));
+    await this.commandBus.execute(new UpdateCommentCommand(dto));
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  async deletePost(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<void> {
+    await this.commandBus.execute(
+      new DeleteCommentCommand({
+        commentId: id,
+        userId: user.id,
+      }),
+    );
   }
 
   // @Get(':id')
@@ -70,13 +86,4 @@ export class CommentsController {
   //   );
   // }
   //
-  // @Delete(':id')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JwtAuthGuard)
-  // async deletePost(
-  //   @ExtractUserFromRequest() user: UserContextDto,
-  //   @Param() params: IdInputDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(new DeleteCommentCommand(params.id, user));
-  // }
 }
