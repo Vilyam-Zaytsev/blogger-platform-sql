@@ -80,6 +80,7 @@ import { UsersExternalRepository } from './users/infrastructure/external/users.e
     //repo
     UsersRepository,
     UsersQueryRepository,
+    UsersExternalRepository,
     //config
     UserAccountsConfig,
   ],

@@ -23,6 +23,7 @@ import { UpdateCommentUseCase } from './comments/application/usecases/update-com
 import { CommentsController } from './comments/api/comments.controller';
 import { DeleteCommentUseCase } from './comments/application/usecases/delete-comment.usecase';
 import { CreateCommentUseCase } from './comments/application/usecases/create-comment.usecase';
+import { CommentsQueryRepository } from './comments/infrastructure/query/comments.query-repository';
 
 @Module({
   imports: [UserAccountsModule],
@@ -60,7 +61,7 @@ import { CreateCommentUseCase } from './comments/application/usecases/create-com
     //🔸 Comments:
     //repo
     CommentsRepository,
-    // CommentsQueryRepository,
+    CommentsQueryRepository,
     // //use-cases
     CreateCommentUseCase,
     UpdateCommentUseCase,
