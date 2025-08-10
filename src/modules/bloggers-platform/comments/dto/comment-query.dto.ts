@@ -1,4 +1,4 @@
-export type CommentQuery = {
+export class CommentQueryDto {
   commentId: number;
   userId: number;
-};
+}
