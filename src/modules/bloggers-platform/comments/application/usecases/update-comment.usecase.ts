@@ -10,14 +10,13 @@ export class UpdateCommentCommand {
 }
 
 @CommandHandler(UpdateCommentCommand)
-export class UpdateCommentUseCase
-  implements ICommandHandler<UpdateCommentCommand>
-{
+export class UpdateCommentUseCase implements ICommandHandler<UpdateCommentCommand> {
   constructor(private readonly commentsRepository: CommentsRepository) {}
 
   async execute({ dto }: UpdateCommentCommand): Promise<void> {
-    const comment: CommentDbType =
-      await this.commentsRepository.getByIdOrNotFoundFail(dto.commentId);
+    const comment: CommentDbType = await this.commentsRepository.getByIdOrNotFoundFail(
+      dto.commentId,
+    );
 
     if (comment.commentatorId !== dto.userId) {
       throw new DomainException({

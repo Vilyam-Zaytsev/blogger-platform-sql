@@ -39,16 +39,9 @@ export class BlogsQueryRepository {
     return BlogViewDto.mapToView(rows[0]);
   }
 
-  async getAll(
-    query: GetBlogsQueryParams,
-  ): Promise<PaginatedViewDto<BlogViewDto>> {
-    const {
-      sortBy,
-      sortDirection,
-      pageSize,
-      pageNumber,
-      searchNameTerm,
-    }: GetBlogsQueryParams = query;
+  async getAll(query: GetBlogsQueryParams): Promise<PaginatedViewDto<BlogViewDto>> {
+    const { sortBy, sortDirection, pageSize, pageNumber, searchNameTerm }: GetBlogsQueryParams =
+      query;
 
     if (!Object.values(BlogsSortBy).includes(sortBy)) {
       throw new ValidationException([
@@ -87,16 +80,15 @@ export class BlogsQueryRepository {
         [...searchValues, offset, pageSize],
       );
 
-      const { rows: rowsCount }: QueryResult<{ totalCount: number }> =
-        await this.pool.query(
-          `
+      const { rows: rowsCount }: QueryResult<{ totalCount: number }> = await this.pool.query(
+        `
             SELECT COUNT(*) AS "totalCount"
             FROM "Blogs"
             WHERE "deletedAt" IS NULL
               ${searchCondition ? `AND (${searchCondition})` : ''}
           `,
-          [...searchValues],
-        );
+        [...searchValues],
+      );
 
       const items: BlogViewDto[] = blogs.map(
         (blog: BlogDbType): BlogViewDto => BlogViewDto.mapToView(blog),
@@ -111,10 +103,7 @@ export class BlogsQueryRepository {
         size: pageSize,
       });
     } catch (error) {
-      console.error(
-        'Ошибка при выполнении SQL-запроса в BlogsQueryRepository.getAll():',
-        error,
-      );
+      console.error('Ошибка при выполнении SQL-запроса в BlogsQueryRepository.getAll():', error);
       throw new DomainException({
         code: DomainExceptionCode.InternalServerError,
         message: 'The list of users could not be retrieved',

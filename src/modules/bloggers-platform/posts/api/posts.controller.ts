@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Post,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
 
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { PostsQueryRepository } from '../infrastructure/query/posts.query-repository';

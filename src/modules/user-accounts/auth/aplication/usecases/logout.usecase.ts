@@ -14,8 +14,9 @@ export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
   constructor(private readonly sessionsRepository: SessionsRepository) {}
 
   async execute({ sessionData }: LogoutCommand): Promise<void> {
-    const session: SessionDbType | null =
-      await this.sessionsRepository.getByDeviceId(sessionData.deviceId);
+    const session: SessionDbType | null = await this.sessionsRepository.getByDeviceId(
+      sessionData.deviceId,
+    );
 
     if (!session) {
       throw new DomainException({

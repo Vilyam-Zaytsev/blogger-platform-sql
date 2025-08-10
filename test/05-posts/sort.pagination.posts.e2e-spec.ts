@@ -55,10 +55,7 @@ describe('PostsController - getPost() (GET: /posts (pagination, sort, search in 
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Создаем 12 постов, привязанных к созданному блогу
-    const posts: PostViewDto[] = await postsTestManager.createPost(
-      12,
-      createdBlog.id,
-    );
+    const posts: PostViewDto[] = await postsTestManager.createPost(12, createdBlog.id);
 
     // 🔻 Отправляем GET-запрос на получение постов без параметров пагинации
     const resGetPosts: Response = await request(server)
@@ -101,10 +98,7 @@ describe('PostsController - getPost() (GET: /posts (pagination, sort, search in 
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Создаем 12 постов, связанных с этим блогом
-    const posts: PostViewDto[] = await postsTestManager.createPost(
-      12,
-      createdBlog.id,
-    );
+    const posts: PostViewDto[] = await postsTestManager.createPost(12, createdBlog.id);
 
     // 🔻 Формируем объект query-параметров, предоставленных клиентом
     const query: GetPostsQueryParams = new GetPostsQueryParams();
@@ -152,10 +146,7 @@ describe('PostsController - getPost() (GET: /posts (pagination, sort, search in 
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Создаем 12 постов, связанных с этим блогом
-    const posts: PostViewDto[] = await postsTestManager.createPost(
-      12,
-      createdBlog.id,
-    );
+    const posts: PostViewDto[] = await postsTestManager.createPost(12, createdBlog.id);
 
     // 🔻 Формируем объект query-параметров, предоставленных клиентом
     const query: GetPostsQueryParams = new GetPostsQueryParams();
@@ -203,10 +194,7 @@ describe('PostsController - getPost() (GET: /posts (pagination, sort, search in 
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Создаем 12 постов, связанных с этим блогом
-    const posts: PostViewDto[] = await postsTestManager.createPost(
-      12,
-      createdBlog.id,
-    );
+    const posts: PostViewDto[] = await postsTestManager.createPost(12, createdBlog.id);
 
     // 🔻 Формируем объект query-параметров с пользовательскими значениями
     const query: GetPostsQueryParams = new GetPostsQueryParams();

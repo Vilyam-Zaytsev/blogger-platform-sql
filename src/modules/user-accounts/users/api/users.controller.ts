@@ -34,17 +34,13 @@ export class UsersController {
   ) {}
 
   @Get()
-  async getAll(
-    @Query() query: GetUsersQueryParams,
-  ): Promise<PaginatedViewDto<UserViewDto>> {
+  async getAll(@Query() query: GetUsersQueryParams): Promise<PaginatedViewDto<UserViewDto>> {
     return this.queryBus.execute(new GetUsersQuery(query));
   }
 
   @Post()
   async createUser(@Body() body: UserInputDto): Promise<UserViewDto> {
-    const userId: number = await this.commandBus.execute(
-      new CreateUserCommand(body),
-    );
+    const userId: number = await this.commandBus.execute(new CreateUserCommand(body));
 
     return this.usersQueryRepository.getByIdOrNotFoundFail(userId);
   }

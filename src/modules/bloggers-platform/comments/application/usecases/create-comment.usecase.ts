@@ -14,9 +14,7 @@ export class CreateCommentCommand {
 }
 
 @CommandHandler(CreateCommentCommand)
-export class CreateCommentUseCase
-  implements ICommandHandler<CreateCommentCommand>
-{
+export class CreateCommentUseCase implements ICommandHandler<CreateCommentCommand> {
   constructor(
     @Inject(PG_POOL) private readonly pool: Pool,
     private readonly postsRepository: PostsRepository,
@@ -26,14 +24,13 @@ export class CreateCommentUseCase
 
   async execute({ dto }: CreateCommentCommand): Promise<number> {
     await this.postsRepository.getByIdOrNotFoundFail(dto.postId);
-    const user: UserDbType =
-      await this.usersExternalRepository.getByIdOrNotFoundFail(dto.userId);
+    // const user: UserDbType =
+    //   await this.usersExternalRepository.getByIdOrNotFoundFail(dto.userId);
 
     const commentDomainDto: CreateCommentDomainDto = {
       postId: dto.postId,
       content: dto.content,
       commentatorId: dto.userId,
-      commentatorLogin: user.login,
     };
 
     return await this.commentsRepository.insertComment(commentDomainDto);

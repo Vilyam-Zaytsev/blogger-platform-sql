@@ -78,9 +78,7 @@ describe('AuthController - passwordRecovery() (POST: /auth)', () => {
 
     // 🔻 Получаем recoveryCode из мокнутого spy-функционала генератора кода
     const passwordRecovery: PasswordRecoveryDbType | null =
-      await usersRepository.getPasswordRecoveryByRecoveryCode(
-        spy.mock.results[0].value,
-      );
+      await usersRepository.getPasswordRecoveryByRecoveryCode(spy.mock.results[0].value);
 
     // 🔸 Проверяем, что запись с таким recoveryCode найдена в базе
     expect(passwordRecovery).not.toBeNull();

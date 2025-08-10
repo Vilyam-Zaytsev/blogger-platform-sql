@@ -51,10 +51,7 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Создаем пост, привязанный к этому блогу
-    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(
-      1,
-      createdBlog.id,
-    );
+    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog.id);
 
     // 🔻 Формируем DTO с обновленными данными
     const dto: PostInputDto = {
@@ -65,17 +62,13 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
 
     // 🔻 Отправляем PUT-запрос на обновление поста
     const resUpdatePost: Response = await request(server)
-      .put(
-        `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`,
-      )
+      .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`)
       .send(dto)
       .set('Authorization', adminCredentialsInBase64)
       .expect(HttpStatus.NO_CONTENT);
 
     // 🔻 Получаем обновленный пост из базы данных
-    const updatedPost: PostViewDto = await postsTestManager.getPostById(
-      createdPost.id,
-    );
+    const updatedPost: PostViewDto = await postsTestManager.getPostById(createdPost.id);
 
     // 🔻 Убеждаемся, что обновленный пост отличается от оригинального
     expect(createdPost).not.toEqual(updatedPost);
@@ -111,10 +104,7 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Создаем пост, привязанный к этому блогу
-    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(
-      1,
-      createdBlog.id,
-    );
+    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog.id);
 
     // 🔻 Формируем DTO с новыми данными
     const dto: PostInputDto = {
@@ -125,17 +115,13 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
 
     // 🔻 Отправляем PUT-запрос с некорректными данными авторизации
     const resUpdatePost: Response = await request(server)
-      .put(
-        `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`,
-      )
+      .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`)
       .send(dto)
       .set('Authorization', 'incorrect admin credentials')
       .expect(HttpStatus.UNAUTHORIZED);
 
     // 🔻 Получаем пост из базы данных, чтобы убедиться, что он не был изменен
-    const post: PostViewDto = await postsTestManager.getPostById(
-      createdPost.id,
-    );
+    const post: PostViewDto = await postsTestManager.getPostById(createdPost.id);
 
     // 🔻 Проверяем, что пост остался без изменений
     expect(createdPost).toEqual(post);
@@ -154,16 +140,11 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Создаем пост, привязанный к этому блогу
-    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(
-      1,
-      createdBlog.id,
-    );
+    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog.id);
 
     // 🔻 Отправляем PUT-запрос с пустым телом ({}), что является невалидным
     const resUpdatePost: Response = await request(server)
-      .put(
-        `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`,
-      )
+      .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`)
       .send({})
       .set('Authorization', adminCredentialsInBase64)
       .expect(HttpStatus.BAD_REQUEST);
@@ -177,8 +158,7 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
         },
         {
           field: 'shortDescription',
-          message:
-            'shortDescription must be a string; Received value: undefined',
+          message: 'shortDescription must be a string; Received value: undefined',
         },
         {
           field: 'title',
@@ -188,9 +168,7 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
     });
 
     // 🔻 Получаем пост из базы данных, чтобы убедиться, что он не был изменен
-    const post: PostViewDto = await postsTestManager.getPostById(
-      createdPost.id,
-    );
+    const post: PostViewDto = await postsTestManager.getPostById(createdPost.id);
 
     // 🔻 Сравниваем — пост должен остаться прежним
     expect(createdPost).toEqual(post);
@@ -209,16 +187,11 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Создаем пост, привязанный к этому блогу
-    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(
-      1,
-      createdBlog.id,
-    );
+    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog.id);
 
     // 🔻 Отправляем PUT-запрос с полями, содержащими только пробелы
     const resUpdatePost: Response = await request(server)
-      .put(
-        `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`,
-      )
+      .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`)
       .send({
         title: '   ',
         shortDescription: '   ',
@@ -232,8 +205,7 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
       errorsMessages: [
         {
           field: 'content',
-          message:
-            'content must be longer than or equal to 1 characters; Received value: ',
+          message: 'content must be longer than or equal to 1 characters; Received value: ',
         },
         {
           field: 'shortDescription',
@@ -242,16 +214,13 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
         },
         {
           field: 'title',
-          message:
-            'title must be longer than or equal to 1 characters; Received value: ',
+          message: 'title must be longer than or equal to 1 characters; Received value: ',
         },
       ],
     });
 
     // 🔻 Получаем пост из базы данных, чтобы убедиться, что он остался неизменным
-    const post: PostViewDto = await postsTestManager.getPostById(
-      createdPost.id,
-    );
+    const post: PostViewDto = await postsTestManager.getPostById(createdPost.id);
 
     // 🔻 Сравниваем — пост не должен измениться
     expect(createdPost).toEqual(post);
@@ -270,10 +239,7 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Создаем пост, привязанный к этому блогу
-    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(
-      1,
-      createdBlog.id,
-    );
+    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog.id);
 
     // 🔻 Генерируем строки, превышающие допустимую длину
     const title: string = TestUtils.generateRandomString(31);
@@ -282,9 +248,7 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
 
     // 🔻 Отправляем PUT-запрос на обновление поста с некорректными данными
     const resUpdatePost: Response = await request(server)
-      .put(
-        `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`,
-      )
+      .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`)
       .send({
         title,
         shortDescription,
@@ -312,9 +276,7 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
     });
 
     // 🔻 Получаем пост из базы данных, чтобы убедиться, что он не изменился
-    const post: PostViewDto = await postsTestManager.getPostById(
-      createdPost.id,
-    );
+    const post: PostViewDto = await postsTestManager.getPostById(createdPost.id);
 
     // 🔻 Проверяем, что пост остался неизменным
     expect(createdPost).toEqual(post);
@@ -333,16 +295,11 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Создаем пост, связанный с этим блогом
-    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(
-      1,
-      createdBlog.id,
-    );
+    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog.id);
 
     // 🔻 Отправляем PUT-запрос с полями неправильного типа (number вместо string)
     const resUpdatePost: Response = await request(server)
-      .put(
-        `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`,
-      )
+      .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${createdPost.id}`)
       .send({
         title: 123,
         shortDescription: 123,
@@ -370,9 +327,7 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
     });
 
     // 🔻 Получаем пост из базы, чтобы убедиться, что он не был изменён
-    const post: PostViewDto = await postsTestManager.getPostById(
-      createdPost.id,
-    );
+    const post: PostViewDto = await postsTestManager.getPostById(createdPost.id);
 
     // 🔻 Сравниваем, что пост остался прежним
     expect(createdPost).toEqual(post);
@@ -391,10 +346,7 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Создаем пост, привязанный к этому блогу
-    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(
-      1,
-      createdBlog.id,
-    );
+    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog.id);
 
     // 🔻 DTO с валидными данными для обновления
     const dto: PostInputDto = {
@@ -408,17 +360,13 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
 
     // 🔻 Отправляем PUT-запрос на обновление несуществующего поста
     const resUpdatePost: Response = await request(server)
-      .put(
-        `/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${incorrectPostId}`,
-      )
+      .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}/posts/${incorrectPostId}`)
       .send(dto)
       .set('Authorization', adminCredentialsInBase64)
       .expect(HttpStatus.NOT_FOUND);
 
     // 🔻 Получаем оригинальный пост из базы, чтобы убедиться, что он не изменился
-    const post: PostViewDto = await postsTestManager.getPostById(
-      createdPost.id,
-    );
+    const post: PostViewDto = await postsTestManager.getPostById(createdPost.id);
 
     // 🔻 Проверяем, что содержимое поста осталось прежним
     expect(createdPost).toEqual(post);

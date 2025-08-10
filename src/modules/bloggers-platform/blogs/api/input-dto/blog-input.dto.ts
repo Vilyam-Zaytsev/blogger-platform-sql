@@ -10,8 +10,6 @@ export class BlogInputDto {
 
   @IsStringWithTrimDecorator(1, 100)
   @IsUrl()
-  @Matches(
-    /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/,
-  )
+  @Matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/)
   websiteUrl: string;
 }

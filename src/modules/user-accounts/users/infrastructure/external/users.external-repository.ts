@@ -10,14 +10,13 @@ export class UsersExternalRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<UserDbType> {
-    const queryResult: QueryResult<UserDbType> =
-      await this.pool.query<UserDbType>(
-        `SELECT *
+    const queryResult: QueryResult<UserDbType> = await this.pool.query<UserDbType>(
+      `SELECT *
          FROM "Users"
          WHERE id = $1
            AND "deletedAt" IS NULL`,
-        [id],
-      );
+      [id],
+    );
 
     if (!queryResult.rows[0]) {
       throw new DomainException({

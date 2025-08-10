@@ -14,10 +14,10 @@ export class CommentsRepository {
   async insertComment(dto: CreateCommentDomainDto): Promise<number> {
     const { rows }: QueryResult<{ id: number }> = await this.pool.query(
       `
-      INSERT INTO "Comments" ("postId", "commentatorId", "content", "commentatorLogin")
-      VALUES ($1, $2, $3, $4) RETURNING "id";
+      INSERT INTO "Comments" ("postId", "commentatorId", "content")
+      VALUES ($1, $2, $3) RETURNING "id";
       `,
-      [dto.postId, dto.commentatorId, dto.content, dto.commentatorLogin],
+      [dto.postId, dto.commentatorId, dto.content],
     );
 
     return rows[0].id;

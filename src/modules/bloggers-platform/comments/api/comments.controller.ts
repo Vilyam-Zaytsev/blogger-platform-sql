@@ -38,11 +38,7 @@ export class CommentsController {
     @Param('id', ParseIntPipe) id: number,
     @Body() body: CommentInputDto,
   ): Promise<void> {
-    const dto: UpdateCommentDto = new UpdateCommentDto(
-      id,
-      user.id,
-      body.content,
-    );
+    const dto: UpdateCommentDto = new UpdateCommentDto(id, user.id, body.content);
 
     await this.commandBus.execute(new UpdateCommentCommand(dto));
   }

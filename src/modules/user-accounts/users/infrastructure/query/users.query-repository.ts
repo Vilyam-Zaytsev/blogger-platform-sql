@@ -37,9 +37,7 @@ export class UsersQueryRepository {
     return UserViewDto.mapToView(result.rows[0]);
   }
 
-  async getAll(
-    query: GetUsersQueryParams,
-  ): Promise<PaginatedViewDto<UserViewDto>> {
+  async getAll(query: GetUsersQueryParams): Promise<PaginatedViewDto<UserViewDto>> {
     const {
       sortBy,
       sortDirection,
@@ -50,10 +48,7 @@ export class UsersQueryRepository {
     }: GetUsersQueryParams = query;
     const offset: number = query.calculateSkip();
     const { condition: searchCondition, values: searchValues } =
-      SearchFilterBuilder.buildUserSearchFilter(
-        searchLoginTerm,
-        searchEmailTerm,
-      );
+      SearchFilterBuilder.buildUserSearchFilter(searchLoginTerm, searchEmailTerm);
     const offsetParamIndex: number = searchValues.length + 1;
     const limitParamIndex: number = searchValues.length + 2;
 
@@ -86,14 +81,13 @@ export class UsersQueryRepository {
         [...searchValues, offset, pageSize],
       );
 
-      const totalCountResult: QueryResult<{ totalCount: number }> =
-        await this.pool.query(
-          `SELECT COUNT(*) AS "totalCount"
+      const totalCountResult: QueryResult<{ totalCount: number }> = await this.pool.query(
+        `SELECT COUNT(*) AS "totalCount"
            FROM "Users"
            WHERE "deletedAt" IS NULL
              ${searchCondition ? `AND (${searchCondition})` : ''}`,
-          [...searchValues],
-        );
+        [...searchValues],
+      );
 
       const items: UserViewDto[] = users.rows.map(
         (user: UserDbType): UserViewDto => UserViewDto.mapToView(user),
@@ -108,10 +102,7 @@ export class UsersQueryRepository {
         size: pageSize,
       });
     } catch (error) {
-      console.error(
-        'Ошибка при выполнении SQL-запроса в UsersQueryRepository.getAll():',
-        error,
-      );
+      console.error('Ошибка при выполнении SQL-запроса в UsersQueryRepository.getAll():', error);
       throw new DomainException({
         code: DomainExceptionCode.InternalServerError,
         message: 'The list of users could not be retrieved',

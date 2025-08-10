@@ -6,9 +6,6 @@ export const contentConstraints = {
 };
 
 export class CommentInputDto {
-  @IsStringWithTrimDecorator(
-    contentConstraints.minLength,
-    contentConstraints.maxLength,
-  )
+  @IsStringWithTrimDecorator(contentConstraints.minLength, contentConstraints.maxLength)
   content: string;
 }

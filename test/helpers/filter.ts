@@ -39,11 +39,7 @@ export class Filter<T extends object> {
       const value = obj[key];
       const path = prefix ? `${prefix}.${key}` : key;
 
-      if (
-        value !== null &&
-        typeof value === 'object' &&
-        !Array.isArray(value)
-      ) {
+      if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
         this.createPropertyMap(value as unknown as T, path);
       } else {
         this.propertyMap[key as keyof T] = path;
@@ -75,11 +71,7 @@ export class Filter<T extends object> {
    * @param {SortDirection} direction Направление сортировки (по возрастанию или убыванию)
    * @returns {number} Результат сравнения: -1, 0 или 1
    */
-  private compareValues(
-    a: unknown,
-    b: unknown,
-    direction: SortDirection,
-  ): number {
+  private compareValues(a: unknown, b: unknown, direction: SortDirection): number {
     if (typeof a === 'string' && typeof b === 'string') {
       const comparison: number = a.localeCompare(b);
       return direction === SortDirection.Ascending ? comparison : -comparison;
@@ -147,8 +139,7 @@ export class Filter<T extends object> {
       let hasAtLeastOneMatch = false;
 
       for (const key in searchFilter) {
-        const searchTerm: string | undefined =
-          searchFilter[key as keyof TestSearchFilter];
+        const searchTerm: string | undefined = searchFilter[key as keyof TestSearchFilter];
         if (searchTerm == null || searchTerm === '') continue;
 
         const fieldName: string = key;
@@ -161,8 +152,7 @@ export class Filter<T extends object> {
 
         if (typeof itemValue !== 'string') continue;
 
-        if (itemValue.toLowerCase().includes(searchTerm.toLowerCase()))
-          hasAtLeastOneMatch = true;
+        if (itemValue.toLowerCase().includes(searchTerm.toLowerCase())) hasAtLeastOneMatch = true;
       }
       return hasAtLeastOneMatch;
     });

@@ -12,9 +12,7 @@ export class PasswordRecoveryCommand {
 }
 
 @CommandHandler(PasswordRecoveryCommand)
-export class PasswordRecoveryUseCase
-  implements ICommandHandler<PasswordRecoveryCommand>
-{
+export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecoveryCommand> {
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly cryptoService: CryptoService,
@@ -22,9 +20,7 @@ export class PasswordRecoveryUseCase
   ) {}
 
   async execute({ dto }: PasswordRecoveryCommand): Promise<void> {
-    const user: UserDbType | null = await this.usersRepository.getByEmail(
-      dto.email,
-    );
+    const user: UserDbType | null = await this.usersRepository.getByEmail(dto.email);
 
     if (!user) return;
 
@@ -37,9 +33,7 @@ export class PasswordRecoveryUseCase
       expirationDate,
     };
 
-    await this.usersRepository.insertOrUpdatePasswordRecovery(
-      createPasswordRecoveryDto,
-    );
+    await this.usersRepository.insertOrUpdatePasswordRecovery(createPasswordRecoveryDto);
 
     this.eventBus.publish(new PasswordRecoveryEvent(user.email, recoveryCode));
   }

@@ -46,8 +46,7 @@ describe('UsersController - deleteUser() (DELETE: /users)', () => {
     const [createdUser]: UserViewDto[] = await usersTestManager.createUser(1);
 
     // 🔻 Получаем список всех пользователей после создания
-    const users_1: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const users_1: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
     // 🔸 Проверяем, что в базе появился один пользователь
     expect(users_1.items).toHaveLength(1);
 
@@ -58,8 +57,7 @@ describe('UsersController - deleteUser() (DELETE: /users)', () => {
       .expect(HttpStatus.NO_CONTENT);
 
     // 🔻 Получаем список всех пользователей после попытки удаления
-    const users_2: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const users_2: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
     // 🔸 Проверяем, что пользователь успешно удален (список пустой)
     expect(users_2.items).toHaveLength(0);
 
@@ -83,8 +81,7 @@ describe('UsersController - deleteUser() (DELETE: /users)', () => {
       .expect(HttpStatus.UNAUTHORIZED);
 
     // 🔻 Получаем список всех пользователей после попытки удаления
-    const users: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const users: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
 
     // 🔸 Проверяем, что пользователь остался в базе данных
     expect(users.items[0]).toEqual<UserViewDto>(createdUser);
@@ -113,8 +110,7 @@ describe('UsersController - deleteUser() (DELETE: /users)', () => {
       .expect(HttpStatus.NOT_FOUND);
 
     // 🔻 Получаем список всех пользователей после попытки удаления
-    const users: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const users: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
 
     // 🔸 Проверяем, что оригинальный пользователь остался в базе данных
     expect(users.items[0]).toEqual<UserViewDto>(createdUser);

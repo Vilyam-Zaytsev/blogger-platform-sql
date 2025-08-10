@@ -13,10 +13,7 @@ export class LocalAuthGuard extends AuthGuard('local') {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
 
-    const dtoObject: LoginInputDto = plainToInstance(
-      LoginInputDto,
-      request.body,
-    );
+    const dtoObject: LoginInputDto = plainToInstance(LoginInputDto, request.body);
 
     const errors: ValidationError[] = validateSync(dtoObject, {
       whitelist: true,

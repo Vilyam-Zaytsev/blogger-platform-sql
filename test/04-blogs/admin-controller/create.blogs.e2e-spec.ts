@@ -60,16 +60,12 @@ describe('BlogsAdminController - createBlog() (POST: /sa/blogs)', () => {
       name: dto.name,
       description: dto.description,
       websiteUrl: dto.websiteUrl,
-      createdAt: expect.stringMatching(
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
-      ),
+      createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
       isMembership: false,
     });
 
     // 🔻 Делаем GET-запрос /sa/blogs/{id}, чтобы убедиться, что блог действительно создан
-    const createdBlog: BlogViewDto = await blogsTestManager.getById(
-      resCreateBlog.body.id,
-    );
+    const createdBlog: BlogViewDto = await blogsTestManager.getById(resCreateBlog.body.id);
 
     // 🔸 Сравниваем, что данные из ответа при создании совпадают с данными из GET-запроса
     expect(resCreateBlog.body).toEqual(createdBlog);
@@ -99,8 +95,7 @@ describe('BlogsAdminController - createBlog() (POST: /sa/blogs)', () => {
       .expect(HttpStatus.UNAUTHORIZED);
 
     // 🔻 Получаем список блогов через GET-запрос
-    const { items: blogs }: PaginatedViewDto<BlogViewDto> =
-      await blogsTestManager.getAll();
+    const { items: blogs }: PaginatedViewDto<BlogViewDto> = await blogsTestManager.getAll();
 
     // 🔸 Проверяем, что блог не был создан
     expect(blogs).toHaveLength(0);
@@ -142,8 +137,7 @@ describe('BlogsAdminController - createBlog() (POST: /sa/blogs)', () => {
     });
 
     // 🔻 Получаем список блогов через GET-запрос
-    const { items: blogs }: PaginatedViewDto<BlogViewDto> =
-      await blogsTestManager.getAll();
+    const { items: blogs }: PaginatedViewDto<BlogViewDto> = await blogsTestManager.getAll();
 
     // 🔸 Убеждаемся, что блог не был создан
     expect(blogs).toHaveLength(0);
@@ -179,20 +173,17 @@ describe('BlogsAdminController - createBlog() (POST: /sa/blogs)', () => {
         },
         {
           field: 'description',
-          message:
-            'description must be longer than or equal to 1 characters; Received value: ',
+          message: 'description must be longer than or equal to 1 characters; Received value: ',
         },
         {
           field: 'name',
-          message:
-            'name must be longer than or equal to 1 characters; Received value: ',
+          message: 'name must be longer than or equal to 1 characters; Received value: ',
         },
       ],
     });
 
     // 🔻 Получаем список блогов через GET-запрос
-    const { items: blogs }: PaginatedViewDto<BlogViewDto> =
-      await blogsTestManager.getAll();
+    const { items: blogs }: PaginatedViewDto<BlogViewDto> = await blogsTestManager.getAll();
 
     // 🔸 Убеждаемся, что блог не был создан
     expect(blogs).toHaveLength(0);
@@ -244,8 +235,7 @@ describe('BlogsAdminController - createBlog() (POST: /sa/blogs)', () => {
     });
 
     // 🔻 Запрашиваем список блогов через GET-запрос
-    const { items: blogs }: PaginatedViewDto<BlogViewDto> =
-      await blogsTestManager.getAll();
+    const { items: blogs }: PaginatedViewDto<BlogViewDto> = await blogsTestManager.getAll();
 
     // 🔸 Убеждаемся, что блог не был создан
     expect(blogs).toHaveLength(0);
@@ -292,8 +282,7 @@ describe('BlogsAdminController - createBlog() (POST: /sa/blogs)', () => {
     });
 
     // 🔻 Запрашиваем список блогов через GET-запрос
-    const { items: blogs }: PaginatedViewDto<BlogViewDto> =
-      await blogsTestManager.getAll();
+    const { items: blogs }: PaginatedViewDto<BlogViewDto> = await blogsTestManager.getAll();
 
     // 🔸 Убеждаемся, что блог не был создан
     expect(blogs).toHaveLength(0);
@@ -332,8 +321,7 @@ describe('BlogsAdminController - createBlog() (POST: /sa/blogs)', () => {
     });
 
     // 🔻 Получаем список блогов через GET-запрос
-    const { items: blogs }: PaginatedViewDto<BlogViewDto> =
-      await blogsTestManager.getAll();
+    const { items: blogs }: PaginatedViewDto<BlogViewDto> = await blogsTestManager.getAll();
 
     // 🔸 Убеждаемся, что блог не был создан
     expect(blogs).toHaveLength(0);

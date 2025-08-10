@@ -53,14 +53,8 @@ export class BlogsAdminController {
 
   @Post()
   async createBlog(@Body() body: BlogInputDto): Promise<BlogViewDto> {
-    const dto: CreateBlogDto = new CreateBlogDto(
-      body.name,
-      body.description,
-      body.websiteUrl,
-    );
-    const idCreatedBlog: number = await this.commandBus.execute(
-      new CreateBlogCommand(dto),
-    );
+    const dto: CreateBlogDto = new CreateBlogDto(body.name, body.description, body.websiteUrl);
+    const idCreatedBlog: number = await this.commandBus.execute(new CreateBlogCommand(dto));
 
     return this.blogsQueryRepository.getByIdOrNotFoundFail(idCreatedBlog);
   }
@@ -71,12 +65,7 @@ export class BlogsAdminController {
     @Param('id', ParseIntPipe) id: number,
     @Body() body: BlogInputDto,
   ): Promise<void> {
-    const dto: UpdateBlogDto = new UpdateBlogDto(
-      id,
-      body.name,
-      body.description,
-      body.websiteUrl,
-    );
+    const dto: UpdateBlogDto = new UpdateBlogDto(id, body.name, body.description, body.websiteUrl);
 
     await this.commandBus.execute(new UpdateBlogCommand(dto));
   }
@@ -88,9 +77,7 @@ export class BlogsAdminController {
   }
 
   @Get()
-  async getAllBlogs(
-    @Query() query: GetBlogsQueryParams,
-  ): Promise<PaginatedViewDto<BlogViewDto>> {
+  async getAllBlogs(@Query() query: GetBlogsQueryParams): Promise<PaginatedViewDto<BlogViewDto>> {
     return this.queryBus.execute(new GetBlogsQuery(query));
   }
 
@@ -101,16 +88,9 @@ export class BlogsAdminController {
     @Param('blogId', ParseIntPipe) blogId: number,
     @Body() { title, shortDescription, content }: PostInputDto,
   ): Promise<PostViewDto> {
-    const dto: CreatePostDto = new CreatePostDto(
-      title,
-      shortDescription,
-      content,
-      blogId,
-    );
+    const dto: CreatePostDto = new CreatePostDto(title, shortDescription, content, blogId);
 
-    const idCreatedPost: number = await this.commandBus.execute(
-      new CreatePostCommand(dto),
-    );
+    const idCreatedPost: number = await this.commandBus.execute(new CreatePostCommand(dto));
 
     return this.postsQueryRepository.getByIdOrNotFoundFail(idCreatedPost, null);
   }

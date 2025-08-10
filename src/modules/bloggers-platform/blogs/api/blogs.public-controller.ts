@@ -1,11 +1,4 @@
-import {
-  Controller,
-  Get,
-  Param,
-  ParseIntPipe,
-  Query,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, Get, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
 import { BlogViewDto } from './view-dto/blog-view.dto';
 import { QueryBus } from '@nestjs/cqrs';
 import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dto';
@@ -24,16 +17,12 @@ export class BlogsPublicController {
   constructor(private readonly queryBus: QueryBus) {}
 
   @Get()
-  async getAllBogs(
-    @Query() query: GetBlogsQueryParams,
-  ): Promise<PaginatedViewDto<BlogViewDto>> {
+  async getAllBogs(@Query() query: GetBlogsQueryParams): Promise<PaginatedViewDto<BlogViewDto>> {
     return this.queryBus.execute(new GetBlogsQuery(query));
   }
 
   @Get(':id')
-  async getBlogById(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<BlogViewDto> {
+  async getBlogById(@Param('id', ParseIntPipe) id: number): Promise<BlogViewDto> {
     return this.queryBus.execute(new GetBlogQuery(id));
   }
 

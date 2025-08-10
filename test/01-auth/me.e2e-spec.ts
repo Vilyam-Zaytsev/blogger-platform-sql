@@ -23,17 +23,15 @@ describe('AuthController - me() (POST: /auth/me)', () => {
   beforeAll(async () => {
     appTestManager = new AppTestManager();
     await appTestManager.init((moduleBuilder) =>
-      moduleBuilder
-        .overrideProvider(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN)
-        .useFactory({
-          factory: (userAccountsConfig: UserAccountsConfig) => {
-            return new JwtService({
-              secret: userAccountsConfig.accessTokenSecret,
-              signOptions: { expiresIn: '2s' },
-            });
-          },
-          inject: [UserAccountsConfig],
-        }),
+      moduleBuilder.overrideProvider(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN).useFactory({
+        factory: (userAccountsConfig: UserAccountsConfig) => {
+          return new JwtService({
+            secret: userAccountsConfig.accessTokenSecret,
+            signOptions: { expiresIn: '2s' },
+          });
+        },
+        inject: [UserAccountsConfig],
+      }),
     );
 
     adminCredentials = appTestManager.getAdminCredentials();
@@ -62,9 +60,7 @@ describe('AuthController - me() (POST: /auth/me)', () => {
     const [user]: UserViewDto[] = await usersTestManager.createUser(1);
 
     // 🔻 Логинимся под этим пользователем и получаем пару access/refresh токенов
-    const [resultLogin]: TestResultLogin[] = await usersTestManager.login([
-      user.login,
-    ]);
+    const [resultLogin]: TestResultLogin[] = await usersTestManager.login([user.login]);
 
     // 🔻 Извлекаем accessToken для авторизации запроса
     const accessToken: string = resultLogin.authTokens.accessToken;
@@ -99,9 +95,7 @@ describe('AuthController - me() (POST: /auth/me)', () => {
     const [user]: UserViewDto[] = await usersTestManager.createUser(1);
 
     // 🔻 Логинимся под этим пользователем и получаем пару access/pfghjrefresh токенов
-    const [resultLogin]: TestResultLogin[] = await usersTestManager.login([
-      user.login,
-    ]);
+    const [resultLogin]: TestResultLogin[] = await usersTestManager.login([user.login]);
 
     // 🔻 Сохраняем accessToken, который через 3 секунды станет невалидным
     const accessToken: string = resultLogin.authTokens.accessToken;

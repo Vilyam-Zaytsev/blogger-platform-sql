@@ -42,9 +42,7 @@ export class BlogsTestManager {
     return newBlogs;
   }
 
-  async getAll(
-    query: Partial<GetBlogsQueryParams> = {},
-  ): Promise<PaginatedViewDto<BlogViewDto>> {
+  async getAll(query: Partial<GetBlogsQueryParams> = {}): Promise<PaginatedViewDto<BlogViewDto>> {
     const response: Response = await request(this.server)
       .get(`/${GLOBAL_PREFIX}/blogs`)
       .query(query)

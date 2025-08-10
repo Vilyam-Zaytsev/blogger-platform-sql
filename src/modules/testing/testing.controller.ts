@@ -1,10 +1,4 @@
-import {
-  Controller,
-  Delete,
-  HttpCode,
-  HttpStatus,
-  Inject,
-} from '@nestjs/common';
+import { Controller, Delete, HttpCode, HttpStatus, Inject } from '@nestjs/common';
 import { Pool } from 'pg';
 import { PG_POOL } from '../database/constants/database.constants';
 
@@ -31,19 +25,14 @@ export class TestingController {
         .filter((name: string): boolean => name !== 'schema_migrations');
 
       if (tableNames.length > 0) {
-        const tablesList: string = tableNames
-          .map((name: string): string => `"${name}"`)
-          .join(', ');
+        const tablesList: string = tableNames.map((name: string): string => `"${name}"`).join(', ');
         await client.query(`TRUNCATE ${tablesList} RESTART IDENTITY CASCADE;`);
       }
 
       await client.query('COMMIT');
     } catch (error) {
       await client.query('ROLLBACK');
-      console.error(
-        'Ошибка при удалении всех данных в тестовом модуле:',
-        error,
-      );
+      console.error('Ошибка при удалении всех данных в тестовом модуле:', error);
       throw error;
     } finally {
       client.release();

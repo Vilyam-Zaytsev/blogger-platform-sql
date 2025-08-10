@@ -72,8 +72,7 @@ describe('AuthController - newPassword() (POST: /auth/new-password)', () => {
     await usersTestManager.passwordRecovery(user.email);
 
     // 🔻 Получаем пользователя из базы до изменения пароля, чтобы позже сравнить hash
-    const userWithOldPassword: UserDbType | null =
-      await usersRepository.getByEmail(user.email);
+    const userWithOldPassword: UserDbType | null = await usersRepository.getByEmail(user.email);
 
     expect(userWithOldPassword).not.toBeNull();
 
@@ -86,9 +85,7 @@ describe('AuthController - newPassword() (POST: /auth/new-password)', () => {
 
     // 🔻 Получаем запись восстановления по коду из email-отправки (взятый из mock-а)
     const passwordRecovery_1: PasswordRecoveryDbType | null =
-      await usersRepository.getPasswordRecoveryByRecoveryCode(
-        spy.mock.results[0].value,
-      );
+      await usersRepository.getPasswordRecoveryByRecoveryCode(spy.mock.results[0].value);
 
     expect(passwordRecovery_1).not.toBeNull();
 
@@ -117,8 +114,7 @@ describe('AuthController - newPassword() (POST: /auth/new-password)', () => {
       .expect(HttpStatus.NO_CONTENT);
 
     // 🔻 Получаем пользователя повторно после изменения пароля
-    const userWithNewPassword: UserDbType | null =
-      await usersRepository.getByEmail(user.email);
+    const userWithNewPassword: UserDbType | null = await usersRepository.getByEmail(user.email);
 
     expect(userWithNewPassword).not.toBeNull();
 
@@ -130,15 +126,11 @@ describe('AuthController - newPassword() (POST: /auth/new-password)', () => {
     }
 
     // 🔸 Проверяем, что хэш пароля действительно изменился
-    expect(userWithOldPassword.passwordHash).not.toBe(
-      userWithNewPassword.passwordHash,
-    );
+    expect(userWithOldPassword.passwordHash).not.toBe(userWithNewPassword.passwordHash);
 
     // 🔻 Проверяем, что recovery-код удалён из базы после успешного изменения пароля
     const passwordRecovery_2: PasswordRecoveryDbType | null =
-      await usersRepository.getPasswordRecoveryByRecoveryCode(
-        spy.mock.results[0].value,
-      );
+      await usersRepository.getPasswordRecoveryByRecoveryCode(spy.mock.results[0].value);
 
     // 🔸 Запись должна быть удалена — возврат null
     expect(passwordRecovery_2).toBeNull();
@@ -197,9 +189,7 @@ describe('AuthController - newPassword() (POST: /auth/new-password)', () => {
     await usersTestManager.passwordRecovery(user.email);
 
     // 🔻 Получаем пользователя из базы до изменения пароля
-    const found_user_1: UserDbType | null = await usersRepository.getByEmail(
-      user.email,
-    );
+    const found_user_1: UserDbType | null = await usersRepository.getByEmail(user.email);
 
     // 🔸 Проверяем, что пользователь найден
     expect(found_user_1).not.toBeNull();
@@ -231,9 +221,7 @@ describe('AuthController - newPassword() (POST: /auth/new-password)', () => {
     });
 
     // 🔻 Получаем пользователя из базы после запроса на смену пароля
-    const found_user_2: UserDbType | null = await usersRepository.getByEmail(
-      user.email,
-    );
+    const found_user_2: UserDbType | null = await usersRepository.getByEmail(user.email);
 
     // 🔸 Проверяем, что пользователь всё ещё существует
     expect(found_user_2).not.toBeNull();
@@ -270,9 +258,7 @@ describe('AuthController - newPassword() (POST: /auth/new-password)', () => {
     await usersTestManager.passwordRecovery(user.email);
 
     // 🔻 Получаем пользователя из базы данных (до попытки смены пароля)
-    const found_user_1: UserDbType | null = await usersRepository.getByEmail(
-      user.email,
-    );
+    const found_user_1: UserDbType | null = await usersRepository.getByEmail(user.email);
 
     // 🔸 Проверяем, что пользователь действительно существует
     expect(found_user_1).not.toBeNull();
@@ -302,9 +288,7 @@ describe('AuthController - newPassword() (POST: /auth/new-password)', () => {
     });
 
     // 🔻 Получаем пользователя из базы данных повторно (после запроса на смену пароля)
-    const found_user_2: UserDbType | null = await usersRepository.getByEmail(
-      user.email,
-    );
+    const found_user_2: UserDbType | null = await usersRepository.getByEmail(user.email);
 
     // 🔸 Проверяем, что пользователь всё ещё существует
     expect(found_user_2).not.toBeNull();
@@ -338,9 +322,7 @@ describe('AuthController - newPassword() (POST: /auth/new-password)', () => {
     await usersTestManager.passwordRecovery(user.email);
 
     // 🔻 Получаем пользователя из базы данных перед изменением пароля
-    const found_user_1: UserDbType | null = await usersRepository.getByEmail(
-      user.email,
-    );
+    const found_user_1: UserDbType | null = await usersRepository.getByEmail(user.email);
 
     // 🔸 Убеждаемся, что пользователь существует
     expect(found_user_1).not.toBeNull();
@@ -361,9 +343,7 @@ describe('AuthController - newPassword() (POST: /auth/new-password)', () => {
       .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем 400, т.к. recoveryCode некорректный
 
     // 🔻 Повторно получаем пользователя из базы данных после запроса на смену пароля
-    const found_user_2: UserDbType | null = await usersRepository.getByEmail(
-      user.email,
-    );
+    const found_user_2: UserDbType | null = await usersRepository.getByEmail(user.email);
 
     // 🔸 Убеждаемся, что пользователь существует
     expect(found_user_2).not.toBeNull();

@@ -21,9 +21,7 @@ import { SendRecoveryCodeEmailWhenUserPasswordRecoveryEventHandler } from './eve
         const password: string = notificationsConfig.emailAppPassword;
 
         if (!email || !password) {
-          throw new Error(
-            'EMAIL and EMAIL_PASSWORD must be defined in environment variables',
-          );
+          throw new Error('EMAIL and EMAIL_PASSWORD must be defined in environment variables');
         }
 
         return {

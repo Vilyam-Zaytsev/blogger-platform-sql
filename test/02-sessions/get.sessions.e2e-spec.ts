@@ -24,17 +24,15 @@ describe('SessionsController - getAll() (GET: /security/devices)', () => {
   beforeAll(async () => {
     appTestManager = new AppTestManager();
     await appTestManager.init((moduleBuilder) =>
-      moduleBuilder
-        .overrideProvider(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
-        .useFactory({
-          factory: (userAccountsConfig: UserAccountsConfig) => {
-            return new JwtService({
-              secret: userAccountsConfig.refreshTokenSecret,
-              signOptions: { expiresIn: '2s' },
-            });
-          },
-          inject: [UserAccountsConfig],
-        }),
+      moduleBuilder.overrideProvider(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN).useFactory({
+        factory: (userAccountsConfig: UserAccountsConfig) => {
+          return new JwtService({
+            secret: userAccountsConfig.refreshTokenSecret,
+            signOptions: { expiresIn: '2s' },
+          });
+        },
+        inject: [UserAccountsConfig],
+      }),
     );
 
     adminCredentials = appTestManager.getAdminCredentials();
@@ -63,9 +61,7 @@ describe('SessionsController - getAll() (GET: /security/devices)', () => {
     const [createdUser]: UserViewDto[] = await usersTestManager.createUser(1);
 
     // 🔻 Логинимся под этим пользователем и получаем токены авторизации
-    const [resultLogin]: TestResultLogin[] = await usersTestManager.login([
-      createdUser.login,
-    ]);
+    const [resultLogin]: TestResultLogin[] = await usersTestManager.login([createdUser.login]);
 
     // 🔻 Отправляем запрос на получение всех активных сессий
     // 🔸 Передаём refreshToken в Cookie для аутентификации
@@ -149,9 +145,7 @@ describe('SessionsController - getAll() (GET: /security/devices)', () => {
     // 🔻 Делаем запрос на получение всех сессий с использованием refreshToken первой сессии
     const resGetSessions: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/security/devices`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[0].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[0].authTokens.refreshToken}`])
       .expect(HttpStatus.OK); // 🔸 Ожидаем успешный ответ
 
     // 🔻 Проверяем, что в ответе ровно 4 сессии
@@ -183,9 +177,7 @@ describe('SessionsController - getAll() (GET: /security/devices)', () => {
     const [createdUser]: UserViewDto[] = await usersTestManager.createUser(1);
 
     // 🔻 Логинимся этим пользователем и получаем refreshToken
-    const [resultLogin]: TestResultLogin[] = await usersTestManager.login([
-      createdUser.login,
-    ]);
+    const [resultLogin]: TestResultLogin[] = await usersTestManager.login([createdUser.login]);
 
     // 🔻 Ждём 3 секунды, чтобы refreshToken успел стать невалидным (симуляция истечения срока действия)
     await TestUtils.delay(3000);

@@ -10,9 +10,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     const secret: string = userAccountConfig.accessTokenSecret;
 
     if (!secret) {
-      throw new Error(
-        'ACCESS_TOKEN_SECRET is not defined in environment variables',
-      );
+      throw new Error('ACCESS_TOKEN_SECRET is not defined in environment variables');
     }
 
     super({

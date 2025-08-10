@@ -8,17 +8,10 @@ export class GetCommentQuery {
 }
 
 @QueryHandler(GetCommentQuery)
-export class GetCommentQueryHandler
-  implements IQueryHandler<GetCommentQuery, CommentViewDto>
-{
-  constructor(
-    private readonly commentQueryRepository: CommentsQueryRepository,
-  ) {}
+export class GetCommentQueryHandler implements IQueryHandler<GetCommentQuery, CommentViewDto> {
+  constructor(private readonly commentQueryRepository: CommentsQueryRepository) {}
 
   async execute({ dto }: GetCommentQuery): Promise<CommentViewDto> {
-    return this.commentQueryRepository.getByIdOrNotFoundFail(
-      dto.commentId,
-      dto.userId,
-    );
+    return this.commentQueryRepository.getByIdOrNotFoundFail(dto.commentId, dto.userId);
   }
 }

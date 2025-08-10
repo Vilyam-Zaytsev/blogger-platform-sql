@@ -18,10 +18,7 @@ import { PostRawRow } from '../../types/post-raw-row.type';
 export class PostsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
-  async getByIdOrNotFoundFail(
-    id: number,
-    user: UserContextDto | null,
-  ): Promise<PostViewDto> {
+  async getByIdOrNotFoundFail(id: number, user: UserContextDto | null): Promise<PostViewDto> {
     const { rows: posts }: QueryResult<PostViewDto> = await this.pool.query(
       `
         WITH "LikesCount" AS (SELECT "postId", COUNT(*) AS "count"
@@ -85,8 +82,7 @@ export class PostsQueryRepository {
     user: UserContextDto | null,
     blogId?: number,
   ): Promise<PaginatedViewDto<PostViewDto>> {
-    const { sortBy, sortDirection, pageSize, pageNumber }: GetPostsQueryParams =
-      query;
+    const { sortBy, sortDirection, pageSize, pageNumber }: GetPostsQueryParams = query;
 
     if (!Object.values(PostsSortBy).includes(sortBy)) {
       throw new ValidationException([
@@ -106,8 +102,7 @@ export class PostsQueryRepository {
       ]);
     }
 
-    const orderByColumn: string =
-      sortBy !== PostsSortBy.BlogName ? `p."${sortBy}"` : 'b."name"';
+    const orderByColumn: string = sortBy !== PostsSortBy.BlogName ? `p."${sortBy}"` : 'b."name"';
 
     const offset: number = query.calculateSkip();
 
@@ -154,7 +149,8 @@ export class PostsQueryRepository {
                LEFT JOIN "NewestLikes" nl ON nl."postId" = p."id"
         WHERE p."deletedAt" IS NULL
           AND ($4::int IS NULL OR p."blogId" = $4)
---         ORDER BY p."${sortBy}" ${sortDirection.toUpperCase()}
+--         ORDER BY p."${sortBy}
+          " ${sortDirection.toUpperCase()}
         ORDER BY ${orderByColumn} ${sortDirection.toUpperCase()}
         OFFSET $1 LIMIT $2
       `,

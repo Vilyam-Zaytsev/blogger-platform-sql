@@ -60,9 +60,7 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
       .expect(HttpStatus.NO_CONTENT);
 
     // 🔻 Получаем обновлённый блог через /sa/blogs/{id}
-    const updatedBlog: BlogViewDto = await blogsTestManager.getById(
-      +createdBlog.id,
-    );
+    const updatedBlog: BlogViewDto = await blogsTestManager.getById(+createdBlog.id);
 
     // 🔻 Проверяем, что блог действительно изменился
     expect(createdBlog).not.toEqual(updatedBlog);
@@ -192,13 +190,11 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
         },
         {
           field: 'description',
-          message:
-            'description must be longer than or equal to 1 characters; Received value: ',
+          message: 'description must be longer than or equal to 1 characters; Received value: ',
         },
         {
           field: 'name',
-          message:
-            'name must be longer than or equal to 1 characters; Received value: ',
+          message: 'name must be longer than or equal to 1 characters; Received value: ',
         },
       ],
     });

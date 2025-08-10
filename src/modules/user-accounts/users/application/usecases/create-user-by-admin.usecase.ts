@@ -12,9 +12,7 @@ export class CreateUserCommand {
 }
 
 @CommandHandler(CreateUserCommand)
-export class CreateUserByAdminUseCase
-  implements ICommandHandler<CreateUserCommand>
-{
+export class CreateUserByAdminUseCase implements ICommandHandler<CreateUserCommand> {
   constructor(
     private readonly userValidation: UserValidationService,
     private readonly usersRepository: UsersRepository,
@@ -26,8 +24,7 @@ export class CreateUserByAdminUseCase
 
     await this.userValidation.validateUniqueUser(login, email);
 
-    const passwordHash: string =
-      await this.cryptoService.createPasswordHash(password);
+    const passwordHash: string = await this.cryptoService.createPasswordHash(password);
     const createUserDto: CreateUserDto = {
       login,
       email,
@@ -43,9 +40,7 @@ export class CreateUserByAdminUseCase
       confirmationStatus: ConfirmationStatus.Confirmed,
     };
 
-    await this.usersRepository.insertEmailConfirmation(
-      createEmailConfirmationDto,
-    );
+    await this.usersRepository.insertEmailConfirmation(createEmailConfirmationDto);
 
     return userId;
   }

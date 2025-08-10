@@ -38,12 +38,8 @@ export class UserValidationService {
     }
   }
 
-  async authenticateUser(
-    loginOrEmail: string,
-    password: string,
-  ): Promise<UserContextDto> {
-    let user: UserDbType | null =
-      await this.usersRepository.getByEmail(loginOrEmail);
+  async authenticateUser(loginOrEmail: string, password: string): Promise<UserContextDto> {
+    let user: UserDbType | null = await this.usersRepository.getByEmail(loginOrEmail);
 
     if (!user) {
       user = await this.usersRepository.getByLogin(loginOrEmail);

@@ -28,9 +28,7 @@ export function parseAdminBasicAuth(authHeader?: string): [string, string] {
   try {
     decoded = Buffer.from(base64Credentials, 'base64').toString('utf-8');
   } catch {
-    console.error(
-      'Ошибка: Не удалось декодировать учётные данные из формата base64',
-    );
+    console.error('Ошибка: Не удалось декодировать учётные данные из формата base64');
     throw new Error('Failed to decode Basic Auth credentials');
   }
 

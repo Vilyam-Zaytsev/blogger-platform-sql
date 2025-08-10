@@ -19,9 +19,7 @@ export class RefreshTokenCommand {
 }
 
 @CommandHandler(RefreshTokenCommand)
-export class RefreshTokenUseCase
-  implements ICommandHandler<RefreshTokenCommand>
-{
+export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand> {
   constructor(
     @Inject(ACCESS_TOKEN_STRATEGY_INJECT_TOKEN)
     private readonly accessTokenContext: JwtService,
@@ -44,8 +42,7 @@ export class RefreshTokenUseCase
     const { iat, exp }: PayloadRefreshToken =
       this.refreshTokenContext.decode<PayloadRefreshToken>(refreshToken);
 
-    const session: SessionDbType | null =
-      await this.sessionsRepository.getByDeviceId(dto.deviceId);
+    const session: SessionDbType | null = await this.sessionsRepository.getByDeviceId(dto.deviceId);
 
     if (!session) {
       throw new DomainException({

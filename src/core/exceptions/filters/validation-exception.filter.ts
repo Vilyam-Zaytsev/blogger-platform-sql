@@ -11,9 +11,7 @@ export class ValidationExceptionFilter implements ExceptionFilter {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
 
-    const status: number = DomainExceptionsCodeMapper.mapToHttpStatus(
-      exception.code,
-    );
+    const status: number = DomainExceptionsCodeMapper.mapToHttpStatus(exception.code);
     const responseBody: ErrorValidationResponseBody = {
       errorsMessages: [...exception.extensions],
     };

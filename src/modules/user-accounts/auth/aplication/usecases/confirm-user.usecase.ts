@@ -18,9 +18,7 @@ export class ConfirmUserUseCase implements ICommandHandler<ConfirmUserCommand> {
 
   async execute({ dto }: ConfirmUserCommand): Promise<void> {
     const emailConfirmation: EmailConfirmationDbType | null =
-      await this.usersRepository.getEmailConfirmationByConfirmationCode(
-        dto.code,
-      );
+      await this.usersRepository.getEmailConfirmationByConfirmationCode(dto.code);
 
     if (
       !emailConfirmation ||
@@ -44,8 +42,6 @@ export class ConfirmUserUseCase implements ICommandHandler<ConfirmUserCommand> {
       confirmationStatus: ConfirmationStatus.Confirmed,
     };
 
-    await this.usersRepository.updateEmailConfirmation(
-      updateEmailConfirmationDto,
-    );
+    await this.usersRepository.updateEmailConfirmation(updateEmailConfirmationDto);
   }
 }

@@ -34,14 +34,13 @@ export class UsersRepository {
   }
 
   async getByIdOrNotFoundFail(id: number): Promise<UserDbType> {
-    const queryResult: QueryResult<UserDbType> =
-      await this.pool.query<UserDbType>(
-        `SELECT *
+    const queryResult: QueryResult<UserDbType> = await this.pool.query<UserDbType>(
+      `SELECT *
          FROM "Users"
          WHERE id = $1
            AND "deletedAt" IS NULL`,
-        [id],
-      );
+      [id],
+    );
 
     if (!queryResult.rows[0]) {
       throw new DomainException({
@@ -54,14 +53,13 @@ export class UsersRepository {
   }
 
   async getByLogin(login: string): Promise<UserDbType | null> {
-    const queryResult: QueryResult<UserDbType> =
-      await this.pool.query<UserDbType>(
-        `SELECT *
+    const queryResult: QueryResult<UserDbType> = await this.pool.query<UserDbType>(
+      `SELECT *
          FROM "Users"
          WHERE login = $1
            AND "deletedAt" IS NULL`,
-        [login],
-      );
+      [login],
+    );
 
     if (queryResult.rowCount === 0) {
       return null;
@@ -71,14 +69,13 @@ export class UsersRepository {
   }
 
   async getByEmail(email: string): Promise<UserDbType | null> {
-    const queryResult: QueryResult<UserDbType> =
-      await this.pool.query<UserDbType>(
-        `SELECT *
+    const queryResult: QueryResult<UserDbType> = await this.pool.query<UserDbType>(
+      `SELECT *
          FROM "Users"
          WHERE email = $1
            AND "deletedAt" IS NULL`,
-        [email],
-      );
+      [email],
+    );
 
     if (queryResult.rowCount === 0) {
       return null;
@@ -87,11 +84,8 @@ export class UsersRepository {
     return queryResult.rows[0];
   }
 
-  async insertEmailConfirmation(
-    dto: CreateEmailConfirmationDto,
-  ): Promise<string> {
-    const { userId, confirmationCode, expirationDate, confirmationStatus } =
-      dto;
+  async insertEmailConfirmation(dto: CreateEmailConfirmationDto): Promise<string> {
+    const { userId, confirmationCode, expirationDate, confirmationStatus } = dto;
     const query: string = `
       INSERT INTO "EmailConfirmation" ("userId",
                                        "confirmationCode",
@@ -100,22 +94,16 @@ export class UsersRepository {
       VALUES ($1, $2, $3, $4) RETURNING "confirmationCode"
     `;
 
-    const values = [
-      userId,
-      confirmationCode,
-      expirationDate,
-      confirmationStatus,
-    ];
+    const values = [userId, confirmationCode, expirationDate, confirmationStatus];
 
-    const resultQuery: QueryResult<{ confirmationCode: string }> =
-      await this.pool.query<{ confirmationCode: string }>(query, values);
+    const resultQuery: QueryResult<{ confirmationCode: string }> = await this.pool.query<{
+      confirmationCode: string;
+    }>(query, values);
 
     return resultQuery.rows[0].confirmationCode;
   }
 
-  async getEmailConfirmationByUserId(
-    id: number,
-  ): Promise<EmailConfirmationDbType | null> {
+  async getEmailConfirmationByUserId(id: number): Promise<EmailConfirmationDbType | null> {
     const queryResult: QueryResult<EmailConfirmationDbType> =
       await this.pool.query<EmailConfirmationDbType>(
         `SELECT *
@@ -149,11 +137,8 @@ export class UsersRepository {
     return queryResult.rows[0];
   }
 
-  async updateEmailConfirmation(
-    dto: UpdateEmailConfirmationDto,
-  ): Promise<void> {
-    const { userId, confirmationCode, expirationDate, confirmationStatus } =
-      dto;
+  async updateEmailConfirmation(dto: UpdateEmailConfirmationDto): Promise<void> {
+    const { userId, confirmationCode, expirationDate, confirmationStatus } = dto;
 
     await this.pool.query<EmailConfirmationDbType>(
       `UPDATE "EmailConfirmation"
@@ -189,9 +174,7 @@ export class UsersRepository {
     return queryResult.rowCount === 1;
   }
 
-  async insertOrUpdatePasswordRecovery(
-    dto: CreatePasswordRecoveryDto,
-  ): Promise<void> {
+  async insertOrUpdatePasswordRecovery(dto: CreatePasswordRecoveryDto): Promise<void> {
     const { userId, recoveryCode, expirationDate } = dto;
     await this.pool.query(
       `
@@ -205,9 +188,7 @@ export class UsersRepository {
     );
   }
 
-  async getPasswordRecoveryByRecoveryCode(
-    code: string,
-  ): Promise<PasswordRecoveryDbType | null> {
+  async getPasswordRecoveryByRecoveryCode(code: string): Promise<PasswordRecoveryDbType | null> {
     const queryResult: QueryResult<PasswordRecoveryDbType> =
       await this.pool.query<PasswordRecoveryDbType>(
         `SELECT *

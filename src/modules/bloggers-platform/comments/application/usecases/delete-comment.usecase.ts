@@ -10,14 +10,13 @@ export class DeleteCommentCommand {
 }
 
 @CommandHandler(DeleteCommentCommand)
-export class DeleteCommentUseCase
-  implements ICommandHandler<DeleteCommentCommand>
-{
+export class DeleteCommentUseCase implements ICommandHandler<DeleteCommentCommand> {
   constructor(private readonly commentsRepository: CommentsRepository) {}
 
   async execute({ dto }: DeleteCommentCommand): Promise<void> {
-    const comment: CommentDbType =
-      await this.commentsRepository.getByIdOrNotFoundFail(dto.commentId);
+    const comment: CommentDbType = await this.commentsRepository.getByIdOrNotFoundFail(
+      dto.commentId,
+    );
 
     if (comment.commentatorId !== dto.userId) {
       throw new DomainException({

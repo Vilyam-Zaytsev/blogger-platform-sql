@@ -9,9 +9,7 @@ export class CreateSessionCommand {
 }
 
 @CommandHandler(CreateSessionCommand)
-export class CreateSessionUseCase
-  implements ICommandHandler<CreateSessionCommand>
-{
+export class CreateSessionUseCase implements ICommandHandler<CreateSessionCommand> {
   constructor(private readonly sessionsRepository: SessionsRepository) {}
 
   async execute({ dto }: CreateSessionCommand): Promise<void> {

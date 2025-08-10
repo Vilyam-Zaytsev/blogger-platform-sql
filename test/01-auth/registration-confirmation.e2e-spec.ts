@@ -242,8 +242,7 @@ describe('AuthController - registrationConfirmation() (POST: /auth/registration-
     await usersTestManager.registration(dto);
 
     // 🔻 Получаем пользователя из базы данных по email
-    const user_NotConfirmed: UserDbType | null =
-      await usersRepository.getByEmail(dto.email);
+    const user_NotConfirmed: UserDbType | null = await usersRepository.getByEmail(dto.email);
     expect(user_NotConfirmed).not.toBeNull(); // 🔸 Проверяем, что пользователь существует
 
     if (!user_NotConfirmed) {

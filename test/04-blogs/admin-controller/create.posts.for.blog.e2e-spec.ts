@@ -76,15 +76,11 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
         myStatus: ReactionStatus.None,
         newestLikes: [],
       },
-      createdAt: expect.stringMatching(
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
-      ),
+      createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
     });
 
     // 🔻 Получаем пост и сравниваем с телом ответа
-    const post: PostViewDto = await postsTestManager.getPostById(
-      resCreatePosts.body.id,
-    );
+    const post: PostViewDto = await postsTestManager.getPostById(resCreatePosts.body.id);
     expect(resCreatePosts.body).toEqual(post);
 
     if (testLoggingEnabled) {
@@ -111,8 +107,7 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
       .expect(HttpStatus.UNAUTHORIZED);
 
     // 🔸 Убеждаемся, что пост не был создан — проверяем, что список постов пуст
-    const posts: PaginatedViewDto<PostViewDto> =
-      await postsTestManager.getAllPosts();
+    const posts: PaginatedViewDto<PostViewDto> = await postsTestManager.getAllPosts();
 
     expect(posts.items).toHaveLength(0);
 
@@ -145,8 +140,7 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
         },
         {
           field: 'shortDescription',
-          message:
-            'shortDescription must be a string; Received value: undefined',
+          message: 'shortDescription must be a string; Received value: undefined',
         },
         {
           field: 'title',
@@ -156,8 +150,7 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
     });
 
     // 🔸 Убеждаемся, что пост не был создан — список постов должен быть пуст
-    const posts: PaginatedViewDto<PostViewDto> =
-      await postsTestManager.getAllPosts();
+    const posts: PaginatedViewDto<PostViewDto> = await postsTestManager.getAllPosts();
 
     expect(posts.items).toHaveLength(0);
 
@@ -190,8 +183,7 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
       errorsMessages: [
         {
           field: 'content',
-          message:
-            'content must be longer than or equal to 1 characters; Received value: ',
+          message: 'content must be longer than or equal to 1 characters; Received value: ',
         },
         {
           field: 'shortDescription',
@@ -200,15 +192,13 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
         },
         {
           field: 'title',
-          message:
-            'title must be longer than or equal to 1 characters; Received value: ',
+          message: 'title must be longer than or equal to 1 characters; Received value: ',
         },
       ],
     });
 
     // 🔸 Убеждаемся, что пост не был создан — список постов должен быть пустым
-    const posts: PaginatedViewDto<PostViewDto> =
-      await postsTestManager.getAllPosts();
+    const posts: PaginatedViewDto<PostViewDto> = await postsTestManager.getAllPosts();
 
     expect(posts.items).toHaveLength(0);
 
@@ -260,8 +250,7 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
     });
 
     // 🔸 Убеждаемся, что пост не был создан — список постов должен быть пустым
-    const posts: PaginatedViewDto<PostViewDto> =
-      await postsTestManager.getAllPosts();
+    const posts: PaginatedViewDto<PostViewDto> = await postsTestManager.getAllPosts();
 
     expect(posts.items).toHaveLength(0);
 
@@ -308,8 +297,7 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
     });
 
     // 🔸 Убеждаемся, что пост не был создан — база должна быть пустой
-    const posts: PaginatedViewDto<PostViewDto> =
-      await postsTestManager.getAllPosts();
+    const posts: PaginatedViewDto<PostViewDto> = await postsTestManager.getAllPosts();
 
     expect(posts.items).toHaveLength(0);
 
@@ -342,8 +330,7 @@ describe('BlogsAdminController - createPost() (POST: /sa/blogs/{blogId}/posts)',
       .expect(HttpStatus.NOT_FOUND);
 
     // 🔻 Проверяем, что ни один пост не был создан
-    const posts: PaginatedViewDto<PostViewDto> =
-      await postsTestManager.getAllPosts();
+    const posts: PaginatedViewDto<PostViewDto> = await postsTestManager.getAllPosts();
     expect(posts.items).toHaveLength(0);
 
     if (testLoggingEnabled) {

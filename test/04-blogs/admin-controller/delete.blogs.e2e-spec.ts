@@ -52,8 +52,7 @@ describe('BlogsAdminController - deleteBlog() (DELETE: /sa/blogs)', () => {
       .expect(HttpStatus.NO_CONTENT);
 
     // 🔻 Запрашиваем список всех блогов после удаления
-    const { items: blogs }: PaginatedViewDto<BlogViewDto> =
-      await blogsTestManager.getAll();
+    const { items: blogs }: PaginatedViewDto<BlogViewDto> = await blogsTestManager.getAll();
 
     // 🔸 Проверяем, что список блогов пуст (блог успешно удалён)
     expect(blogs).toHaveLength(0);
