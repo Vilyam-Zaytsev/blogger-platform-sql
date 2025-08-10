@@ -19,7 +19,7 @@ export class DeleteCommentUseCase
     const comment: CommentDbType =
       await this.commentsRepository.getByIdOrNotFoundFail(dto.commentId);
 
-    if (comment.commentatorInfo.userId !== dto.userId) {
+    if (comment.commentatorId !== dto.userId) {
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
         message: `The user with the ID (${dto.userId}) is not the owner of this comment`,
