@@ -4,13 +4,14 @@ import { PG_POOL } from '../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
 import { CommentDbType } from '../types/comment-db.type';
 import { DomainException } from '../../../../core/exceptions/domain-exceptions';
+import { UpdateCommentContentDto } from './dto/update-comment-content.dto';
 
 @Injectable()
 export class CommentsRepository {
-  constructor(@Inject(PG_POOL) private readonly poll: Pool) {}
+  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<CommentDbType> {
-    const { rows }: QueryResult<CommentDbType> = await this.poll.query(
+    const { rows }: QueryResult<CommentDbType> = await this.pool.query(
       `
         SELECT *
         FROM "Comments"
@@ -28,5 +29,16 @@ export class CommentsRepository {
     }
 
     return rows[0];
+  }
+
+  async updateContent(dto: UpdateCommentContentDto): Promise<void> {
+    await this.pool.query(
+      `
+      UPDATE "Comments"
+      SET "content" = $1
+      WHERE "id" = $2
+      `,
+      [dto.content, dto.commentId],
+    );
   }
 }
