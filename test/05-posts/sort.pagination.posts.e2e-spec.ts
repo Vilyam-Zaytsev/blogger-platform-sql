@@ -16,8 +16,6 @@ import { Filter } from '../helpers/filter';
 import { TestLoggers } from '../helpers/test.loggers';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
-import { PostInputDto } from '../../src/modules/bloggers-platform/posts/api/input-dto/post-input.dto';
-import { TestDtoFactory } from '../helpers/test.dto-factory';
 
 describe('PostsController - getPost() (GET: /posts (pagination, sort, search in term))', () => {
   let appTestManager: AppTestManager;
