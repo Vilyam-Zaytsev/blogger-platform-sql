@@ -33,6 +33,7 @@ import { GetSessionsQueryHandler } from './sessions/application/queries/get-sess
 import { SessionsQueryRepository } from './sessions/infrastructure/query/sessions.query-repository';
 import { DeleteSessionsUseCase } from './sessions/application/usecases/delete-sessions.usecase';
 import { DeleteSessionUseCase } from './sessions/application/usecases/delete-session.usecase';
+import { UsersExternalRepository } from './users/infrastructure/external/users.external-repository';
 
 @Module({
   imports: [NotificationsModule],
@@ -82,6 +83,6 @@ import { DeleteSessionUseCase } from './sessions/application/usecases/delete-ses
     //config
     UserAccountsConfig,
   ],
-  exports: [BasicStrategy],
+  exports: [BasicStrategy, UsersExternalRepository],
 })
 export class UserAccountsModule {}
