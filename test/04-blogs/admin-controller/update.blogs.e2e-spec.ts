@@ -53,8 +53,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     };
 
     // 🔻 Отправляем PUT-запрос на обновление блога
-    // Передаём правильные admin credentials
-    // Ожидаем, что сервер вернёт 204 No Content (успешное обновление без тела ответа)
     const resUpdateBlog: Response = await request(server)
       .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}`)
       .send(dto)
@@ -100,8 +98,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     };
 
     // 🔻 Отправляем PUT-запрос на обновление блога
-    // Передаём некорректные admin credentials
-    // Ожидаем 401 Unauthorized (так как админ не аутентифицирован)
     const resUpdateBlog: Response = await request(server)
       .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}`)
       .send(dto)
@@ -129,9 +125,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Отправляем PUT-запрос на обновление блога
-    // Передаём пустой объект вместо валидных данных
-    // Передаём корректные admin credentials
-    // Ожидаем 400 Bad Request (ошибка валидации)
     const resUpdateBlog: Response = await request(server)
       .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}`)
       .send({})
@@ -159,7 +152,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     });
 
     // 🔻 Получаем блог через /sa/blogs/{id}
-    // Должен остаться в исходном виде (без изменений)
     const blog: BlogViewDto = await blogsTestManager.getById(+createdBlog.id);
 
     // 🔻 Проверяем, что блог остался прежним
@@ -179,9 +171,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Отправляем PUT-запрос на обновление блога
-    // Передаём строки, состоящие только из пробелов (по сути — пустые значения)
-    // Передаём корректные admin credentials
-    // Ожидаем 400 Bad Request (ошибка валидации)
     const resUpdateBlog: Response = await request(server)
       .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}`)
       .send({
@@ -215,7 +204,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     });
 
     // 🔻 Получаем блог через /sa/blogs/{id}
-    // Убеждаемся, что блог не изменился
     const blog: BlogViewDto = await blogsTestManager.getById(+createdBlog.id);
     expect(createdBlog).toEqual(blog);
 
@@ -233,17 +221,11 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Генерируем тестовые данные, превышающие допустимые ограничения:
-    // name — больше 15 символов
-    // description — больше 500 символов
-    // websiteUrl — больше 100 символов (и при этом не соответствует формату URL)
     const name: string = TestUtils.generateRandomString(16);
     const description: string = TestUtils.generateRandomString(501);
     const websiteUrl: string = TestUtils.generateRandomString(101);
 
     // 🔻 Отправляем PUT-запрос на обновление блога
-    // Передаём заведомо некорректные данные
-    // Передаём корректные admin credentials
-    // Ожидаем 400 Bad Request (ошибка валидации)
     const resUpdateBlog: Response = await request(server)
       .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}`)
       .send({
@@ -275,7 +257,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     });
 
     // 🔻 Получаем блог через /sa/blogs/{id}
-    // Убеждаемся, что данные блога не изменились
     const blog: BlogViewDto = await blogsTestManager.getById(+createdBlog.id);
     expect(createdBlog).toEqual(blog);
 
@@ -293,12 +274,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Отправляем PUT-запрос на обновление блога
-    // Передаём некорректные типы данных:
-    // - name: number вместо string
-    // - description: number вместо string
-    // - websiteUrl: number вместо string
-    // Передаём корректные admin credentials
-    // Ожидаем 400 Bad Request (ошибка валидации)
     const resUpdateBlog: Response = await request(server)
       .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}`)
       .send({
@@ -330,7 +305,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     });
 
     // 🔻 Получаем блог через /sa/blogs/{id}
-    // Убеждаемся, что данные блога не изменились после неудачного запроса
     const blog: BlogViewDto = await blogsTestManager.getById(+createdBlog.id);
     expect(createdBlog).toEqual(blog);
 
@@ -348,7 +322,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
     // 🔻 Готовим DTO с корректными name и description, но некорректным websiteUrl
-    // URL заведомо не соответствует регулярному выражению валидации
     const dto: BlogInputDto = {
       name: 'updateName',
       description: 'update description',
@@ -356,9 +329,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     };
 
     // 🔻 Отправляем PUT-запрос на обновление блога
-    // Передаём некорректный websiteUrl
-    // Передаём корректные admin credentials
-    // Ожидаем 400 Bad Request (ошибка валидации)
     const resUpdateBlog: Response = await request(server)
       .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog.id}`)
       .send(dto)
@@ -378,7 +348,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     });
 
     // 🔻 Получаем блог через /sa/blogs/{id}
-    // Убеждаемся, что данные блога не изменились после неудачного запроса
     const blog: BlogViewDto = await blogsTestManager.getById(+createdBlog.id);
     expect(createdBlog).toEqual(blog);
 
@@ -406,8 +375,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
     const incorrectId: string = '1000000';
 
     // 🔻 Отправляем PUT-запрос в админский роут /sa/blogs/{id}
-    // Передаём корректные данные и авторизацию, но блог с таким ID не существует
-    // Ожидаем 404 Not Found
     const resUpdateBlog: Response = await request(server)
       .put(`/${GLOBAL_PREFIX}/sa/blogs/${incorrectId}`)
       .send(dto)
@@ -415,7 +382,6 @@ describe('BlogsAdminController - updateBlog() (PUT: /sa/blogs)', () => {
       .expect(HttpStatus.NOT_FOUND);
 
     // 🔻 Получаем исходный блог через GET /sa/blogs/{id}
-    // Убеждаемся, что он не изменился после запроса с несуществующим ID
     const blog: BlogViewDto = await blogsTestManager.getById(+createdBlog.id);
     expect(createdBlog).toEqual(blog);
 

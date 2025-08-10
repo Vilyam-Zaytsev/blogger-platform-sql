@@ -59,9 +59,6 @@ describe('BlogsPublicController - getBlog() (GET: /blogs (pagination, sort, sear
     const query: GetBlogsQueryParams = new GetBlogsQueryParams();
 
     // 🔸 Формируем ожидаемый результат:
-    // - сортировка по умолчанию
-    // - пропуск (`skip`) на основе дефолтной страницы
-    // - ограничение (`limit`) на основе дефолтного pageSize
     const filteredCreatedBlogs: BlogViewDto[] = new Filter<BlogViewDto>(blogs)
       .sort({ [query.sortBy]: query.sortDirection })
       .skip(query.calculateSkip())
@@ -95,10 +92,10 @@ describe('BlogsPublicController - getBlog() (GET: /blogs (pagination, sort, sear
 
     // 🔸 Устанавливаем параметры пагинации, сортировки и размера страницы, заданные клиентом
     const query: GetBlogsQueryParams = new GetBlogsQueryParams();
-    query.sortBy = BlogsSortBy.Name; // сортировка по названию блога
-    query.sortDirection = SortDirection.Ascending; // по возрастанию
-    query.pageNumber = 2; // вторая страница
-    query.pageSize = 3; // по 3 записи на страницу
+    query.sortBy = BlogsSortBy.Name;
+    query.sortDirection = SortDirection.Ascending;
+    query.pageNumber = 2;
+    query.pageSize = 3;
 
     // 🔻 Запрашиваем список блогов с переданными query-параметрами
     const resGetBlogs: Response = await request(server)
@@ -107,9 +104,6 @@ describe('BlogsPublicController - getBlog() (GET: /blogs (pagination, sort, sear
       .expect(HttpStatus.OK);
 
     // 🔸 Формируем ожидаемый результат:
-    // - сортируем список созданных блогов
-    // - пропускаем нужное количество элементов (skip)
-    // - берём указанное количество элементов (limit)
     const filteredCreatedBlogs: BlogViewDto[] = new Filter<BlogViewDto>(blogs)
       .sort({ [query.sortBy]: query.sortDirection })
       .skip(query.calculateSkip())
@@ -118,11 +112,11 @@ describe('BlogsPublicController - getBlog() (GET: /blogs (pagination, sort, sear
 
     // 🔻 Проверяем, что ответ API совпадает с ожидаемым
     expect(resGetBlogs.body).toEqual({
-      pagesCount: 4, // всего страниц = 12 / 3
-      page: 2, // вторая страница
-      pageSize: 3, // размер страницы
-      totalCount: 12, // всего элементов
-      items: filteredCreatedBlogs, // полученные элементы
+      pagesCount: 4,
+      page: 2,
+      pageSize: 3,
+      totalCount: 12,
+      items: filteredCreatedBlogs,
     });
 
     // 🔸 Уточняем, что элементов ровно 3
@@ -143,10 +137,10 @@ describe('BlogsPublicController - getBlog() (GET: /blogs (pagination, sort, sear
 
     // 🔸 Устанавливаем параметры пагинации, сортировки и размера страницы, заданные клиентом
     const query: GetBlogsQueryParams = new GetBlogsQueryParams();
-    query.sortBy = BlogsSortBy.CreatedAt; // сортировка по дате создания
-    query.sortDirection = SortDirection.Descending; // по убыванию (новые сверху)
-    query.pageNumber = 6; // шестая страница
-    query.pageSize = 2; // по 2 записи на страницу
+    query.sortBy = BlogsSortBy.CreatedAt;
+    query.sortDirection = SortDirection.Descending;
+    query.pageNumber = 6;
+    query.pageSize = 2;
 
     // 🔻 Запрашиваем список блогов с переданными query-параметрами
     const resGetBlogs: Response = await request(server)
@@ -155,9 +149,6 @@ describe('BlogsPublicController - getBlog() (GET: /blogs (pagination, sort, sear
       .expect(HttpStatus.OK);
 
     // 🔸 Формируем ожидаемый результат:
-    // - сортируем список созданных блогов
-    // - пропускаем нужное количество элементов (skip)
-    // - берём указанное количество элементов (limit)
     const filteredCreatedBlogs: BlogViewDto[] = new Filter<BlogViewDto>(blogs)
       .sort({ [query.sortBy]: query.sortDirection })
       .skip(query.calculateSkip())
@@ -166,11 +157,11 @@ describe('BlogsPublicController - getBlog() (GET: /blogs (pagination, sort, sear
 
     // 🔻 Проверяем, что ответ API совпадает с ожидаемым
     expect(resGetBlogs.body).toEqual({
-      pagesCount: 6, // всего страниц = 12 / 2
-      page: 6, // шестая страница
-      pageSize: 2, // размер страницы
-      totalCount: 12, // всего элементов
-      items: filteredCreatedBlogs, // полученные элементы
+      pagesCount: 6,
+      page: 6,
+      pageSize: 2,
+      totalCount: 12,
+      items: filteredCreatedBlogs,
     });
 
     // 🔸 Уточняем, что элементов ровно 2
@@ -191,11 +182,11 @@ describe('BlogsPublicController - getBlog() (GET: /blogs (pagination, sort, sear
 
     // 🔸 Задаём параметры поиска, сортировки и пагинации, переданные клиентом
     const query: GetBlogsQueryParams = new GetBlogsQueryParams();
-    query.sortBy = BlogsSortBy.Name; // сортировка по названию блога
-    query.sortDirection = SortDirection.Ascending; // по возрастанию (от A до Z)
-    query.pageNumber = 2; // вторая страница
-    query.pageSize = 1; // по одному элементу на страницу
-    query.searchNameTerm = 'g1'; // фильтр по подстроке в имени блога
+    query.sortBy = BlogsSortBy.Name;
+    query.sortDirection = SortDirection.Ascending;
+    query.pageNumber = 2;
+    query.pageSize = 1;
+    query.searchNameTerm = 'g1';
 
     // 🔸 Формируем фильтр поиска по имени
     const searchFilter: TestSearchFilter = {
@@ -209,10 +200,6 @@ describe('BlogsPublicController - getBlog() (GET: /blogs (pagination, sort, sear
       .expect(HttpStatus.OK);
 
     // 🔸 Формируем ожидаемый результат:
-    // - фильтруем блоги по searchTerm
-    // - сортируем по имени
-    // - пропускаем записи для предыдущих страниц
-    // - берём указанное количество записей
     const filteredCreatedBlogs: BlogViewDto[] = new Filter<BlogViewDto>(blogs)
       .filter(searchFilter)
       .sort({ [query.sortBy]: query.sortDirection })
@@ -222,11 +209,11 @@ describe('BlogsPublicController - getBlog() (GET: /blogs (pagination, sort, sear
 
     // 🔻 Проверяем, что ответ API соответствует ожидаемому результату
     expect(resGetBlogs.body).toEqual({
-      pagesCount: 3, // всего 3 страницы (3 блога, 1 блог на страницу)
-      page: 2, // вторая страница
-      pageSize: 1, // размер страницы
-      totalCount: 3, // всего 3 блога после фильтрации
-      items: filteredCreatedBlogs, // список блогов на этой странице
+      pagesCount: 3,
+      page: 2,
+      pageSize: 1,
+      totalCount: 3,
+      items: filteredCreatedBlogs,
     });
 
     // 🔸 Проверяем, что на странице ровно 1 блог
@@ -243,16 +230,9 @@ describe('BlogsPublicController - getBlog() (GET: /blogs (pagination, sort, sear
 
   it('should return a 400 error if the client has passed invalid pagination values.', async () => {
     // 🔻 Создаём 12 блогов через тестовый менеджер
-    // Нам нужны блоги, чтобы эндпоинт имел данные для работы,
-    // но в данном тесте ключевое — проверить валидацию входных параметров.
     await blogsTestManager.createBlog(12);
 
     // 🔻 Отправляем GET-запрос на получение блогов с некорректными query-параметрами
-    // pageNumber: строка вместо числа
-    // pageSize: строка вместо числа
-    // sortBy: число вместо строки из допустимого набора
-    // sortDirection: строка, не входящая в допустимый набор ("asc" | "desc")
-    // searchNameTerm: число вместо строки
     const resGetBlogs: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/blogs`)
       .query({
@@ -265,10 +245,6 @@ describe('BlogsPublicController - getBlog() (GET: /blogs (pagination, sort, sear
       .expect(HttpStatus.BAD_REQUEST);
 
     // 🔻 Проверяем, что сервер вернул ожидаемую структуру ошибок
-    // Каждое сообщение чётко указывает на:
-    // - поле, в котором ошибка
-    // - что ожидается
-    // - что было передано
     expect(resGetBlogs.body).toEqual({
       errorsMessages: [
         {
