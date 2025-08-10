@@ -18,10 +18,18 @@ import { UpdatePostUseCase } from './posts/application/usecases/update-post.usec
 import { DeletePostUseCase } from './posts/application/usecases/delete-post.usecase';
 import { GetPostsQueryHandler } from './posts/application/queries/get-posts.query-handler';
 import { GetPostQueryHandler } from './posts/application/queries/get-post.query-handler';
+import { CommentsRepository } from './comments/infrastructure/comments-repository';
+import { UpdateCommentUseCase } from './comments/application/usecases/update-comment.usecase';
+import { CommentsController } from './comments/api/comments.controller';
 
 @Module({
   imports: [UserAccountsModule],
-  controllers: [BlogsAdminController, BlogsPublicController, PostsController],
+  controllers: [
+    BlogsAdminController,
+    BlogsPublicController,
+    PostsController,
+    CommentsController,
+  ],
   providers: [
     //🔸 Blogs:
     //repo
@@ -47,13 +55,13 @@ import { GetPostQueryHandler } from './posts/application/queries/get-post.query-
     GetPostsForBlogQueryHandler,
     GetPostsQueryHandler,
     GetPostQueryHandler,
-    // //🔸 Comments:
-    // //repo
-    // CommentsRepository,
+    //🔸 Comments:
+    //repo
+    CommentsRepository,
     // CommentsQueryRepository,
     // //use-cases
     // CreateCommentUseCase,
-    // UpdateCommentUseCase,
+    UpdateCommentUseCase,
     // DeleteCommentUseCase,
     // UpdateCommentReactionUseCase,
     // //query-handlers
