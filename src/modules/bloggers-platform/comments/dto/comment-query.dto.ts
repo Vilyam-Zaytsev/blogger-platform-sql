@@ -1,4 +1,4 @@
 export class CommentQueryDto {
   commentId: number;
-  userId: number;
+  userId: number | null;
 }

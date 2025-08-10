@@ -18,6 +18,10 @@ import { UserContextDto } from '../../../user-accounts/auth/domain/guards/dto/us
 import { UpdateCommentDto } from '../dto/update-comment.dto';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
 import { DeleteCommentCommand } from '../application/usecases/delete-comment.usecase';
+import { OptionalJwtAuthGuard } from '../../../user-accounts/auth/domain/guards/bearer/optional-jwt-auth.guard';
+import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/auth/domain/guards/decorators/extract-user-if-exists-from-request.decorator';
+import { CommentViewDto } from './view-dto/comment-view.dto';
+import { GetCommentQuery } from '../application/queries/get-comment.query-handler';
 
 @Controller('comments')
 export class CommentsController {
@@ -58,15 +62,20 @@ export class CommentsController {
     );
   }
 
-  // @Get(':id')
-  // @UseGuards(OptionalJwtAuthGuard)
-  // async getById(
-  //   @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-  //   @Param() params: IdInputDto,
-  // ): Promise<CommentViewDto> {
-  //   return this.queryBus.execute(new GetCommentQuery(params.id, user));
-  // }
-  //
+  @Get(':id')
+  @UseGuards(OptionalJwtAuthGuard)
+  async getById(
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<CommentViewDto> {
+    return await this.queryBus.execute(
+      new GetCommentQuery({
+        commentId: id,
+        userId: user ? user.id : null,
+      }),
+    );
+  }
+
   // @Put(':commentId/like-status')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // @UseGuards(JwtAuthGuard)
