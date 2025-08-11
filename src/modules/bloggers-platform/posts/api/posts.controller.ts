@@ -17,6 +17,8 @@ import { CommentViewDto } from '../../comments/api/view-dto/comment-view.dto';
 import { CreateCommentDto } from '../../comments/dto/create-comment.dto';
 import { CreateCommentCommand } from '../../comments/application/usecases/create-comment.usecase';
 import { CommentsQueryRepository } from '../../comments/infrastructure/query/comments.query-repository';
+import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comments-query-params.input-dto';
+import { GetCommentsQuery } from '../../comments/application/queries/get-comments.query-handler';
 
 @Controller('posts')
 export class PostsController {
@@ -69,27 +71,22 @@ export class PostsController {
     return this.commentsQueryRepository.getByIdOrNotFoundFail(commentId);
   }
 
-  // @Get(':postId/comments')
-  // @UseGuards(OptionalJwtAuthGuard)
-  // async getComments(
-  //   @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-  //   @Param('postId', ObjectIdValidationPipe) postId: string,
-  //   @Query() query: GetCommentsQueryParams,
-  // ): Promise<PaginatedViewDto<CommentViewDto>> {
-  //   return this.queryBus.execute(new GetCommentsQuery(query, user, postId));
-  // }
+  @Get(':postId/comments')
+  @UseGuards(OptionalJwtAuthGuard)
+  async getComments(
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    @Param('postId', ParseIntPipe) postId: number,
+    @Query() query: GetCommentsQueryParams,
+  ): Promise<PaginatedViewDto<CommentViewDto>> {
+    return this.queryBus.execute(
+      new GetCommentsQuery({
+        query,
+        postId,
+        userId: user ? user.id : null,
+      }),
+    );
+  }
 
-  //
-  // @Put(':id')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(BasicAuthGuard)
-  // async updatePost(
-  //   @Param() params: IdInputDto,
-  //   @Body() body: PostInputDto,
-  // ): Promise<void> {
-  //   await this.commandBus.execute(new UpdatePostCommand(body, params.id));
-  // }
-  //
   // @Put(':postId/like-status')
   // @HttpCode(HttpStatus.NO_CONTENT)
   // @UseGuards(JwtAuthGuard)
@@ -107,12 +104,5 @@ export class PostsController {
   //   await this.commandBus.execute(
   //     new UpdatePostReactionCommand(updateReactionDto),
   //   );
-  // }
-  //
-  // @Delete(':id')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(BasicAuthGuard)
-  // async deletePost(@Param() params: IdInputDto): Promise<void> {
-  //   await this.commandBus.execute(new DeletePostCommand(params.id));
   // }
 }
