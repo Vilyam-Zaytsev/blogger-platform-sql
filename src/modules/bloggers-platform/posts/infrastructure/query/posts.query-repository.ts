@@ -149,8 +149,6 @@ export class PostsQueryRepository {
                LEFT JOIN "NewestLikes" nl ON nl."postId" = p."id"
         WHERE p."deletedAt" IS NULL
           AND ($4::int IS NULL OR p."blogId" = $4)
---         ORDER BY p."${sortBy}
-          " ${sortDirection.toUpperCase()}
         ORDER BY ${orderByColumn} ${sortDirection.toUpperCase()}
         OFFSET $1 LIMIT $2
       `,
