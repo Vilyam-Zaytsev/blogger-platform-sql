@@ -25,6 +25,7 @@ import { DeleteCommentUseCase } from './comments/application/usecases/delete-com
 import { CreateCommentUseCase } from './comments/application/usecases/create-comment.usecase';
 import { CommentsQueryRepository } from './comments/infrastructure/query/comments.query-repository';
 import { GetCommentQueryHandler } from './comments/application/queries/get-comment.query-handler';
+import { GetCommentsQueryHandler } from './comments/application/queries/get-comments.query-handler';
 
 @Module({
   imports: [UserAccountsModule],
@@ -65,7 +66,7 @@ import { GetCommentQueryHandler } from './comments/application/queries/get-comme
     // UpdateCommentReactionUseCase,
     //query-handlers
     GetCommentQueryHandler,
-    // GetCommentsQueryHandler,
+    GetCommentsQueryHandler,
     // //🔸 Reactions:
     // //repo
     // ReactionsRepository,
