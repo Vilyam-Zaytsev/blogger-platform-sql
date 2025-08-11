@@ -1,4 +1,4 @@
 export type CommentatorInfo = {
-  userId: number;
-  userLoginId: string;
+  userId: string;
+  userLogin: string;
 };
