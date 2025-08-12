@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { BlogViewDto } from '../../api/view-dto/blog-view.dto';
 import { Pool, QueryResult } from 'pg';
 import { PG_POOL } from '../../../../database/constants/database.constants';
-import { BlogDbType } from '../../types/blog-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import {
@@ -13,16 +12,20 @@ import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { SearchFilterBuilder } from '../../../../../core/utils/search-filter.builder';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
+import { BlogRawRow } from '../../types/blog-raw-row.type';
 
 @Injectable()
 export class BlogsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<BlogViewDto> {
-    const { rows }: QueryResult<BlogDbType> = await this.pool.query(
+    const { rows }: QueryResult<BlogViewDto> = await this.pool.query(
       `
-        SELECT *
-        FROM "Blogs"
+        SELECT b."id"::text, b."name",
+               b."description",
+               b."websiteUrl",
+               b."createdAt"::text, b."isMembership"
+        FROM "Blogs" b
         WHERE "id" = $1
           AND "deletedAt" IS NULL
       `,
@@ -36,19 +39,12 @@ export class BlogsQueryRepository {
       });
     }
 
-    return BlogViewDto.mapToView(rows[0]);
+    return rows[0];
   }
 
-  async getAll(
-    query: GetBlogsQueryParams,
-  ): Promise<PaginatedViewDto<BlogViewDto>> {
-    const {
-      sortBy,
-      sortDirection,
-      pageSize,
-      pageNumber,
-      searchNameTerm,
-    }: GetBlogsQueryParams = query;
+  async getAll(query: GetBlogsQueryParams): Promise<PaginatedViewDto<BlogViewDto>> {
+    const { sortBy, sortDirection, pageSize, pageNumber, searchNameTerm }: GetBlogsQueryParams =
+      query;
 
     if (!Object.values(BlogsSortBy).includes(sortBy)) {
       throw new ValidationException([
@@ -75,10 +71,13 @@ export class BlogsQueryRepository {
     const limitParamIndex: number = searchValues.length + 2;
 
     try {
-      const { rows: blogs }: QueryResult<BlogDbType> = await this.pool.query(
+      const { rows }: QueryResult<BlogRawRow> = await this.pool.query(
         `
-          SELECT *
-          FROM "Blogs"
+          SELECT COUNT(*) OVER() AS "totalCount", b."id"::text, b."name",
+                 b."description",
+                 b."websiteUrl",
+                 b."createdAt"::text, b."isMembership"
+          FROM "Blogs" b
           WHERE "deletedAt" IS NULL
             ${searchCondition ? `AND (${searchCondition})` : ''}
           ORDER BY "${sortBy}" ${sortDirection.toUpperCase()}
@@ -87,38 +86,29 @@ export class BlogsQueryRepository {
         [...searchValues, offset, pageSize],
       );
 
-      const { rows: rowsCount }: QueryResult<{ totalCount: number }> =
-        await this.pool.query(
-          `
-            SELECT COUNT(*) AS "totalCount"
-            FROM "Blogs"
-            WHERE "deletedAt" IS NULL
-              ${searchCondition ? `AND (${searchCondition})` : ''}
-          `,
-          [...searchValues],
-        );
+      const totalCount: number = rows.length > 0 ? +rows[0].totalCount : 0;
+      const pagesCount: number = Math.ceil(totalCount / pageSize);
 
-      const items: BlogViewDto[] = blogs.map(
-        (blog: BlogDbType): BlogViewDto => BlogViewDto.mapToView(blog),
-      );
-
-      const totalCount: number = Number(rowsCount[0].totalCount);
-
-      return PaginatedViewDto.mapToView({
-        items,
-        totalCount,
+      return {
+        pagesCount,
         page: pageNumber,
-        size: pageSize,
-      });
+        pageSize,
+        totalCount,
+        items: rows.map(
+          (row): BlogViewDto => ({
+            id: row.id,
+            name: row.name,
+            description: row.description,
+            websiteUrl: row.websiteUrl,
+            createdAt: row.createdAt,
+            isMembership: row.isMembership,
+          }),
+        ),
+      };
     } catch (error) {
-      console.error(
-        'Ошибка при выполнении SQL-запроса в BlogsQueryRepository.getAll():',
-        error,
-      );
-      throw new DomainException({
-        code: DomainExceptionCode.InternalServerError,
-        message: 'The list of users could not be retrieved',
-      });
+      console.error('Ошибка при выполнении SQL-запроса в BlogsQueryRepository.getAll():', error);
+
+      throw error;
     }
   }
 }

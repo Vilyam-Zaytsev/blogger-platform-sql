@@ -21,9 +21,7 @@ export class NewPasswordUseCase implements ICommandHandler<NewPasswordCommand> {
 
   async execute({ dto }: NewPasswordCommand): Promise<void> {
     const passwordRecovery: PasswordRecoveryDbType | null =
-      await this.usersRepository.getPasswordRecoveryByRecoveryCode(
-        dto.recoveryCode,
-      );
+      await this.usersRepository.getPasswordRecoveryByRecoveryCode(dto.recoveryCode);
 
     if (!passwordRecovery) {
       throw new DomainException({
@@ -32,19 +30,14 @@ export class NewPasswordUseCase implements ICommandHandler<NewPasswordCommand> {
       });
     }
 
-    if (
-      passwordRecovery.expirationDate &&
-      new Date(passwordRecovery.expirationDate) < new Date()
-    ) {
+    if (passwordRecovery.expirationDate && new Date(passwordRecovery.expirationDate) < new Date()) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: 'The code has expired',
       });
     }
 
-    const hash: string = await this.cryptoService.createPasswordHash(
-      dto.newPassword,
-    );
+    const hash: string = await this.cryptoService.createPasswordHash(dto.newPassword);
 
     const updatePasswordDto: UpdatePassword = {
       userId: passwordRecovery.userId,
@@ -58,8 +51,6 @@ export class NewPasswordUseCase implements ICommandHandler<NewPasswordCommand> {
     };
 
     await this.usersRepository.updatePassword(updatePasswordDto);
-    await this.usersRepository.insertOrUpdatePasswordRecovery(
-      updatePasswordRecoveryDto,
-    );
+    await this.usersRepository.insertOrUpdatePasswordRecovery(updatePasswordRecoveryDto);
   }
 }

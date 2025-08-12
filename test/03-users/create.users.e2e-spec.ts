@@ -59,14 +59,11 @@ describe('UsersController - createUser() (POST: /users)', () => {
       id: expect.any(String),
       email: dto.email,
       login: dto.login,
-      createdAt: expect.stringMatching(
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/,
-      ),
+      createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
     });
 
     // 🔻 Получаем список всех пользователей из базы данных
-    const users: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const users: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
 
     // 🔸 Проверяем, что в базе появился ровно один новый пользователь
     expect(users.items).toHaveLength(1);
@@ -95,8 +92,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
       .expect(HttpStatus.UNAUTHORIZED);
 
     // 🔻 Получаем список всех пользователей из базы данных
-    const users: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const users: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
 
     // 🔸 Проверяем, что в базе не появилось новых пользователей
     expect(users.items).toHaveLength(0);
@@ -138,8 +134,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
     });
 
     // 🔻 Получаем список всех пользователей из базы данных
-    const users: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const users: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
 
     // 🔸 Проверяем, что в базе не появилось новых пользователей
     expect(users.items).toHaveLength(0);
@@ -170,8 +165,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
       errorsMessages: [
         {
           field: 'password',
-          message:
-            'password must be longer than or equal to 6 characters; Received value: ',
+          message: 'password must be longer than or equal to 6 characters; Received value: ',
         },
         {
           field: 'email',
@@ -180,15 +174,13 @@ describe('UsersController - createUser() (POST: /users)', () => {
         },
         {
           field: 'login',
-          message:
-            'login must be longer than or equal to 3 characters; Received value: ',
+          message: 'login must be longer than or equal to 3 characters; Received value: ',
         },
       ],
     });
 
     // 🔻 Получаем список всех пользователей из базы данных
-    const users: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const users: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
 
     // 🔸 Проверяем, что в базе не появилось новых пользователей
     expect(users.items).toHaveLength(0);
@@ -238,8 +230,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
     });
 
     // 🔻 Получаем список всех пользователей из базы данных
-    const users: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const users: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
 
     // 🔸 Проверяем, что в базе не появилось новых пользователей
     expect(users.items).toHaveLength(0);
@@ -289,8 +280,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
     });
 
     // 🔻 Получаем список всех пользователей из базы данных
-    const users: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const users: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
 
     // 🔸 Проверяем, что в базе не появилось новых пользователей
     expect(users.items).toHaveLength(0);
@@ -336,8 +326,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
     });
 
     // 🔻 Получаем список всех пользователей из базы данных
-    const users: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const users: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
 
     // 🔸 Проверяем, что в базе не появилось новых пользователей
     expect(users.items).toHaveLength(0);

@@ -6,9 +6,7 @@ export function parseUserAgent(userAgent: string): string {
   const os = parser.getOS();
 
   const browserInfo =
-    browser.name && browser.version
-      ? `${browser.name} ${browser.version}`
-      : 'Unknown browser';
+    browser.name && browser.version ? `${browser.name} ${browser.version}` : 'Unknown browser';
 
   const osInfo = os.name ? os.name : 'Unknown OS';
 

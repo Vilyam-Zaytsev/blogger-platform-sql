@@ -190,13 +190,11 @@ describe('AuthController - login() (POST: /auth/login)', () => {
       errorsMessages: [
         {
           field: 'password',
-          message:
-            'password must be longer than or equal to 6 characters; Received value: ',
+          message: 'password must be longer than or equal to 6 characters; Received value: ',
         },
         {
           field: 'loginOrEmail',
-          message:
-            'loginOrEmail must be longer than or equal to 3 characters; Received value: ',
+          message: 'loginOrEmail must be longer than or equal to 3 characters; Received value: ',
         },
       ],
     });

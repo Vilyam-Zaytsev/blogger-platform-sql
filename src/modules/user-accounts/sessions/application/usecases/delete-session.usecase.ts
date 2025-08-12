@@ -13,14 +13,11 @@ export class DeleteSessionCommand {
 }
 
 @CommandHandler(DeleteSessionCommand)
-export class DeleteSessionUseCase
-  implements ICommandHandler<DeleteSessionCommand>
-{
+export class DeleteSessionUseCase implements ICommandHandler<DeleteSessionCommand> {
   constructor(private readonly sessionsRepository: SessionsRepository) {}
 
   async execute({ dto, deviceId }: DeleteSessionCommand): Promise<void> {
-    const session: SessionDbType | null =
-      await this.sessionsRepository.getByDeviceId(deviceId);
+    const session: SessionDbType | null = await this.sessionsRepository.getByDeviceId(deviceId);
 
     if (!session) {
       throw new DomainException({

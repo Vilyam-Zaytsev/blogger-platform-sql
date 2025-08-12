@@ -16,8 +16,7 @@ export class SendConfirmationEmailWhenUserRegisteredEventHandler
   async handle(event: UserRegisteredEvent) {
     const { email, confirmationCode } = event;
 
-    const template: EmailTemplate =
-      this.templates.registrationEmail(confirmationCode);
+    const template: EmailTemplate = this.templates.registrationEmail(confirmationCode);
 
     try {
       await this.emailService.sendEmail(email, template);

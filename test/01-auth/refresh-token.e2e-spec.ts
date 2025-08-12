@@ -23,17 +23,15 @@ describe('AuthController - refreshToken() (POST: /auth/refresh-token)', () => {
   beforeAll(async () => {
     appTestManager = new AppTestManager();
     await appTestManager.init((moduleBuilder) =>
-      moduleBuilder
-        .overrideProvider(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
-        .useFactory({
-          factory: (userAccountsConfig: UserAccountsConfig) => {
-            return new JwtService({
-              secret: userAccountsConfig.refreshTokenSecret,
-              signOptions: { expiresIn: '3s' },
-            });
-          },
-          inject: [UserAccountsConfig],
-        }),
+      moduleBuilder.overrideProvider(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN).useFactory({
+        factory: (userAccountsConfig: UserAccountsConfig) => {
+          return new JwtService({
+            secret: userAccountsConfig.refreshTokenSecret,
+            signOptions: { expiresIn: '3s' },
+          });
+        },
+        inject: [UserAccountsConfig],
+      }),
     );
 
     adminCredentials = appTestManager.getAdminCredentials();

@@ -18,10 +18,18 @@ import { UpdatePostUseCase } from './posts/application/usecases/update-post.usec
 import { DeletePostUseCase } from './posts/application/usecases/delete-post.usecase';
 import { GetPostsQueryHandler } from './posts/application/queries/get-posts.query-handler';
 import { GetPostQueryHandler } from './posts/application/queries/get-post.query-handler';
+import { CommentsRepository } from './comments/infrastructure/comments-repository';
+import { UpdateCommentUseCase } from './comments/application/usecases/update-comment.usecase';
+import { CommentsController } from './comments/api/comments.controller';
+import { DeleteCommentUseCase } from './comments/application/usecases/delete-comment.usecase';
+import { CreateCommentUseCase } from './comments/application/usecases/create-comment.usecase';
+import { CommentsQueryRepository } from './comments/infrastructure/query/comments.query-repository';
+import { GetCommentQueryHandler } from './comments/application/queries/get-comment.query-handler';
+import { GetCommentsQueryHandler } from './comments/application/queries/get-comments.query-handler';
 
 @Module({
   imports: [UserAccountsModule],
-  controllers: [BlogsAdminController, BlogsPublicController, PostsController],
+  controllers: [BlogsAdminController, BlogsPublicController, PostsController, CommentsController],
   providers: [
     //🔸 Blogs:
     //repo
@@ -34,11 +42,11 @@ import { GetPostQueryHandler } from './posts/application/queries/get-post.query-
     //query-handlers
     GetBlogsQueryHandler,
     GetBlogQueryHandler,
-    // //🔸 Posts:
-    // //repo
+    //🔸 Posts:
+    //repo
     PostsRepository,
     PostsQueryRepository,
-    // //use-cases
+    //use-cases
     CreatePostUseCase,
     UpdatePostUseCase,
     DeletePostUseCase,
@@ -47,18 +55,18 @@ import { GetPostQueryHandler } from './posts/application/queries/get-post.query-
     GetPostsForBlogQueryHandler,
     GetPostsQueryHandler,
     GetPostQueryHandler,
-    // //🔸 Comments:
-    // //repo
-    // CommentsRepository,
-    // CommentsQueryRepository,
+    //🔸 Comments:
+    //repo
+    CommentsRepository,
+    CommentsQueryRepository,
     // //use-cases
-    // CreateCommentUseCase,
-    // UpdateCommentUseCase,
-    // DeleteCommentUseCase,
+    CreateCommentUseCase,
+    UpdateCommentUseCase,
+    DeleteCommentUseCase,
     // UpdateCommentReactionUseCase,
-    // //query-handlers
-    // GetCommentQueryHandler,
-    // GetCommentsQueryHandler,
+    //query-handlers
+    GetCommentQueryHandler,
+    GetCommentsQueryHandler,
     // //🔸 Reactions:
     // //repo
     // ReactionsRepository,

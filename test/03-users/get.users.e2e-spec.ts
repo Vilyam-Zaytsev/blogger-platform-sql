@@ -120,9 +120,7 @@ describe('UsersController - getUser() (GET: /users)', () => {
     // 🔻 Создаем параметры запроса для фильтрации
     const query: GetUsersQueryParams = new GetUsersQueryParams();
     // 🔻 Применяем фильтрацию и сортировку к созданным пользователям
-    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(
-      createdUsers,
-    )
+    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(createdUsers)
       .sort({ [query.sortBy]: query.sortDirection })
       .getResult();
 

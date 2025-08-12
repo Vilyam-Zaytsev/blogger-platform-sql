@@ -113,10 +113,11 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     }
 
     // 🔻 1. Тест для первого пользователя
-    const refreshToken_user1_session1: string =
-      resLogins.resLogins_user1[0].headers['set-cookie'][0]
-        .split(';')[0]
-        .split('=')[1];
+    const refreshToken_user1_session1: string = resLogins.resLogins_user1[0].headers[
+      'set-cookie'
+    ][0]
+      .split(';')[0]
+      .split('=')[1];
 
     // 🔻 Получаем все сессии до обновления
     const resGetSessions_user1: Response = await request(server)
@@ -129,9 +130,7 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     for (let i = 0; i < resLogins.resLogins_user1.length; i++) {
       await TestUtils.delay(1000);
 
-      const refreshToken: string = resLogins.resLogins_user1[i].headers[
-        'set-cookie'
-      ][0]
+      const refreshToken: string = resLogins.resLogins_user1[i].headers['set-cookie'][0]
         .split(';')[0]
         .split('=')[1];
 
@@ -163,10 +162,11 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     }
 
     // 🔻 2. Тест для второго пользователя
-    const refreshToken_user2_session1: string =
-      resLogins.resLogins_user2[0].headers['set-cookie'][0]
-        .split(';')[0]
-        .split('=')[1];
+    const refreshToken_user2_session1: string = resLogins.resLogins_user2[0].headers[
+      'set-cookie'
+    ][0]
+      .split(';')[0]
+      .split('=')[1];
 
     // 🔻 Получаем все сессии второго пользователя до обновления
     const resGetDevices_user2: Response = await request(server)
@@ -178,9 +178,7 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     for (let i = 0; i < resLogins.resLogins_user2.length; i++) {
       await TestUtils.delay(1000);
 
-      const refreshToken: string = resLogins.resLogins_user2[i].headers[
-        'set-cookie'
-      ][0]
+      const refreshToken: string = resLogins.resLogins_user2[i].headers['set-cookie'][0]
         .split(';')[0]
         .split('=')[1];
 

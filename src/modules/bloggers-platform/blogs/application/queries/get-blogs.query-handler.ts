@@ -14,9 +14,7 @@ export class GetBlogsQueryHandler
 {
   constructor(private readonly blogsQueryRepository: BlogsQueryRepository) {}
 
-  async execute({
-    queryParams,
-  }: GetBlogsQuery): Promise<PaginatedViewDto<BlogViewDto>> {
+  async execute({ queryParams }: GetBlogsQuery): Promise<PaginatedViewDto<BlogViewDto>> {
     return this.blogsQueryRepository.getAll(queryParams);
   }
 }

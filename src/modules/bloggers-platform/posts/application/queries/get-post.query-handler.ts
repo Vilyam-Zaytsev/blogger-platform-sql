@@ -11,9 +11,7 @@ export class GetPostQuery {
 }
 
 @QueryHandler(GetPostQuery)
-export class GetPostQueryHandler
-  implements IQueryHandler<GetPostQuery, PostViewDto>
-{
+export class GetPostQueryHandler implements IQueryHandler<GetPostQuery, PostViewDto> {
   constructor(private readonly postsQueryRepository: PostsQueryRepository) {}
 
   async execute({ id, user }: GetPostQuery): Promise<PostViewDto> {

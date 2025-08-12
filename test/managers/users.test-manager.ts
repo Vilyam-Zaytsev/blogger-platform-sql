@@ -85,9 +85,7 @@ export class UsersTestManager {
     return resultLogin;
   }
 
-  async getAll(
-    query: Partial<GetUsersQueryParams> = {},
-  ): Promise<PaginatedViewDto<UserViewDto>> {
+  async getAll(query: Partial<GetUsersQueryParams> = {}): Promise<PaginatedViewDto<UserViewDto>> {
     const response: Response = await request(this.server)
       .get(`/${GLOBAL_PREFIX}/sa/users`)
       .query(query)

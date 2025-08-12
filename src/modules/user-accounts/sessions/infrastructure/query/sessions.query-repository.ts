@@ -19,9 +19,6 @@ export class SessionsQueryRepository {
       [userId],
     );
 
-    return rows.map(
-      (session: SessionDbType): SessionViewDto =>
-        SessionViewDto.mapToView(session),
-    );
+    return rows.map((session: SessionDbType): SessionViewDto => SessionViewDto.mapToView(session));
   }
 }

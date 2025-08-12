@@ -59,9 +59,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
     // 🔻 Создаем параметры запроса для пагинации и фильтрации
     const query: GetUsersQueryParams = new GetUsersQueryParams();
     // 🔻 Применяем фильтрацию, сортировку и пагинацию к созданным пользователям
-    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(
-      createdUsers,
-    )
+    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(createdUsers)
       .sort({ [query.sortBy]: query.sortDirection })
       .skip(query.calculateSkip())
       .limit(query.pageSize)
@@ -106,9 +104,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
       .expect(HttpStatus.OK);
 
     // 🔻 Применяем те же фильтрацию и сортировку к созданным пользователям
-    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(
-      createdUsers,
-    )
+    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(createdUsers)
       .sort({ [query.sortBy]: query.sortDirection })
       .skip(query.calculateSkip())
       .limit(query.pageSize)
@@ -152,9 +148,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
       .expect(HttpStatus.OK);
 
     // 🔻 Применяем те же фильтрацию и сортировку к созданным пользователям
-    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(
-      createdUsers,
-    )
+    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(createdUsers)
       .sort({ [query.sortBy]: query.sortDirection })
       .skip(query.calculateSkip())
       .limit(query.pageSize)
@@ -201,9 +195,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
       .expect(HttpStatus.OK);
 
     // 🔻 Применяем к созданным пользователям такие же фильтры и сортировку, как и на сервере
-    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(
-      createdUsers,
-    )
+    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(createdUsers)
       .filter(searchFilter) // фильтруем по вхождению "r1" в поле login
       .sort({ [query.sortBy]: query.sortDirection })
       .getResult();
@@ -250,9 +242,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
       .expect(HttpStatus.OK);
 
     // 🔻 Локально применяем фильтрацию и сортировку, имитируя логику на сервере
-    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(
-      createdUsers,
-    )
+    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(createdUsers)
       .filter(searchFilter) // фильтруем по вхождению "r1" в поле email
       .sort({ [query.sortBy]: query.sortDirection })
       .getResult();
@@ -301,9 +291,7 @@ describe('UsersController - getUser() (GET: /users (pagination, sort, search in 
       .expect(HttpStatus.OK);
 
     // 🔻 Применяем фильтрацию и сортировку к созданным пользователям
-    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(
-      createdUsers,
-    )
+    const filteredCreatedUsers: UserViewDto[] = new Filter<UserViewDto>(createdUsers)
       .filter(searchFilter) // фильтрация по login и email
       .sort({ [query.sortBy]: query.sortDirection })
       .getResult();

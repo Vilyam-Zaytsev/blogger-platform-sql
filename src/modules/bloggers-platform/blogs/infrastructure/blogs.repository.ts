@@ -11,7 +11,7 @@ export class BlogsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async insertBlog(dto: CreateBlogDto): Promise<number> {
-    const { rows }: QueryResult<BlogDbType> = await this.pool.query(
+    const { rows }: QueryResult<{ id: number }> = await this.pool.query(
       `
         INSERT INTO "Blogs" ("name", "description", "websiteUrl", "isMembership")
           VALUES ($1, $2, $3, $4) RETURNING "id";
@@ -43,10 +43,8 @@ export class BlogsRepository {
     return rows[0];
   }
 
-  async updateBlog(dto: UpdateBlogDto): Promise<void> {
-    const { id, name, description, websiteUrl }: UpdateBlogDto = dto;
-
-    await this.pool.query(
+  async updateBlog(dto: UpdateBlogDto): Promise<boolean> {
+    const { rowCount }: QueryResult = await this.pool.query(
       `
         UPDATE "Blogs"
         SET "name"        = $1,
@@ -54,12 +52,14 @@ export class BlogsRepository {
             "websiteUrl"  = $3
         WHERE "id" = $4
       `,
-      [name, description, websiteUrl, id],
+      [dto.name, dto.description, dto.websiteUrl, dto.id],
     );
+
+    return rowCount !== null && rowCount > 0;
   }
 
   async softDelete(id: number): Promise<boolean> {
-    const queryResult: QueryResult = await this.pool.query(
+    const { rowCount }: QueryResult = await this.pool.query(
       `
         UPDATE "Blogs"
         SET "deletedAt" = NOW()
@@ -69,6 +69,6 @@ export class BlogsRepository {
       [id],
     );
 
-    return queryResult.rowCount === 1;
+    return rowCount === 1;
   }
 }

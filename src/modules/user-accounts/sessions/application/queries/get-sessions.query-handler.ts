@@ -8,12 +8,8 @@ export class GetSessionsQuery {
 }
 
 @QueryHandler(GetSessionsQuery)
-export class GetSessionsQueryHandler
-  implements IQueryHandler<GetSessionsQuery, SessionViewDto[]>
-{
-  constructor(
-    private readonly sessionsQueryRepository: SessionsQueryRepository,
-  ) {}
+export class GetSessionsQueryHandler implements IQueryHandler<GetSessionsQuery, SessionViewDto[]> {
+  constructor(private readonly sessionsQueryRepository: SessionsQueryRepository) {}
 
   async execute({ dto }: GetSessionsQuery): Promise<SessionViewDto[]> {
     return this.sessionsQueryRepository.getAllByUserId(dto.userId);

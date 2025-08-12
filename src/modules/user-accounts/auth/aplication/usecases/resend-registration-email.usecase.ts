@@ -29,9 +29,7 @@ export class ResendRegistrationEmailUseCase
   ) {}
 
   async execute({ dto }: ResendRegistrationEmailCommand): Promise<void> {
-    const user: UserDbType | null = await this.usersRepository.getByEmail(
-      dto.email,
-    );
+    const user: UserDbType | null = await this.usersRepository.getByEmail(dto.email);
 
     if (!user) {
       throw new ValidationException([
@@ -71,12 +69,8 @@ export class ResendRegistrationEmailUseCase
       confirmationStatus: ConfirmationStatus.NotConfirmed,
     };
 
-    await this.usersRepository.updateEmailConfirmation(
-      updateEmailConfirmationDto,
-    );
+    await this.usersRepository.updateEmailConfirmation(updateEmailConfirmationDto);
 
-    this.eventBus.publish(
-      new UserResendRegisteredEvent(user.email, confirmationCode),
-    );
+    this.eventBus.publish(new UserResendRegisteredEvent(user.email, confirmationCode));
   }
 }

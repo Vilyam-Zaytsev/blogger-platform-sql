@@ -73,10 +73,7 @@ describe('PostsController - getAllPosts() (GET: /posts)', () => {
   it('should return an array with a single post.', async () => {
     // 🔻 Создаём блог и один пост
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
-    const posts: PostViewDto[] = await postsTestManager.createPost(
-      1,
-      createdBlog.id,
-    );
+    const posts: PostViewDto[] = await postsTestManager.createPost(1, createdBlog.id);
 
     // 🔻 Отправляем GET-запрос на получение всех постов
     const resGetPosts: Response = await request(server)
@@ -104,10 +101,7 @@ describe('PostsController - getAllPosts() (GET: /posts)', () => {
   it('should return an array with a three posts.', async () => {
     // 🔻 Создаём блог и три поста, привязанных к нему
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
-    const posts: PostViewDto[] = await postsTestManager.createPost(
-      3,
-      createdBlog.id,
-    );
+    const posts: PostViewDto[] = await postsTestManager.createPost(3, createdBlog.id);
 
     // 🔻 Отправляем GET-запрос на получение всех постов
     const resGetPosts: Response = await request(server)
@@ -136,10 +130,7 @@ describe('PostsController - getAllPosts() (GET: /posts)', () => {
   it('should return post found by id.', async () => {
     // 🔻 Создаём блог и пост, связанный с ним
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
-    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(
-      1,
-      createdBlog.id,
-    );
+    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog.id);
 
     // 🔻 Отправляем GET-запрос на получение поста по id
     const resGetPost: Response = await request(server)
@@ -161,10 +152,7 @@ describe('PostsController - getAllPosts() (GET: /posts)', () => {
   it('should return error 404 not found.', async () => {
     // 🔻 Создаём блог и один пост
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
-    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(
-      1,
-      createdBlog.id,
-    );
+    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog.id);
 
     const incorrectId: string = '1000000';
 

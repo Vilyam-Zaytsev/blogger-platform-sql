@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Get,
-  HttpCode,
-  HttpStatus,
-  Post,
-  Res,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Post, Res, UseGuards } from '@nestjs/common';
 import { ThrottlerGuard } from '@nestjs/throttler';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UserInputDto } from '../../users/api/input-dto/user.input-dto';
@@ -76,8 +67,9 @@ export class AuthController {
     @ExtractClientInfo() clientInfo: ClientInfoDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginViewDto> {
-    const { accessToken, refreshToken }: AuthTokens =
-      await this.commandBus.execute(new LoginUserCommand(user, clientInfo));
+    const { accessToken, refreshToken }: AuthTokens = await this.commandBus.execute(
+      new LoginUserCommand(user, clientInfo),
+    );
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
@@ -93,17 +85,13 @@ export class AuthController {
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshAuthGuard)
-  async logout(
-    @ExtractSessionFromRequest() session: SessionContextDto,
-  ): Promise<void> {
+  async logout(@ExtractSessionFromRequest() session: SessionContextDto): Promise<void> {
     return this.commandBus.execute(new LogoutCommand(session));
   }
 
   @Post('password-recovery')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async passwordRecovery(
-    @Body() body: PasswordRecoveryInputDto,
-  ): Promise<void> {
+  async passwordRecovery(@Body() body: PasswordRecoveryInputDto): Promise<void> {
     return this.commandBus.execute(new PasswordRecoveryCommand(body));
   }
 
@@ -114,8 +102,9 @@ export class AuthController {
     @ExtractSessionFromRequest() session: SessionContextDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<LoginViewDto> {
-    const { accessToken, refreshToken }: AuthTokens =
-      await this.commandBus.execute(new RefreshTokenCommand(session));
+    const { accessToken, refreshToken }: AuthTokens = await this.commandBus.execute(
+      new RefreshTokenCommand(session),
+    );
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,

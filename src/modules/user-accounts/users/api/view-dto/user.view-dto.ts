@@ -19,10 +19,7 @@ export class UserViewDto {
   }
 }
 
-export class MeViewDto extends OmitType(UserViewDto, [
-  'createdAt',
-  'id',
-] as const) {
+export class MeViewDto extends OmitType(UserViewDto, ['createdAt', 'id'] as const) {
   userId: string;
 
   static mapToView(user: UserDbType): MeViewDto {

@@ -11,21 +11,13 @@ export class DomainHttpExceptionsFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    const status: number = DomainExceptionsCodeMapper.mapToHttpStatus(
-      exception.code,
-    );
-    const responseBody: ErrorResponseBody = this.buildResponseBody(
-      exception,
-      request.url,
-    );
+    const status: number = DomainExceptionsCodeMapper.mapToHttpStatus(exception.code);
+    const responseBody: ErrorResponseBody = this.buildResponseBody(exception, request.url);
 
     response.status(status).json(responseBody);
   }
 
-  private buildResponseBody(
-    exception: DomainException,
-    requestUrl: string,
-  ): ErrorResponseBody {
+  private buildResponseBody(exception: DomainException, requestUrl: string): ErrorResponseBody {
     return {
       timestamp: new Date().toISOString(),
       path: requestUrl,

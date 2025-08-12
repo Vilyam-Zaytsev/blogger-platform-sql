@@ -36,14 +36,13 @@ export class SessionsRepository {
   // }
 
   async getByDeviceId(deviceId: string): Promise<SessionDbType | null> {
-    const queryResult: QueryResult<SessionDbType> =
-      await this.pool.query<SessionDbType>(
-        `SELECT *
+    const queryResult: QueryResult<SessionDbType> = await this.pool.query<SessionDbType>(
+      `SELECT *
          FROM "Sessions"
          WHERE "deviceId" = $1
            AND "deletedAt" IS NULL`,
-        [deviceId],
-      );
+      [deviceId],
+    );
 
     if (queryResult.rowCount === 0) {
       return null;
@@ -75,9 +74,7 @@ export class SessionsRepository {
     );
   }
 
-  async softDeleteAllSessionsExceptCurrent(
-    dto: SessionContextDto,
-  ): Promise<void> {
+  async softDeleteAllSessionsExceptCurrent(dto: SessionContextDto): Promise<void> {
     await this.pool.query(
       `UPDATE "Sessions"
        SET "deletedAt" = NOW()

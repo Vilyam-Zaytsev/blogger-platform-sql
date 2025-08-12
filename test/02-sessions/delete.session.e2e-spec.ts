@@ -25,17 +25,15 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
   beforeAll(async () => {
     appTestManager = new AppTestManager();
     await appTestManager.init((moduleBuilder) =>
-      moduleBuilder
-        .overrideProvider(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN)
-        .useFactory({
-          factory: (userAccountsConfig: UserAccountsConfig) => {
-            return new JwtService({
-              secret: userAccountsConfig.refreshTokenSecret,
-              signOptions: { expiresIn: '2s' },
-            });
-          },
-          inject: [UserAccountsConfig],
-        }),
+      moduleBuilder.overrideProvider(REFRESH_TOKEN_STRATEGY_INJECT_TOKEN).useFactory({
+        factory: (userAccountsConfig: UserAccountsConfig) => {
+          return new JwtService({
+            secret: userAccountsConfig.refreshTokenSecret,
+            signOptions: { expiresIn: '2s' },
+          });
+        },
+        inject: [UserAccountsConfig],
+      }),
     );
 
     cryptoService = appTestManager.app.get(CryptoService);
@@ -108,9 +106,7 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     // 🔻 Получаем список всех сессий пользователя
     const resGetSessions_1: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/security/devices`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[0].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[0].authTokens.refreshToken}`])
       .expect(HttpStatus.OK);
 
     // 🔸 Проверяем, что у пользователя 4 активные сессии
@@ -122,25 +118,19 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     // 🔻 Отправляем запрос на удаление конкретной сессии по её ID
     const resDeleteSession: Response = await request(server)
       .delete(`/${GLOBAL_PREFIX}/security/devices/${deviceId_1}`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[0].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[0].authTokens.refreshToken}`])
       .expect(HttpStatus.NO_CONTENT);
 
     // 🔻 Проверяем, что после удаления сессии по её токену авторизация невозможна
     await request(server)
       .get(`/${GLOBAL_PREFIX}/security/devices`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[0].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[0].authTokens.refreshToken}`])
       .expect(HttpStatus.UNAUTHORIZED);
 
     // 🔻 Получаем список сессий, используя refreshToken другой активной сессии
     const resGetSessions_2: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/security/devices`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[1].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[1].authTokens.refreshToken}`])
       .expect(HttpStatus.OK);
 
     // 🔸 Проверяем, что осталось 3 активные сессии
@@ -203,9 +193,7 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     // 🔻 Получаем список всех сессий пользователя
     const resGetSessions_1: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/security/devices`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[0].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[0].authTokens.refreshToken}`])
       .expect(HttpStatus.OK);
 
     // 🔸 Проверяем, что у пользователя 4 активные сессии
@@ -225,9 +213,7 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     // 🔻 Пытаемся удалить сессию, используя refreshToken, который должен быть невалидным — снова ожидаем ошибку 401
     const resDeleteSession: Response = await request(server)
       .delete(`/${GLOBAL_PREFIX}/security/devices/${deviceId_1}`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[0].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[0].authTokens.refreshToken}`])
       .expect(HttpStatus.UNAUTHORIZED);
 
     if (testLoggingEnabled) {
@@ -241,8 +227,7 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
 
   it('should not delete a specific session if the user is not the owner of this device.', async () => {
     // 🔻 Создаём двух пользователей
-    const [createdUser_1, createdUser_2]: UserViewDto[] =
-      await usersTestManager.createUser(2);
+    const [createdUser_1, createdUser_2]: UserViewDto[] = await usersTestManager.createUser(2);
 
     // 🔻 Массив для хранения информации о логинах
     const resultLogins: TestResultLogin[] = [];
@@ -256,8 +241,7 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     // 🔻 Логиним каждого пользователя на своём устройстве
     for (let i = 0; i < 2; i++) {
       // 🔸 Чётные индексы — user1, нечётные — user2
-      const login: string =
-        (i + 1) % 2 === 0 ? createdUser_2.login : createdUser_1.login;
+      const login: string = (i + 1) % 2 === 0 ? createdUser_2.login : createdUser_1.login;
 
       const res: Response = await request(server)
         .post(`/${GLOBAL_PREFIX}/auth/login`)
@@ -290,17 +274,13 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     // 🔻 Получаем список сессий пользователя 1
     const resGetSessions_user1: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/security/devices`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[0].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[0].authTokens.refreshToken}`])
       .expect(HttpStatus.OK);
 
     // 🔻 Получаем список сессий пользователя 2
     const resGetSessions_user2: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/security/devices`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[1].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[1].authTokens.refreshToken}`])
       .expect(HttpStatus.OK);
 
     // 🔻 Извлекаем ID сессий каждого пользователя
@@ -310,17 +290,13 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     // 🔻 Пользователь 1 пытается удалить сессию пользователя 2 — ожидаем 403
     const resDeleteSession: Response = await request(server)
       .delete(`/${GLOBAL_PREFIX}/security/devices/${deviceId_user2}`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[0].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[0].authTokens.refreshToken}`])
       .expect(HttpStatus.FORBIDDEN);
 
     // 🔻 Пользователь 2 пытается удалить сессию пользователя 1 — ожидаем 403
     await request(server)
       .delete(`/${GLOBAL_PREFIX}/security/devices/${deviceId_user1}`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[1].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[1].authTokens.refreshToken}`])
       .expect(HttpStatus.FORBIDDEN);
 
     if (testLoggingEnabled) {
@@ -380,9 +356,7 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     // 🔻 Получаем список всех активных сессий
     const resGetSessions_1: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/security/devices`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[0].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[0].authTokens.refreshToken}`])
       .expect(HttpStatus.OK);
 
     expect(resGetSessions_1.body.length).toEqual(4);
@@ -393,17 +367,13 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     // 🔻 Пытаемся удалить сессию по несуществующему ID → ожидаем 404
     const resDeleteSession: Response = await request(server)
       .delete(`/${GLOBAL_PREFIX}/security/devices/${incorrectId}`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[0].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[0].authTokens.refreshToken}`])
       .expect(HttpStatus.NOT_FOUND);
 
     // 🔻 Проверяем, что список сессий не изменился
     const resGetSessions_2: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/security/devices`)
-      .set('Cookie', [
-        `refreshToken=${resultLogins[0].authTokens.refreshToken}`,
-      ])
+      .set('Cookie', [`refreshToken=${resultLogins[0].authTokens.refreshToken}`])
       .expect(HttpStatus.OK);
 
     expect(resGetSessions_2.body.length).toEqual(4);

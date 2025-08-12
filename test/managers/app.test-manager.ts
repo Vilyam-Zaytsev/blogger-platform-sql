@@ -14,16 +14,12 @@ export class AppTestManager {
   pool: Pool;
   coreConfig: CoreConfig;
 
-  async init(
-    addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void,
-  ) {
+  async init(addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void) {
     const DynamicAppModule: DynamicModule = await initAppModule();
 
-    const testingModuleBuilder: TestingModuleBuilder = Test.createTestingModule(
-      {
-        imports: [DynamicAppModule],
-      },
-    );
+    const testingModuleBuilder: TestingModuleBuilder = Test.createTestingModule({
+      imports: [DynamicAppModule],
+    });
 
     if (addSettingsToModuleBuilder) {
       addSettingsToModuleBuilder(testingModuleBuilder);
@@ -51,16 +47,13 @@ export class AppTestManager {
         .map((row) => row.table_name)
         .filter((tableName) => !excludedTables.includes(tableName))
         .map(async (tableName) => {
-          await this.pool.query(
-            `TRUNCATE TABLE "${tableName}" RESTART IDENTITY CASCADE`,
-          );
+          await this.pool.query(`TRUNCATE TABLE "${tableName}" RESTART IDENTITY CASCADE`);
         }),
     );
   }
 
   clearThrottlerStorage() {
-    const throttlerStorage: ThrottlerStorage =
-      this.app.get<ThrottlerStorage>(ThrottlerStorage);
+    const throttlerStorage: ThrottlerStorage = this.app.get<ThrottlerStorage>(ThrottlerStorage);
 
     const memoryStorage = throttlerStorage as MemoryThrottlerStorageLike;
 

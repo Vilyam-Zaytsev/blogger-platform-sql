@@ -27,9 +27,7 @@ export class SessionsController {
   ) {}
 
   @Get()
-  async getAll(
-    @ExtractSessionFromRequest() session: SessionContextDto,
-  ): Promise<SessionViewDto> {
+  async getAll(@ExtractSessionFromRequest() session: SessionContextDto): Promise<SessionViewDto> {
     return await this.queryBus.execute(new GetSessionsQuery(session));
   }
 
@@ -55,9 +53,7 @@ export class SessionsController {
 
   @Delete()
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteSessions(
-    @ExtractSessionFromRequest() session: SessionContextDto,
-  ): Promise<void> {
+  async deleteSessions(@ExtractSessionFromRequest() session: SessionContextDto): Promise<void> {
     return await this.commandBus.execute(new DeleteSessionsCommand(session));
   }
 }

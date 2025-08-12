@@ -21,10 +21,8 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
   ) {}
 
   async execute({ blogId, postId }: DeletePostCommand) {
-    const blog: BlogDbType =
-      await this.blogsRepository.getByIdOrNotFoundFail(blogId);
-    const post: PostDbType =
-      await this.postsRepository.getByIdOrNotFoundFail(postId);
+    const blog: BlogDbType = await this.blogsRepository.getByIdOrNotFoundFail(blogId);
+    const post: PostDbType = await this.postsRepository.getByIdOrNotFoundFail(postId);
 
     if (+post.blogId !== blog.id) {
       throw new DomainException({

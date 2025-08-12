@@ -11,7 +11,7 @@ import { GetBlogsQueryParams } from '../../../src/modules/bloggers-platform/blog
 import { TestUtils } from '../../helpers/test.utils';
 import { BlogsTestManager } from '../../managers/blogs.test-manager';
 
-describe('BlogsAdminController - getBlog() (GET: /sa/blogs)', () => {
+describe('BlogsAdminController - getBlogs() (GET: /sa/blogs)', () => {
   let appTestManager: AppTestManager;
   let blogsTestManager: BlogsTestManager;
   let adminCredentials: AdminCredentials;
@@ -62,7 +62,7 @@ describe('BlogsAdminController - getBlog() (GET: /sa/blogs)', () => {
       TestLoggers.logE2E(
         resGetBlogs.body,
         resGetBlogs.statusCode,
-        'Test №1: BlogsAdminController - getBlog() (GET: /sa/blogs)',
+        'Test №1: BlogsAdminController - getBlogs() (GET: /sa/blogs)',
       );
     }
   });
@@ -90,7 +90,7 @@ describe('BlogsAdminController - getBlog() (GET: /sa/blogs)', () => {
       TestLoggers.logE2E(
         resGetBlogs.body,
         resGetBlogs.statusCode,
-        'Test №2: BlogsAdminController - getBlog() (GET: /sa/blogs)',
+        'Test №2: BlogsAdminController - getBlogs() (GET: /sa/blogs)',
       );
     }
   });
@@ -123,7 +123,7 @@ describe('BlogsAdminController - getBlog() (GET: /sa/blogs)', () => {
       TestLoggers.logE2E(
         resGetBlogs.body,
         resGetBlogs.statusCode,
-        'Test №3: BlogsAdminController - getBlog() (GET: /sa/blogs)',
+        'Test №3: BlogsAdminController - getBlogs() (GET: /sa/blogs)',
       );
     }
   });
@@ -144,7 +144,7 @@ describe('BlogsAdminController - getBlog() (GET: /sa/blogs)', () => {
       TestLoggers.logE2E(
         resGetBlog.body,
         resGetBlog.statusCode,
-        'Test №4: BlogsAdminController - getBlog() (GET: /sa/blogs)',
+        'Test №4: BlogsAdminController - getBlogs() (GET: /sa/blogs)',
       );
     }
   });

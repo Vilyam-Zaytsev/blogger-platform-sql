@@ -65,8 +65,7 @@ describe('AuthController - registration() (POST: /auth/registration)', () => {
       .expect(HttpStatus.NO_CONTENT);
 
     // 🔻 Получаем созданного пользователя из базы данных
-    const { items }: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const { items }: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
 
     const [user] = items;
 
@@ -117,8 +116,7 @@ describe('AuthController - registration() (POST: /auth/registration)', () => {
       .expect(HttpStatus.TOO_MANY_REQUESTS);
 
     // 🔻 Проверяем состояние базы данных после регистрации
-    const { items }: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const { items }: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
 
     // 🔸 Проверяем, что в базе данных ровно 5 пользователей
     expect(items).toHaveLength(5);
@@ -161,8 +159,7 @@ describe('AuthController - registration() (POST: /auth/registration)', () => {
     });
 
     // 🔻 Проверяем, что в базе данных изменений не произошло
-    const { items }: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const { items }: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
     expect(items).toHaveLength(1);
 
     // 🔸 Проверяем, что email не был отправлен
@@ -203,8 +200,7 @@ describe('AuthController - registration() (POST: /auth/registration)', () => {
     });
 
     // 🔻 Проверяем, что в базе данных изменений не произошло
-    const { items }: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const { items }: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
     expect(items).toHaveLength(1);
 
     // 🔸 Проверяем, что email не был отправлен
@@ -247,8 +243,7 @@ describe('AuthController - registration() (POST: /auth/registration)', () => {
     });
 
     // 🔻 Проверяем, что в базе данных нет созданных пользователей
-    const { items }: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const { items }: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
     expect(items).toHaveLength(0);
 
     // 🔸 Проверяем, что email не был отправлен
@@ -280,8 +275,7 @@ describe('AuthController - registration() (POST: /auth/registration)', () => {
       errorsMessages: [
         {
           field: 'password',
-          message:
-            'password must be longer than or equal to 6 characters; Received value: ',
+          message: 'password must be longer than or equal to 6 characters; Received value: ',
         },
         {
           field: 'email',
@@ -290,15 +284,13 @@ describe('AuthController - registration() (POST: /auth/registration)', () => {
         },
         {
           field: 'login',
-          message:
-            'login must be longer than or equal to 3 characters; Received value: ',
+          message: 'login must be longer than or equal to 3 characters; Received value: ',
         },
       ],
     });
 
     // 🔻 Проверяем, что в базе данных нет созданных пользователей
-    const { items }: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const { items }: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
     expect(items).toHaveLength(0);
 
     // 🔸 Проверяем, что email не был отправлен
@@ -349,8 +341,7 @@ describe('AuthController - registration() (POST: /auth/registration)', () => {
     });
 
     // 🔻 Проверяем, что в базе данных нет созданных пользователей
-    const { items }: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const { items }: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
     expect(items).toHaveLength(0);
 
     // 🔸 Проверяем, что email не был отправлен
@@ -401,8 +392,7 @@ describe('AuthController - registration() (POST: /auth/registration)', () => {
     });
 
     // 🔻 Проверяем, что в базе данных нет созданных пользователей
-    const { items }: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const { items }: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
     expect(items).toHaveLength(0);
 
     // 🔸 Проверяем, что email не был отправлен
@@ -449,8 +439,7 @@ describe('AuthController - registration() (POST: /auth/registration)', () => {
     });
 
     // 🔻 Проверяем, что в базе данных нет созданных пользователей
-    const { items }: PaginatedViewDto<UserViewDto> =
-      await usersTestManager.getAll();
+    const { items }: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
     expect(items).toHaveLength(0);
 
     // 🔸 Проверяем, что email не был отправлен

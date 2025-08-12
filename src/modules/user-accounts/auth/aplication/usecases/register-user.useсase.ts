@@ -14,9 +14,7 @@ export class RegisterUserCommand {
 }
 
 @CommandHandler(RegisterUserCommand)
-export class RegisterUserUseCase
-  implements ICommandHandler<RegisterUserCommand>
-{
+export class RegisterUserUseCase implements ICommandHandler<RegisterUserCommand> {
   constructor(
     private readonly userValidation: UserValidationService,
     private readonly usersRepository: UsersRepository,
@@ -29,8 +27,7 @@ export class RegisterUserUseCase
 
     await this.userValidation.validateUniqueUser(login, email);
 
-    const passwordHash: string =
-      await this.cryptoService.createPasswordHash(password);
+    const passwordHash: string = await this.cryptoService.createPasswordHash(password);
     const createUserDto: CreateUserDto = {
       login,
       email,
@@ -46,10 +43,9 @@ export class RegisterUserUseCase
       confirmationStatus: ConfirmationStatus.NotConfirmed,
     };
 
-    const confirmationCode: string =
-      await this.usersRepository.insertEmailConfirmation(
-        createEmailConfirmationDto,
-      );
+    const confirmationCode: string = await this.usersRepository.insertEmailConfirmation(
+      createEmailConfirmationDto,
+    );
 
     this.eventBus.publish(new UserRegisteredEvent(email, confirmationCode));
   }
