@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
-import { PostReactionDbType } from '../types/reaction-db.type';
+import { PostReactionDbType, ReactionStatus } from '../types/reaction-db.type';
 import { CreateReactionDto } from '../dto/create-reaction.dto';
 
 @Injectable()
@@ -17,6 +17,19 @@ export class ReactionsRepository {
     );
 
     return rows[0].id;
+  }
+
+  async updateStatusPostReaction(reactionId: number, newStatus: ReactionStatus): Promise<boolean> {
+    const { rowCount }: QueryResult = await this.pool.query(
+      `
+      UPDATE "PostsReactions"
+      SET "status" = $1
+      WHERE "id" = $2
+      `,
+      [newStatus, reactionId],
+    );
+
+    return (rowCount ?? 0) > 0;
   }
   // async getByIdOrNotFoundFail(id: string): Promise<ReactionDocument> {
   //   const reaction: ReactionDocument | null = await this.ReactionModel.findOne({
