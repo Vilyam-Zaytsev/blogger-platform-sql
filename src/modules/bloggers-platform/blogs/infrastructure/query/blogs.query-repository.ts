@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { BlogViewDto } from '../../api/view-dto/blog-view.dto';
 import { Pool, QueryResult } from 'pg';
 import { PG_POOL } from '../../../../database/constants/database.constants';
-import { BlogDbType } from '../../types/blog-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import {
@@ -20,10 +19,13 @@ export class BlogsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<BlogViewDto> {
-    const { rows }: QueryResult<BlogDbType> = await this.pool.query(
+    const { rows }: QueryResult<BlogViewDto> = await this.pool.query(
       `
-        SELECT *
-        FROM "Blogs"
+        SELECT b."id"::text, b."name",
+               b."description",
+               b."websiteUrl",
+               b."createdAt"::text, b."isMembership"
+        FROM "Blogs" b
         WHERE "id" = $1
           AND "deletedAt" IS NULL
       `,
@@ -37,7 +39,7 @@ export class BlogsQueryRepository {
       });
     }
 
-    return BlogViewDto.mapToView(rows[0]);
+    return rows[0];
   }
 
   async getAll(query: GetBlogsQueryParams): Promise<PaginatedViewDto<BlogViewDto>> {
