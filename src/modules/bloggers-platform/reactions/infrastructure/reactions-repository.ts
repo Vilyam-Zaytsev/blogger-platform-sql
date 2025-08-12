@@ -54,7 +54,6 @@ export class ReactionsRepository {
           FROM "PostsReactions"
           WHERE "userId" = $1
             AND "postId" = $2
-            AND "deletedAt" IS NULL
       `,
       [userId, postId],
     );
@@ -68,18 +67,18 @@ export class ReactionsRepository {
   //   });
   // }
   //
-  // async getRecentLikes(parentId: string): Promise<ReactionDocument[]> {
-  //   const filter = {
-  //     status: ReactionStatus.Like,
-  //     parentId,
-  //   };
-  //
-  //   return await this.ReactionModel.find(filter).sort({ createdAt: -1 }).limit(3).exec();
-  // }
-  //
-  // async save(reaction: ReactionDocument): Promise<string> {
-  //   const resultSave: ReactionDocument = await reaction.save();
-  //
-  //   return resultSave._id.toString();
-  // }
+  async getRecentLikesForPost(postId: number): Promise<PostReactionDbType[]> {
+    const { rows }: QueryResult<PostReactionDbType> = await this.pool.query(
+      `
+      SELECT *
+      FROM "PostsReactions"
+      WHERE "postId" = $1
+      ORDER BY "createdAt" ASC;
+      LIMIT 3;
+      `,
+      [postId],
+    );
+
+    return rows;
+  }
 }
