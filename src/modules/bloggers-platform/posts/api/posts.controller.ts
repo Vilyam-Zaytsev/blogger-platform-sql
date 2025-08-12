@@ -102,7 +102,7 @@ export class PostsController {
     );
   }
 
-  // 🔸 Likes:
+  // 🔸 Reactions:
 
   @Put(':postId/like-status')
   @HttpCode(HttpStatus.NO_CONTENT)
