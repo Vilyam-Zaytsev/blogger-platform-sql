@@ -30,6 +30,7 @@ import { ReactionsRepository } from './reactions/infrastructure/reactions-reposi
 import { CreateReactionUseCase } from './reactions/application/usecases/create-reaction-use.case';
 import { UpdateReactionUseCase } from './reactions/application/usecases/update-reactions.usecase';
 import { UpdatePostReactionUseCase } from './posts/application/usecases/update-post-reaction.usecase';
+import { UpdateCommentReactionUseCase } from './comments/application/usecases/update-comment-reaction.usecase';
 
 @Module({
   imports: [UserAccountsModule],
@@ -67,7 +68,7 @@ import { UpdatePostReactionUseCase } from './posts/application/usecases/update-p
     CreateCommentUseCase,
     UpdateCommentUseCase,
     DeleteCommentUseCase,
-    // UpdateCommentReactionUseCase,
+    UpdateCommentReactionUseCase,
     //query-handlers
     GetCommentQueryHandler,
     GetCommentsQueryHandler,
