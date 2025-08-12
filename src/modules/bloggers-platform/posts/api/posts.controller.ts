@@ -1,4 +1,16 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Query, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { PostsQueryRepository } from '../infrastructure/query/posts.query-repository';
@@ -19,6 +31,9 @@ import { CreateCommentCommand } from '../../comments/application/usecases/create
 import { CommentsQueryRepository } from '../../comments/infrastructure/query/comments.query-repository';
 import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comments-query-params.input-dto';
 import { GetCommentsQuery } from '../../comments/application/queries/get-comments.query-handler';
+import { ReactionInputDto } from '../../reactions/api/input-dto/reaction-input.dto';
+import { UpdateReactionDto } from '../../reactions/dto/update-reaction.dto';
+import { UpdatePostReactionCommand } from '../application/usecases/update-post-reaction.usecase';
 
 @Controller('posts')
 export class PostsController {
@@ -87,22 +102,22 @@ export class PostsController {
     );
   }
 
-  // @Put(':postId/like-status')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JwtAuthGuard)
-  // async updateReaction(
-  //   @ExtractUserFromRequest() user: UserContextDto,
-  //   @Param('postId', ObjectIdValidationPipe) postId: string,
-  //   @Body() body: ReactionInputDto,
-  // ): Promise<void> {
-  //   const updateReactionDto: UpdateReactionDto = {
-  //     status: body.likeStatus,
-  //     userId: user.id,
-  //     parentId: postId,
-  //   };
-  //
-  //   await this.commandBus.execute(
-  //     new UpdatePostReactionCommand(updateReactionDto),
-  //   );
-  // }
+  // 🔸 Reactions:
+
+  @Put(':postId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  async updateReaction(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Param('postId', ParseIntPipe) postId: number,
+    @Body() body: ReactionInputDto,
+  ): Promise<void> {
+    const updateReactionDto: UpdateReactionDto = {
+      status: body.likeStatus,
+      userId: user.id,
+      parentId: postId,
+    };
+
+    await this.commandBus.execute(new UpdatePostReactionCommand(updateReactionDto));
+  }
 }

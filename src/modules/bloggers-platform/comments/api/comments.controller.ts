@@ -22,6 +22,9 @@ import { OptionalJwtAuthGuard } from '../../../user-accounts/auth/domain/guards/
 import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/auth/domain/guards/decorators/extract-user-if-exists-from-request.decorator';
 import { CommentViewDto } from './view-dto/comment-view.dto';
 import { GetCommentQuery } from '../application/queries/get-comment.query-handler';
+import { ReactionInputDto } from '../../reactions/api/input-dto/reaction-input.dto';
+import { UpdateReactionDto } from '../../reactions/dto/update-reaction.dto';
+import { UpdateCommentReactionCommand } from '../application/usecases/update-comment-reaction.usecase';
 
 @Controller('comments')
 export class CommentsController {
@@ -72,23 +75,20 @@ export class CommentsController {
     );
   }
 
-  // @Put(':commentId/like-status')
-  // @HttpCode(HttpStatus.NO_CONTENT)
-  // @UseGuards(JwtAuthGuard)
-  // async updateReaction(
-  //   @ExtractUserFromRequest() user: UserContextDto,
-  //   @Param('commentId', ObjectIdValidationPipe) commentId: string,
-  //   @Body() body: ReactionInputDto,
-  // ): Promise<void> {
-  //   const updateReactionDto: UpdateReactionDto = {
-  //     status: body.likeStatus,
-  //     userId: user.id,
-  //     parentId: commentId,
-  //   };
-  //
-  //   await this.commandBus.execute(
-  //     new UpdateCommentReactionCommand(updateReactionDto),
-  //   );
-  // }
-  //
+  @Put(':commentId/like-status')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseGuards(JwtAuthGuard)
+  async updateReaction(
+    @ExtractUserFromRequest() user: UserContextDto,
+    @Param('commentId', ParseIntPipe) commentId: number,
+    @Body() body: ReactionInputDto,
+  ): Promise<void> {
+    const updateReactionDto: UpdateReactionDto = {
+      status: body.likeStatus,
+      userId: user.id,
+      parentId: commentId,
+    };
+
+    await this.commandBus.execute(new UpdateCommentReactionCommand(updateReactionDto));
+  }
 }

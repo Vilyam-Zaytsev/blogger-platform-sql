@@ -1,7 +1,8 @@
-export type ReactionDbType = {
+export type PostReactionDbType = {
+  id: number;
   status: ReactionStatus;
   userId: number;
-  parentId: number;
+  postId: number;
   deletedAt: string;
   createdAt: string;
   updatedAt: string;
