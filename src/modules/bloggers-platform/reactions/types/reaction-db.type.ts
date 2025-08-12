@@ -1,4 +1,5 @@
 export type PostReactionDbType = {
+  id: number;
   status: ReactionStatus;
   userId: number;
   postId: number;
