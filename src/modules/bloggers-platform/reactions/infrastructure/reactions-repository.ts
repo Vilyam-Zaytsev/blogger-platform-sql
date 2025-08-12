@@ -2,11 +2,22 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
 import { PostReactionDbType } from '../types/reaction-db.type';
+import { CreateReactionDto } from '../dto/create-reaction.dto';
 
 @Injectable()
 export class ReactionsRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  async insertReaction(dto: CreateReactionDto): Promise<number> {
+    const { rows }: QueryResult<{ id: number }> = await this.pool.query(
+      `
+      INSERT INTO "PostsReactions" ("status", "userId", "postId")
+      VALUES ($1, $2, $3) RETURNING "id"
+      `,
+      [dto.status, dto.userId, dto.parentId],
+    );
 
+    return rows[0].id;
+  }
   // async getByIdOrNotFoundFail(id: string): Promise<ReactionDocument> {
   //   const reaction: ReactionDocument | null = await this.ReactionModel.findOne({
   //     _id: id,
