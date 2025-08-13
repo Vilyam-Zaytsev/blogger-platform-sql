@@ -1,6 +1,7 @@
 import { UserInputDto } from '../../src/modules/user-accounts/users/api/input-dto/user.input-dto';
 import { BlogInputDto } from '../../src/modules/bloggers-platform/blogs/api/input-dto/blog-input.dto';
 import { PostInputDto } from '../../src/modules/bloggers-platform/posts/api/input-dto/post-input.dto';
+import { CommentInputDto } from 'src/modules/bloggers-platform/comments/api/input-dto/comment-input.dto';
 
 export class TestDtoFactory {
   static generateUserInputDto(quantity: number): UserInputDto[] {
@@ -45,15 +46,15 @@ export class TestDtoFactory {
     return dtos;
   }
 
-  // static generateCommentInputDto(quantity: number): CommentInputDto[] {
-  //   const dtos: CommentInputDto[] = [];
-  //
-  //   for (let i = 0; i < quantity; i++) {
-  //     dtos.push({
-  //       content: `test comment content - ${i}`,
-  //     });
-  //   }
-  //
-  //   return dtos;
-  // }
+  static generateCommentInputDto(quantity: number): CommentInputDto[] {
+    const dtos: CommentInputDto[] = [];
+
+    for (let i = 0; i < quantity; i++) {
+      dtos.push({
+        content: `test comment content - ${i}`,
+      });
+    }
+
+    return dtos;
+  }
 }
