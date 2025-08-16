@@ -1,4 +1,4 @@
-import { BlogDbType } from '../../types/blog-db.type';
+import { BlogDb } from '../../types/blog-db.type';
 
 export class BlogViewDto {
   id: string;
@@ -8,7 +8,7 @@ export class BlogViewDto {
   createdAt: string;
   isMembership: boolean;
 
-  static mapToView(blog: BlogDbType): BlogViewDto {
+  static mapToView(blog: BlogDb): BlogViewDto {
     const dto = new this();
 
     dto.id = blog.id.toString();

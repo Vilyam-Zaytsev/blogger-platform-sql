@@ -3,7 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
-import { BlogDbType } from '../../../blogs/types/blog-db.type';
+import { BlogDb } from '../../../blogs/types/blog-db.type';
 import { PostDbType } from '../../types/post-db.type';
 
 export class DeletePostCommand {
@@ -21,7 +21,7 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
   ) {}
 
   async execute({ blogId, postId }: DeletePostCommand) {
-    const blog: BlogDbType = await this.blogsRepository.getByIdOrNotFoundFail(blogId);
+    const blog: BlogDb = await this.blogsRepository.getByIdOrNotFoundFail(blogId);
     const post: PostDbType = await this.postsRepository.getByIdOrNotFoundFail(postId);
 
     if (+post.blogId !== blog.id) {

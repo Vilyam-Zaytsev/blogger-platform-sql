@@ -53,7 +53,6 @@ export class BlogsAdminController {
 
   @Post()
   async createBlog(@Body() body: BlogInputDto): Promise<BlogViewDto> {
-    //TODO: нормально ли в этом случае создавать dto через конструктор если есть поле по умолчанию? Или я вообще не должен думать об этом поле в контроллере?
     const dto: CreateBlogDto = new CreateBlogDto(body.name, body.description, body.websiteUrl);
     const idCreatedBlog: number = await this.commandBus.execute(new CreateBlogCommand(dto));
 
@@ -66,7 +65,6 @@ export class BlogsAdminController {
     @Param('id', ParseIntPipe) id: number,
     @Body() body: BlogInputDto,
   ): Promise<void> {
-    //TODO: вот так собирать dto норм?
     const dto: UpdateBlogDto = {
       id,
       name: body.name,
