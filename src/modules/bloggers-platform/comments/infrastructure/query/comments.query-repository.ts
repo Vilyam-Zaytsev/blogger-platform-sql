@@ -11,6 +11,8 @@ import {
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { CommentRawRow } from '../../types/comment-raw-row.type';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
 @Injectable()
 export class CommentsQueryRepository {
@@ -50,6 +52,13 @@ export class CommentsQueryRepository {
       `,
       [id, user],
     );
+
+    if (rows.length === 0) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The comment with ID (${id}) does not exist`,
+      });
+    }
 
     return rows[0];
   }
