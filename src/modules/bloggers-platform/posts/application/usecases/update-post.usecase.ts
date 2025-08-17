@@ -3,7 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdatePostDto } from '../../dto/update-post.dto';
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
 import { BlogDb } from '../../../blogs/types/blog-db.type';
-import { PostDbType } from '../../types/post-db.type';
+import { PostDb } from '../../types/post-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
@@ -28,7 +28,14 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
       });
     }
 
-    const post: PostDbType = await this.postsRepository.getByIdOrNotFoundFail(dto.postId);
+    const post: PostDb | null = await this.postsRepository.getById(dto.postId);
+
+    if (!post) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The post with ID (${dto.blogId}) does not exist`,
+      });
+    }
 
     if (+post.blogId !== blog.id) {
       throw new DomainException({
@@ -37,6 +44,6 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
       });
     }
 
-    return await this.postsRepository.updatePost(dto);
+    await this.postsRepository.update(dto);
   }
 }

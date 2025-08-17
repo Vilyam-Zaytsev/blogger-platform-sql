@@ -110,15 +110,9 @@ export class BlogsAdminController {
   async updatePost(
     @Param('blogId', ParseIntPipe) blogId: number,
     @Param('postId', ParseIntPipe) postId: number,
-    @Body() body: PostInputDto,
+    @Body() { title, shortDescription, content }: PostInputDto,
   ): Promise<void> {
-    const dto: UpdatePostDto = new UpdatePostDto(
-      blogId,
-      postId,
-      body.title,
-      body.shortDescription,
-      body.content,
-    );
+    const dto: UpdatePostDto = { blogId, postId, title, shortDescription, content };
 
     await this.commandBus.execute(new UpdatePostCommand(dto));
   }
@@ -139,6 +133,7 @@ export class BlogsAdminController {
     @Param('blogId', ParseIntPipe) blogId: number,
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto>> {
+    //TODO: создать базовый класс QueryDto!!!
     return this.queryBus.execute(new GetPostsForBlogQuery(query, user, blogId));
   }
 }

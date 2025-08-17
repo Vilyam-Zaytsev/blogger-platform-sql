@@ -34,17 +34,28 @@ export class BlogsRepository extends BaseRepository<BlogDb, CreateBlogDto, Updat
   }
 
   async update(dto: UpdateBlogDto): Promise<boolean> {
-    const { rowCount }: QueryResult = await this.pool.query(
-      `
-        UPDATE "Blogs"
-        SET "name"        = $1,
-            "description" = $2,
-            "websiteUrl"  = $3
-        WHERE "id" = $4
-      `,
-      [dto.name, dto.description, dto.websiteUrl, dto.id],
-    );
+    const query = `
+    UPDATE "Blogs"
+    SET "name"        = $1,
+        "description" = $2,
+        "websiteUrl"  = $3
+    WHERE "id" = $4
+  `;
 
-    return rowCount !== null && rowCount > 0;
+    //TODO: нормальный ли подход оборачивать все запросы в бд в try/catch для логирования ошибки?
+    try {
+      const { rowCount }: QueryResult = await this.pool.query(query, [
+        dto.name,
+        dto.description,
+        dto.websiteUrl,
+        dto.id,
+      ]);
+
+      return rowCount !== null && rowCount > 0;
+    } catch (error) {
+      console.error('Ошибка при выполнении SQL-запроса в BlogsRepository.update():', error);
+
+      throw error;
+    }
   }
 }

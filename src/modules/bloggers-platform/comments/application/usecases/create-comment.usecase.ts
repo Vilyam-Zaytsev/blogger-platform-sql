@@ -5,9 +5,10 @@ import { CreateCommentDto } from '../../dto/create-comment.dto';
 import { Inject } from '@nestjs/common';
 import { PG_POOL } from '../../../../database/constants/database.constants';
 import { Pool } from 'pg';
-import { UserDbType } from '../../../../user-accounts/users/types/user-db.type';
-import { UsersExternalRepository } from '../../../../user-accounts/users/infrastructure/external/users.external-repository';
 import { CreateCommentDomainDto } from '../../domain/dto/create-comment.domain-dto';
+import { PostDb } from '../../../posts/types/post-db.type';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
 export class CreateCommentCommand {
   constructor(public readonly dto: CreateCommentDto) {}
@@ -18,14 +19,18 @@ export class CreateCommentUseCase implements ICommandHandler<CreateCommentComman
   constructor(
     @Inject(PG_POOL) private readonly pool: Pool,
     private readonly postsRepository: PostsRepository,
-    private readonly usersExternalRepository: UsersExternalRepository,
     private readonly commentsRepository: CommentsRepository,
   ) {}
 
   async execute({ dto }: CreateCommentCommand): Promise<number> {
-    await this.postsRepository.getByIdOrNotFoundFail(dto.postId);
-    // const user: UserDbType =
-    //   await this.usersExternalRepository.getByIdOrNotFoundFail(dto.userId);
+    const post: PostDb | null = await this.postsRepository.getById(dto.postId);
+
+    if (!post) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The post with ID (${dto.postId}) does not exist`,
+      });
+    }
 
     const commentDomainDto: CreateCommentDomainDto = {
       postId: dto.postId,

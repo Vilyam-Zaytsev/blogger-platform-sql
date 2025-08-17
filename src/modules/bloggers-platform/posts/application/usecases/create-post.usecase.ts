@@ -27,6 +27,6 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
       });
     }
 
-    return await this.postsRepository.insertPost(dto);
+    return await this.postsRepository.create(dto);
   }
 }

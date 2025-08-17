@@ -4,7 +4,7 @@ import { DomainException } from '../../../../../core/exceptions/domain-exception
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
 import { BlogDb } from '../../../blogs/types/blog-db.type';
-import { PostDbType } from '../../types/post-db.type';
+import { PostDb } from '../../types/post-db.type';
 
 export class DeletePostCommand {
   constructor(
@@ -30,7 +30,14 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
       });
     }
 
-    const post: PostDbType = await this.postsRepository.getByIdOrNotFoundFail(postId);
+    const post: PostDb | null = await this.postsRepository.getById(postId);
+
+    if (!post) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The post with ID (${postId}) does not exist`,
+      });
+    }
 
     if (+post.blogId !== blog.id) {
       throw new DomainException({

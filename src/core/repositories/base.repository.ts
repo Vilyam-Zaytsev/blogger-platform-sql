@@ -37,8 +37,14 @@ export abstract class BaseRepository<TEntity extends QueryResultRow, TCreateDto,
         AND "deletedAt" IS NULL
     `;
 
-    const { rows }: QueryResult<TEntity> = await this.pool.query(query, [id]);
+    try {
+      const { rows }: QueryResult<TEntity> = await this.pool.query(query, [id]);
 
-    return rows[0] || null;
+      return rows[0] || null;
+    } catch (error) {
+      console.error('Ошибка при выполнении SQL-запроса в BaseRepository.getById():', error);
+
+      throw error;
+    }
   }
 }
