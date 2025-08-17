@@ -74,28 +74,21 @@ export class BlogsQueryRepository {
       OFFSET $${offsetParamIndex} LIMIT $${limitParamIndex};
     `;
 
-    //TODO: есть ли необходимость оборачивать в try/catch все  запросы к бд
-    try {
-      const { rows }: QueryResult<BlogDbWithTotalCount> = await this.pool.query(query, [
-        ...searchValues,
-        offset,
-        pageSize,
-      ]);
+    const { rows }: QueryResult<BlogDbWithTotalCount> = await this.pool.query(query, [
+      ...searchValues,
+      offset,
+      pageSize,
+    ]);
 
-      const totalCount: number = rows.length > 0 ? +rows[0].totalCount : 0;
-      const pagesCount: number = Math.ceil(totalCount / pageSize);
+    const totalCount: number = rows.length > 0 ? +rows[0].totalCount : 0;
+    const pagesCount: number = Math.ceil(totalCount / pageSize);
 
-      return {
-        pagesCount,
-        page: pageNumber,
-        pageSize,
-        totalCount,
-        items: rows.map((row) => BlogViewDto.mapToView(row)),
-      };
-    } catch (error) {
-      console.error('Ошибка при выполнении SQL-запроса в BlogsQueryRepository.getAll():', error);
-
-      throw error;
-    }
+    return {
+      pagesCount,
+      page: pageNumber,
+      pageSize,
+      totalCount,
+      items: rows.map((row) => BlogViewDto.mapToView(row)),
+    };
   }
 }

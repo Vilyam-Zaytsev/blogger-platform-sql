@@ -133,7 +133,6 @@ export class BlogsAdminController {
     @Param('blogId', ParseIntPipe) blogId: number,
     @Query() query: GetPostsQueryParams,
   ): Promise<PaginatedViewDto<PostViewDto>> {
-    //TODO: создать базовый класс QueryDto!!!
     return this.queryBus.execute(new GetPostsForBlogQuery(query, user, blogId));
   }
 }
