@@ -1,8 +1,15 @@
+import { BlogInputDto } from '../api/input-dto/blog-input.dto';
+
 export class CreateBlogDto {
-  constructor(
-    public readonly name: string,
-    public readonly description: string,
-    public readonly websiteUrl: string,
-    public readonly isMembership: boolean = false,
-  ) {}
+  public readonly name: string;
+  public readonly description: string;
+  public readonly websiteUrl: string;
+  public readonly isMembership: boolean;
+
+  constructor(dto: BlogInputDto) {
+    this.name = dto.name;
+    this.description = dto.description;
+    this.websiteUrl = dto.websiteUrl;
+    this.isMembership = false;
+  }
 }

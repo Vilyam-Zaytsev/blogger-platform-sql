@@ -19,7 +19,15 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
   ) {}
 
   async execute({ dto }: UpdatePostCommand): Promise<void> {
-    const blog: BlogDb = await this.blogsRepository.getByIdOrNotFoundFail(dto.blogId);
+    const blog: BlogDb | null = await this.blogsRepository.getById(dto.blogId);
+
+    if (!blog) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The blog with ID (${dto.blogId}) does not exist`,
+      });
+    }
+
     const post: PostDbType = await this.postsRepository.getByIdOrNotFoundFail(dto.postId);
 
     if (+post.blogId !== blog.id) {

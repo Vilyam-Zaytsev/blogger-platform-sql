@@ -1,7 +1,7 @@
-import { Pool, QueryResult } from 'pg';
+import { Pool, QueryResult, QueryResultRow } from 'pg';
 
-export abstract class BaseRepository<TEntity, TCreateDto, TUpdateDto> {
-  constructor(
+export abstract class BaseRepository<TEntity extends QueryResultRow, TCreateDto, TUpdateDto> {
+  protected constructor(
     protected readonly pool: Pool,
     protected readonly tableName: string,
   ) {}
@@ -10,18 +10,35 @@ export abstract class BaseRepository<TEntity, TCreateDto, TUpdateDto> {
 
   abstract update(dto: TUpdateDto): Promise<boolean>;
 
-  abstract getByIdOrNotFoundFail(id: number): Promise<TEntity>;
-
   async softDelete(id: number): Promise<boolean> {
     const query = `
-        UPDATE "${this.tableName}"
-        SET "deletedAt" = NOW()
-        WHERE "id" = $1
-          AND "deletedAt" IS NULL
+      UPDATE "${this.tableName}"
+      SET "deletedAt" = NOW()
+      WHERE "id" = $1
+        AND "deletedAt" IS NULL
     `;
 
-    const { rowCount }: QueryResult = await this.pool.query(query, [id]);
+    try {
+      const { rowCount }: QueryResult = await this.pool.query(query, [id]);
 
-    return rowCount === 1;
+      return rowCount === 1;
+    } catch (error) {
+      console.error('Ошибка при выполнении SQL-запроса в BaseRepository.softDelete():', error);
+
+      throw error;
+    }
+  }
+
+  async getById(id: number): Promise<TEntity | null> {
+    const query = `
+      SELECT *
+      FROM "${this.tableName}"
+      WHERE "id" = $1
+        AND "deletedAt" IS NULL
+    `;
+
+    const { rows }: QueryResult<TEntity> = await this.pool.query(query, [id]);
+
+    return rows[0] || null;
   }
 }

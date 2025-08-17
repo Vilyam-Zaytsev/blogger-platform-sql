@@ -8,3 +8,5 @@ export type BlogDb = {
   updatedAt: string;
   deletedAt: string | null;
 };
+
+export type BlogDbWithTotalCount = BlogDb & { totalCount: string };

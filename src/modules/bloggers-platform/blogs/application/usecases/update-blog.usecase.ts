@@ -14,7 +14,7 @@ export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
 
   async execute({ dto }: UpdateBlogCommand): Promise<void> {
     //TODO: нормально ли делать проверку на существование блога таким образом(при обновлении) или лучше явно делать SELECT? или объединить эти два варианта?
-    const result: boolean = await this.blogsRepository.updateBlog(dto);
+    const result: boolean = await this.blogsRepository.update(dto);
 
     if (!result) {
       throw new DomainException({
@@ -22,7 +22,5 @@ export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
         message: `The blog with ID (${dto.id}) does not exist`,
       });
     }
-
-    return;
   }
 }

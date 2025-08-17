@@ -12,25 +12,21 @@ import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { SearchFilterBuilder } from '../../../../../core/utils/search-filter.builder';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
-import { BlogRawRow } from '../../types/blog-raw-row.type';
+import { BlogDb, BlogDbWithTotalCount } from '../../types/blog-db.type';
 
 @Injectable()
 export class BlogsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<BlogViewDto> {
-    const { rows }: QueryResult<BlogViewDto> = await this.pool.query(
-      `
-        SELECT b."id"::text, b."name",
-               b."description",
-               b."websiteUrl",
-               b."createdAt"::text, b."isMembership"
-        FROM "Blogs" b
-        WHERE "id" = $1
-          AND "deletedAt" IS NULL
-      `,
-      [id],
-    );
+    const query = `
+      SELECT *
+      FROM "Blogs"
+      WHERE "id" = $1
+        AND "deletedAt" IS NULL
+    `;
+
+    const { rows }: QueryResult<BlogDb> = await this.pool.query(query, [id]);
 
     if (rows.length === 0) {
       throw new DomainException({
@@ -39,12 +35,12 @@ export class BlogsQueryRepository {
       });
     }
 
-    return rows[0];
+    return BlogViewDto.mapToView(rows[0]);
   }
 
-  async getAll(query: GetBlogsQueryParams): Promise<PaginatedViewDto<BlogViewDto>> {
+  async getAll(queryParams: GetBlogsQueryParams): Promise<PaginatedViewDto<BlogViewDto>> {
     const { sortBy, sortDirection, pageSize, pageNumber, searchNameTerm }: GetBlogsQueryParams =
-      query;
+      queryParams;
 
     if (!Object.values(BlogsSortBy).includes(sortBy)) {
       throw new ValidationException([
@@ -64,27 +60,27 @@ export class BlogsQueryRepository {
       ]);
     }
 
-    const offset: number = query.calculateSkip();
+    const offset: number = queryParams.calculateSkip();
     const { condition: searchCondition, values: searchValues } =
       SearchFilterBuilder.buildBlogsSearchFilter(searchNameTerm);
     const offsetParamIndex: number = searchValues.length + 1;
     const limitParamIndex: number = searchValues.length + 2;
 
+    const query = `
+      SELECT *, COUNT(*) OVER() AS "totalCount"
+      FROM "Blogs"
+      WHERE "deletedAt" IS NULL ${searchCondition ? `AND (${searchCondition})` : ''}
+      ORDER BY "${sortBy}" ${sortDirection.toUpperCase()}
+      OFFSET $${offsetParamIndex} LIMIT $${limitParamIndex};
+    `;
+
+    //TODO: есть ли необходимость оборачивать в try/catch все  запросы к бд
     try {
-      const { rows }: QueryResult<BlogRawRow> = await this.pool.query(
-        `
-          SELECT COUNT(*) OVER() AS "totalCount", b."id"::text, b."name",
-                 b."description",
-                 b."websiteUrl",
-                 b."createdAt"::text, b."isMembership"
-          FROM "Blogs" b
-          WHERE "deletedAt" IS NULL
-            ${searchCondition ? `AND (${searchCondition})` : ''}
-          ORDER BY "${sortBy}" ${sortDirection.toUpperCase()}
-          OFFSET $${offsetParamIndex} LIMIT $${limitParamIndex};
-        `,
-        [...searchValues, offset, pageSize],
-      );
+      const { rows }: QueryResult<BlogDbWithTotalCount> = await this.pool.query(query, [
+        ...searchValues,
+        offset,
+        pageSize,
+      ]);
 
       const totalCount: number = rows.length > 0 ? +rows[0].totalCount : 0;
       const pagesCount: number = Math.ceil(totalCount / pageSize);
@@ -94,16 +90,7 @@ export class BlogsQueryRepository {
         page: pageNumber,
         pageSize,
         totalCount,
-        items: rows.map(
-          (row): BlogViewDto => ({
-            id: row.id,
-            name: row.name,
-            description: row.description,
-            websiteUrl: row.websiteUrl,
-            createdAt: row.createdAt,
-            isMembership: row.isMembership,
-          }),
-        ),
+        items: rows.map((row) => BlogViewDto.mapToView(row)),
       };
     } catch (error) {
       console.error('Ошибка при выполнении SQL-запроса в BlogsQueryRepository.getAll():', error);

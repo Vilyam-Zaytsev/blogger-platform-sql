@@ -11,6 +11,6 @@ export class CreateBlogUseCase implements ICommandHandler<CreateBlogCommand> {
   constructor(private readonly blogsRepository: BlogsRepository) {}
 
   async execute({ dto }: CreateBlogCommand): Promise<number> {
-    return await this.blogsRepository.insertBlog(dto);
+    return await this.blogsRepository.create(dto);
   }
 }

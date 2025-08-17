@@ -12,6 +12,7 @@ export class DeleteBlogUseCase implements ICommandHandler<DeleteBlogCommand> {
   constructor(private readonly blogsRepository: BlogsRepository) {}
 
   async execute({ id }: DeleteBlogCommand): Promise<void> {
+    //TODO: есть необходимость написать нормальную проверку?
     const result: boolean = await this.blogsRepository.softDelete(id);
 
     if (!result) {
