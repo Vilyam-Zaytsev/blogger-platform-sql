@@ -32,12 +32,12 @@ export class CreateCommentUseCase implements ICommandHandler<CreateCommentComman
       });
     }
 
-    const commentDomainDto: CreateCommentDomainDto = {
+    const createCommentDomainDto: CreateCommentDomainDto = {
       postId: dto.postId,
       content: dto.content,
       commentatorId: dto.userId,
     };
 
-    return await this.commentsRepository.insertComment(commentDomainDto);
+    return await this.commentsRepository.create(createCommentDomainDto);
   }
 }

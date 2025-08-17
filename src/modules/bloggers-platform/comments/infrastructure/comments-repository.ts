@@ -1,69 +1,58 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
 import { PG_POOL } from '../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
-import { CommentDbType } from '../types/comment-db.type';
-import { DomainException } from '../../../../core/exceptions/domain-exceptions';
+import { CommentDb } from '../types/comment-db.type';
 import { UpdateCommentContentDto } from './dto/update-comment-content.dto';
 import { CreateCommentDomainDto } from '../domain/dto/create-comment.domain-dto';
+import { BaseRepository } from '../../../../core/repositories/base.repository';
 
 @Injectable()
-export class CommentsRepository {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+export class CommentsRepository extends BaseRepository<
+  CommentDb,
+  CreateCommentDomainDto,
+  UpdateCommentContentDto
+> {
+  constructor(@Inject(PG_POOL) pool: Pool) {
+    super(pool, 'Comments');
+  }
 
-  async insertComment(dto: CreateCommentDomainDto): Promise<number> {
-    const { rows }: QueryResult<{ id: number }> = await this.pool.query(
-      `
+  async create(dto: CreateCommentDomainDto): Promise<number> {
+    const query = `
       INSERT INTO "Comments" ("postId", "commentatorId", "content")
       VALUES ($1, $2, $3) RETURNING "id";
-      `,
-      [dto.postId, dto.commentatorId, dto.content],
-    );
+    `;
+    //TODO: нормальный ли подход оборачивать все запросы в бд в try/catch для логирования ошибки?
+    try {
+      const { rows }: QueryResult<{ id: number }> = await this.pool.query(query, [
+        dto.postId,
+        dto.commentatorId,
+        dto.content,
+      ]);
 
-    return rows[0].id;
-  }
+      return rows[0].id;
+    } catch (error) {
+      console.error('Ошибка при выполнении SQL-запроса в CommentsRepository.create():', error);
 
-  async getByIdOrNotFoundFail(id: number): Promise<CommentDbType> {
-    const { rows }: QueryResult<CommentDbType> = await this.pool.query(
-      `
-        SELECT *
-        FROM "Comments"
-        WHERE "id" = $1
-          AND "deletedAt" IS NULL
-      `,
-      [id],
-    );
-
-    if (rows.length === 0) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: `The comment with ID (${id}) does not exist`,
-      });
+      throw error;
     }
-
-    return rows[0];
   }
 
-  async updateContent(dto: UpdateCommentContentDto): Promise<void> {
-    await this.pool.query(
-      `
-        UPDATE "Comments"
-        SET "content" = $1
-        WHERE "id" = $2
-      `,
-      [dto.content, dto.commentId],
-    );
-  }
+  async update(dto: UpdateCommentContentDto): Promise<boolean> {
+    const query = `
+      UPDATE "Comments"
+      SET "content" = $1
+      WHERE "id" = $2
+    `;
 
-  async softDelete(id: number): Promise<void> {
-    await this.pool.query(
-      `
-        UPDATE "Comments"
-        SET "deletedAt" = NOW()
-        WHERE "id" = $1
-          AND "deletedAt" IS NULL
-      `,
-      [id],
-    );
+    //TODO: нормальный ли подход оборачивать все запросы в бд в try/catch для логирования ошибки?
+    try {
+      const { rowCount }: QueryResult = await this.pool.query(query, [dto.content, dto.commentId]);
+
+      return rowCount !== null && rowCount > 0;
+    } catch (error) {
+      console.error('Ошибка при выполнении SQL-запроса в CommentsRepository.update():', error);
+
+      throw error;
+    }
   }
 }

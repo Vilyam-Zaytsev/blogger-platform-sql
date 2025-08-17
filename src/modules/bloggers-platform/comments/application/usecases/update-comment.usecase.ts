@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateCommentDto } from '../../dto/update-comment.dto';
 import { CommentsRepository } from '../../infrastructure/comments-repository';
-import { CommentDbType } from '../../types/comment-db.type';
+import { CommentDb } from '../../types/comment-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
@@ -14,9 +14,14 @@ export class UpdateCommentUseCase implements ICommandHandler<UpdateCommentComman
   constructor(private readonly commentsRepository: CommentsRepository) {}
 
   async execute({ dto }: UpdateCommentCommand): Promise<void> {
-    const comment: CommentDbType = await this.commentsRepository.getByIdOrNotFoundFail(
-      dto.commentId,
-    );
+    const comment: CommentDb | null = await this.commentsRepository.getById(dto.commentId);
+
+    if (!comment) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The comment with ID (${dto.commentId}) does not exist`,
+      });
+    }
 
     if (comment.commentatorId !== dto.userId) {
       throw new DomainException({
@@ -25,7 +30,7 @@ export class UpdateCommentUseCase implements ICommandHandler<UpdateCommentComman
       });
     }
 
-    return await this.commentsRepository.updateContent({
+    await this.commentsRepository.update({
       commentId: dto.commentId,
       content: dto.content,
     });

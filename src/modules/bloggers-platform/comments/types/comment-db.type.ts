@@ -1,4 +1,4 @@
-export type CommentDbType = {
+export type CommentDb = {
   id: number;
   postId: number;
   commentatorId: number;

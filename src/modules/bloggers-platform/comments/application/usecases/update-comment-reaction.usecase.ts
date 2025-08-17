@@ -16,7 +16,7 @@ export class UpdateCommentReactionUseCase implements ICommandHandler<UpdateComme
   ) {}
 
   async execute({ dto }: UpdatePostReactionCommand): Promise<void> {
-    await this.commentsRepository.getByIdOrNotFoundFail(dto.parentId);
+    await this.commentsRepository.getById(dto.parentId);
 
     await this.commandBus.execute(new UpdateReactionsCommand(dto));
   }
