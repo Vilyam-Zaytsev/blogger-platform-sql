@@ -17,6 +17,8 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
     if (exception instanceof HttpException) status = exception.getStatus();
     const responseBody: ErrorResponseBody = this.buildResponseBody(request.url, message);
 
+    console.error(exception.stack);
+
     response.status(status).json(responseBody);
   }
 

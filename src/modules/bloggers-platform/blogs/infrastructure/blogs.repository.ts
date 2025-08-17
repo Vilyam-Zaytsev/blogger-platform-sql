@@ -16,24 +16,18 @@ export class BlogsRepository extends BaseRepository<BlogDb, CreateBlogDto, Updat
       INSERT INTO "Blogs" ("name", "description", "websiteUrl", "isMembership")
       VALUES ($1, $2, $3, $4) RETURNING "id";
     `;
-    //TODO: нормальный ли подход оборачивать все запросы в бд в try/catch для логирования ошибки?
-    try {
-      const { rows }: QueryResult<{ id: number }> = await this.pool.query(query, [
-        dto.name,
-        dto.description,
-        dto.websiteUrl,
-        dto.isMembership,
-      ]);
 
-      return rows[0].id;
-    } catch (error) {
-      console.error('Ошибка при выполнении SQL-запроса в BlogsRepository.create():', error);
+    const { rows }: QueryResult<{ id: number }> = await this.pool.query(query, [
+      dto.name,
+      dto.description,
+      dto.websiteUrl,
+      dto.isMembership,
+    ]);
 
-      throw error;
-    }
+    return rows[0].id;
   }
 
-  async update(dto: UpdateBlogDto): Promise<boolean> {
+  async update(dto: UpdateBlogDto): Promise<void> {
     const query = `
     UPDATE "Blogs"
     SET "name"        = $1,
@@ -42,20 +36,6 @@ export class BlogsRepository extends BaseRepository<BlogDb, CreateBlogDto, Updat
     WHERE "id" = $4
   `;
 
-    //TODO: нормальный ли подход оборачивать все запросы в бд в try/catch для логирования ошибки?
-    try {
-      const { rowCount }: QueryResult = await this.pool.query(query, [
-        dto.name,
-        dto.description,
-        dto.websiteUrl,
-        dto.id,
-      ]);
-
-      return rowCount !== null && rowCount > 0;
-    } catch (error) {
-      console.error('Ошибка при выполнении SQL-запроса в BlogsRepository.update():', error);
-
-      throw error;
-    }
+    await this.pool.query(query, [dto.name, dto.description, dto.websiteUrl, dto.id]);
   }
 }

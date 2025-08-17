@@ -8,9 +8,9 @@ export abstract class BaseRepository<TEntity extends QueryResultRow, TCreateDto,
 
   abstract create(dto: TCreateDto): Promise<number>;
 
-  abstract update(dto: TUpdateDto): Promise<boolean>;
+  abstract update(dto: TUpdateDto): Promise<void>;
 
-  async softDelete(id: number): Promise<boolean> {
+  async softDelete(id: number): Promise<void> {
     const query = `
       UPDATE "${this.tableName}"
       SET "deletedAt" = NOW()
@@ -18,15 +18,7 @@ export abstract class BaseRepository<TEntity extends QueryResultRow, TCreateDto,
         AND "deletedAt" IS NULL
     `;
 
-    try {
-      const { rowCount }: QueryResult = await this.pool.query(query, [id]);
-
-      return rowCount === 1;
-    } catch (error) {
-      console.error('Ошибка при выполнении SQL-запроса в BaseRepository.softDelete():', error);
-
-      throw error;
-    }
+    await this.pool.query(query, [id]);
   }
 
   async getById(id: number): Promise<TEntity | null> {
@@ -37,14 +29,8 @@ export abstract class BaseRepository<TEntity extends QueryResultRow, TCreateDto,
         AND "deletedAt" IS NULL
     `;
 
-    try {
-      const { rows }: QueryResult<TEntity> = await this.pool.query(query, [id]);
+    const { rows }: QueryResult<TEntity> = await this.pool.query(query, [id]);
 
-      return rows[0] || null;
-    } catch (error) {
-      console.error('Ошибка при выполнении SQL-запроса в BaseRepository.getById():', error);
-
-      throw error;
-    }
+    return rows[0] || null;
   }
 }
