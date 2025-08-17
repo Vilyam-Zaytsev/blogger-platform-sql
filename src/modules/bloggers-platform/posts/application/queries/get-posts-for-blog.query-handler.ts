@@ -5,6 +5,9 @@ import { UserContextDto } from '../../../../user-accounts/auth/domain/guards/dto
 import { PostViewDto } from '../../api/view-dto/post-view.dto';
 import { PostsQueryRepository } from '../../infrastructure/query/posts.query-repository';
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { BlogDb } from '../../../blogs/types/blog-db.type';
 
 export class GetPostsForBlogQuery {
   constructor(
@@ -28,7 +31,14 @@ export class GetPostsForBlogQueryHandler
     user,
     blogId,
   }: GetPostsForBlogQuery): Promise<PaginatedViewDto<PostViewDto>> {
-    await this.blogsRepository.getById(blogId);
+    const blog: BlogDb | null = await this.blogsRepository.getById(blogId);
+
+    if (!blog) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The blog with ID (${blogId}) does not exist`,
+      });
+    }
 
     return this.postsQueryRepository.getAll(queryParams, user, blogId);
   }
