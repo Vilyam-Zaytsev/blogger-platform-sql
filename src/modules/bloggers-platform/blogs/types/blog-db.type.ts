@@ -4,7 +4,7 @@ export type BlogDb = {
   description: string;
   websiteUrl: string;
   isMembership: boolean;
-  createdAt: string;
+  createdAt: Date;
   updatedAt: string;
   deletedAt: string | null;
 };
