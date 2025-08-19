@@ -379,5 +379,91 @@ describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:pos
       );
     }
   });
-  //TODO: дописать тесты: 1. если блог по id не найден, 2. если пост не пренадлежит найденному блогу по id
+
+  it('should return a 404 error if the blog does not exist.', async () => {
+    // 🔻 Создаем блог
+    const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
+
+    // 🔻 Создаем пост, привязанный к этому блогу
+    const [createdPost]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog.id);
+
+    // 🔻 DTO с валидными данными для обновления
+    const dto: PostInputDto = {
+      title: 'updateTitle',
+      shortDescription: 'update short description',
+      content: 'update content',
+    };
+
+    // 🔻 Используем несуществующий ID блога
+    const incorrectBlogId: string = '1000000';
+
+    // 🔻 Отправляем PUT-запрос на обновление поста для несуществующего блога
+    const resUpdatePost: Response = await request(server)
+      .put(`/${GLOBAL_PREFIX}/sa/blogs/${incorrectBlogId}/posts/${createdPost.id}`)
+      .send(dto)
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.NOT_FOUND);
+
+    // 🔻 Получаем оригинальный пост из базы, чтобы убедиться, что он не изменился
+    const post: PostViewDto = await postsTestManager.getPostById(createdPost.id);
+
+    // 🔻 Проверяем, что содержимое поста осталось прежним
+    expect(createdPost).toEqual(post);
+
+    if (testLoggingEnabled) {
+      TestLoggers.logE2E(
+        resUpdatePost.body,
+        resUpdatePost.statusCode,
+        'Test №8: BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:postId)',
+      );
+    }
+  });
+
+  it('should return a 403 error if the post does not belong to this blog.', async () => {
+    // 🔻 Создаем блог
+    const [createdBlog_1, createdBlog_2]: BlogViewDto[] = await blogsTestManager.createBlog(2);
+
+    // 🔻 Создаем пост 1, привязанный к блогу 1
+    const [createdPost_1]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog_1.id);
+
+    // 🔻 Создаем пост 2, привязанный к блогу 2
+    const [createdPost_2]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog_2.id);
+
+    // 🔻 DTO с валидными данными для обновления
+    const dto: PostInputDto = {
+      title: 'updateTitle',
+      shortDescription: 'update short description',
+      content: 'update content',
+    };
+
+    // 🔻 Отправляем PUT-запрос на обновление поста который не принадлежит запрашиваемому блогу
+    const resUpdatePost: Response = await request(server)
+      .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog_1.id}/posts/${createdPost_2.id}`)
+      .send(dto)
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.FORBIDDEN);
+
+    // 🔻 Отправляем PUT-запрос на обновление поста который не принадлежит запрашиваемому блогу
+    await request(server)
+      .put(`/${GLOBAL_PREFIX}/sa/blogs/${createdBlog_2.id}/posts/${createdPost_1.id}`)
+      .send(dto)
+      .set('Authorization', adminCredentialsInBase64)
+      .expect(HttpStatus.FORBIDDEN);
+
+    // 🔻 Получаем оригинальный пост из базы, чтобы убедиться, что он не изменился
+    const post_1: PostViewDto = await postsTestManager.getPostById(createdPost_1.id);
+    const post_2: PostViewDto = await postsTestManager.getPostById(createdPost_2.id);
+
+    // 🔻 Проверяем, что содержимое поста осталось прежним
+    expect(createdPost_1).toEqual(post_1);
+    expect(createdPost_2).toEqual(post_2);
+
+    if (testLoggingEnabled) {
+      TestLoggers.logE2E(
+        resUpdatePost.body,
+        resUpdatePost.statusCode,
+        'Test №8: BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:postId)',
+      );
+    }
+  });
 });

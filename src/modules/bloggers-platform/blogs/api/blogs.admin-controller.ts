@@ -53,8 +53,7 @@ export class BlogsAdminController {
 
   @Post()
   async createBlog(@Body() body: BlogInputDto): Promise<BlogViewDto> {
-    //TODO: нормально ли в этом случае создавать dto через конструктор если есть поле по умолчанию? Или я вообще не должен думать об этом поле в контроллере?
-    const dto: CreateBlogDto = new CreateBlogDto(body.name, body.description, body.websiteUrl);
+    const dto: CreateBlogDto = new CreateBlogDto(body);
     const idCreatedBlog: number = await this.commandBus.execute(new CreateBlogCommand(dto));
 
     return this.blogsQueryRepository.getByIdOrNotFoundFail(idCreatedBlog);
@@ -64,14 +63,13 @@ export class BlogsAdminController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateBlog(
     @Param('id', ParseIntPipe) id: number,
-    @Body() body: BlogInputDto,
+    @Body() { name, description, websiteUrl }: BlogInputDto,
   ): Promise<void> {
-    //TODO: вот так собирать dto норм?
     const dto: UpdateBlogDto = {
       id,
-      name: body.name,
-      description: body.description,
-      websiteUrl: body.websiteUrl,
+      name,
+      description,
+      websiteUrl,
     };
 
     await this.commandBus.execute(new UpdateBlogCommand(dto));
@@ -83,7 +81,6 @@ export class BlogsAdminController {
     await this.commandBus.execute(new DeleteBlogCommand(id));
   }
 
-  //TODO: продолжить рефакторинг с этого места
   @Get()
   async getAllBlogs(@Query() query: GetBlogsQueryParams): Promise<PaginatedViewDto<BlogViewDto>> {
     return this.queryBus.execute(new GetBlogsQuery(query));
@@ -96,7 +93,12 @@ export class BlogsAdminController {
     @Param('blogId', ParseIntPipe) blogId: number,
     @Body() { title, shortDescription, content }: PostInputDto,
   ): Promise<PostViewDto> {
-    const dto: CreatePostDto = new CreatePostDto(title, shortDescription, content, blogId);
+    const dto: CreatePostDto = {
+      title,
+      shortDescription,
+      content,
+      blogId,
+    };
 
     const idCreatedPost: number = await this.commandBus.execute(new CreatePostCommand(dto));
 
@@ -108,15 +110,9 @@ export class BlogsAdminController {
   async updatePost(
     @Param('blogId', ParseIntPipe) blogId: number,
     @Param('postId', ParseIntPipe) postId: number,
-    @Body() body: PostInputDto,
+    @Body() { title, shortDescription, content }: PostInputDto,
   ): Promise<void> {
-    const dto: UpdatePostDto = new UpdatePostDto(
-      blogId,
-      postId,
-      body.title,
-      body.shortDescription,
-      body.content,
-    );
+    const dto: UpdatePostDto = { blogId, postId, title, shortDescription, content };
 
     await this.commandBus.execute(new UpdatePostCommand(dto));
   }

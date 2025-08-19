@@ -3,6 +3,7 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdateBlogDto } from '../../dto/update-blog.dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { BlogDb } from '../../types/blog-db.type';
 
 export class UpdateBlogCommand {
   constructor(public readonly dto: UpdateBlogDto) {}
@@ -13,16 +14,15 @@ export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
   constructor(private readonly blogsRepository: BlogsRepository) {}
 
   async execute({ dto }: UpdateBlogCommand): Promise<void> {
-    //TODO: нормально ли делать проверку на существование блога таким образом(при обновлении) или лучше явно делать SELECT? или объединить эти два варианта?
-    const result: boolean = await this.blogsRepository.updateBlog(dto);
+    const blog: BlogDb | null = await this.blogsRepository.getById(dto.id);
 
-    if (!result) {
+    if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `The blog with ID (${dto.id}) does not exist`,
       });
     }
 
-    return;
+    await this.blogsRepository.update(dto);
   }
 }

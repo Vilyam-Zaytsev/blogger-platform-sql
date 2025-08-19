@@ -1,4 +1,4 @@
-export type PostReactionDbType = {
+export type ReactionDb = {
   id: number;
   status: ReactionStatus;
   userId: number;

@@ -3,8 +3,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
-import { BlogDbType } from '../../../blogs/types/blog-db.type';
-import { PostDbType } from '../../types/post-db.type';
+import { BlogDb } from '../../../blogs/types/blog-db.type';
+import { PostDb } from '../../types/post-db.type';
 
 export class DeletePostCommand {
   constructor(
@@ -21,8 +21,23 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
   ) {}
 
   async execute({ blogId, postId }: DeletePostCommand) {
-    const blog: BlogDbType = await this.blogsRepository.getByIdOrNotFoundFail(blogId);
-    const post: PostDbType = await this.postsRepository.getByIdOrNotFoundFail(postId);
+    const blog: BlogDb | null = await this.blogsRepository.getById(blogId);
+
+    if (!blog) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The blog with ID (${blogId}) does not exist`,
+      });
+    }
+
+    const post: PostDb | null = await this.postsRepository.getById(postId);
+
+    if (!post) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The post with ID (${postId}) does not exist`,
+      });
+    }
 
     if (+post.blogId !== blog.id) {
       throw new DomainException({

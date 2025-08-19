@@ -13,44 +13,57 @@ import { SortDirection } from '../../../../../core/dto/base.query-params.input-d
 import { CommentRawRow } from '../../types/comment-raw-row.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { ReactionStatus } from '../../../reactions/types/reaction-db.type';
 
 @Injectable()
 export class CommentsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getByIdOrNotFoundFail(id: number, user?: number | null): Promise<CommentViewDto> {
-    const { rows }: QueryResult<CommentViewDto> = await this.pool.query(
+    const {
+      rows,
+    }: QueryResult<{
+      id: string;
+      content: string;
+      commentatorInfo: { userId: string; userLogin: string };
+      likesInfo: { likesCount: number; dislikesCount: number; myStatus: ReactionStatus };
+      createdAt: string | Date;
+    }> = await this.pool.query(
       `
-        WITH "LikesCount" AS (select "commentId", COUNT(*) AS "count"
-                              from "CommentsReactions"
-                              WHERE "status" = 'Like'
-                              GROUP BY "commentId"),
-
-             "DislikesCount" AS (SELECT "commentId", COUNT(*) AS "count"
-                                 FROM "CommentsReactions"
-                                 WHERE "status" = 'Dislike'
-                                 GROUP BY "commentId")
-
-        SELECT c."id"::text AS "id", c."content" AS "content",
-               json_build_object(
-                 'userId', c."commentatorId"::text,
-                 'userLogin', u."login"
-               ) AS "commentatorInfo",
-               c."createdAt"::text AS "createdAt", json_build_object(
-          'likesCount', COALESCE(lc.count, 0),
-          'dislikesCount', COALESCE(dc.count, 0),
-          'myStatus', COALESCE(cr."status", 'None')
-                                                   ) AS "likesInfo"
+        WITH "LikesCount" AS (
+          SELECT "commentId", COUNT(*) AS "count"
+          FROM "CommentsReactions"
+          WHERE "status" = 'Like'
+          GROUP BY "commentId"
+        ),
+             "DislikesCount" AS (
+               SELECT "commentId", COUNT(*) AS "count"
+               FROM "CommentsReactions"
+               WHERE "status" = 'Dislike'
+               GROUP BY "commentId"
+             )
+        SELECT
+          c."id"::text AS "id",
+          c."content" AS "content",
+          json_build_object(
+            'userId', c."commentatorId"::text,
+            'userLogin', u."login"
+          ) AS "commentatorInfo",
+          c."createdAt" AS "createdAt",
+          json_build_object(
+            'likesCount', COALESCE(lc.count, 0),
+            'dislikesCount', COALESCE(dc.count, 0),
+            'myStatus', COALESCE(cr."status", 'None')
+          ) AS "likesInfo"
         FROM "Comments" c
                JOIN "Users" u ON u."id" = c."commentatorId"
                LEFT JOIN "LikesCount" lc ON lc."commentId" = c."id"
                LEFT JOIN "DislikesCount" dc ON dc."commentId" = c."id"
-               LEFT JOIN "CommentsReactions" cr ON cr."commentId" = c."id"
-          AND cr."userId" = $2
+               LEFT JOIN "CommentsReactions" cr ON cr."commentId" = c."id" AND cr."userId" = $2
         WHERE c."id" = $1
           AND c."deletedAt" IS NULL
       `,
-      [id, user],
+      [id, user ?? null],
     );
 
     if (rows.length === 0) {
@@ -60,7 +73,22 @@ export class CommentsQueryRepository {
       });
     }
 
-    return rows[0];
+    const row = rows[0];
+
+    return {
+      id: row.id,
+      content: row.content,
+      commentatorInfo: {
+        userId: row.commentatorInfo.userId,
+        userLogin: row.commentatorInfo.userLogin,
+      },
+      likesInfo: {
+        likesCount: row.likesInfo.likesCount,
+        dislikesCount: row.likesInfo.dislikesCount,
+        myStatus: row.likesInfo.myStatus,
+      },
+      createdAt: new Date(row.createdAt).toISOString(),
+    };
   }
 
   async getAll(dto: CommentsQueryDto): Promise<PaginatedViewDto<CommentViewDto>> {
@@ -88,27 +116,32 @@ export class CommentsQueryRepository {
 
     const { rows }: QueryResult<CommentRawRow> = await this.pool.query(
       `
-        WITH "LikesCount" AS (select "commentId", COUNT(*) AS "count"
-                              from "CommentsReactions"
-                              WHERE "status" = 'Like'
-                              GROUP BY "commentId"),
-
-             "DislikesCount" AS (SELECT "commentId", COUNT(*) AS "count"
-                                 FROM "CommentsReactions"
-                                 WHERE "status" = 'Dislike'
-                                 GROUP BY "commentId")
-
-        SELECT COUNT(*) OVER() AS "totalCount",
-               c."id"::text AS "id", c."content" AS "content",
-               json_build_object(
-                 'userId', c."commentatorId"::text,
-                 'userLogin', u."login"
-               )        AS "commentatorInfo",
-               c."createdAt"::text AS "createdAt", json_build_object(
-          'likesCount', COALESCE(lc.count, 0),
-          'dislikesCount', COALESCE(dc.count, 0),
-          'myStatus', COALESCE(cr."status", 'None')
-                                                   ) AS "likesInfo"
+        WITH "LikesCount" AS (
+          SELECT "commentId", COUNT(*) AS "count"
+          FROM "CommentsReactions"
+          WHERE "status" = 'Like'
+          GROUP BY "commentId"
+        ),
+             "DislikesCount" AS (
+               SELECT "commentId", COUNT(*) AS "count"
+               FROM "CommentsReactions"
+               WHERE "status" = 'Dislike'
+               GROUP BY "commentId"
+             )
+        SELECT
+          COUNT(*) OVER() AS "totalCount",
+          c."id"::text AS "id",
+          c."content" AS "content",
+          json_build_object(
+            'userId', c."commentatorId"::text,
+            'userLogin', u."login"
+          ) AS "commentatorInfo",
+          c."createdAt" AS "createdAt",
+          json_build_object(
+            'likesCount', COALESCE(lc.count, 0),
+            'dislikesCount', COALESCE(dc.count, 0),
+            'myStatus', COALESCE(cr."status", 'None')
+          ) AS "likesInfo"
         FROM "Comments" c
                JOIN "Users" u ON u."id" = c."commentatorId"
                LEFT JOIN "LikesCount" lc ON lc."commentId" = c."id"
@@ -123,29 +156,25 @@ export class CommentsQueryRepository {
     );
 
     const totalCount: number = rows.length > 0 ? +rows[0].totalCount : 0;
-    const pagesCount: number = Math.ceil(totalCount / pageSize);
 
-    return {
-      pagesCount,
-      page: pageNumber,
-      pageSize,
+    return PaginatedViewDto.mapToView<CommentViewDto>({
       totalCount,
-      items: rows.map(
-        (row): CommentViewDto => ({
-          id: row.id,
-          content: row.content,
-          commentatorInfo: {
-            userId: row.commentatorInfo.userId,
-            userLogin: row.commentatorInfo.userLogin,
-          },
-          likesInfo: {
-            likesCount: row.likesInfo.likesCount,
-            dislikesCount: row.likesInfo.dislikesCount,
-            myStatus: row.likesInfo.myStatus,
-          },
-          createdAt: row.createdAt,
-        }),
-      ),
-    };
+      page: pageNumber,
+      size: pageSize,
+      items: rows.map((row) => ({
+        id: row.id,
+        content: row.content,
+        commentatorInfo: {
+          userId: row.commentatorInfo.userId,
+          userLogin: row.commentatorInfo.userLogin,
+        },
+        likesInfo: {
+          likesCount: row.likesInfo.likesCount,
+          dislikesCount: row.likesInfo.dislikesCount,
+          myStatus: row.likesInfo.myStatus,
+        },
+        createdAt: new Date(row.createdAt).toISOString(),
+      })),
+    });
   }
 }

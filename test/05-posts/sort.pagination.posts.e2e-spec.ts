@@ -242,9 +242,7 @@ describe('PostsController - getPost() (GET: /posts (pagination, sort, search in 
   // it.only('should use client-provided pagination values to return the correct subset of data(3).', async () => {
   //   const blogs: BlogViewDto[] = await blogsTestManager.createBlog(12);
   //   const posts: PostViewDto[] = [];
-  //   const dtos: PostInputDto[] = TestDtoFactory.generatePostInputDto(
-  //     blogs.length * 5,
-  //   );
+  //   const dtos: PostInputDto[] = TestDtoFactory.generatePostInputDto(blogs.length * 5);
   //
   //   for (let i = 0; i < blogs.length; i++) {
   //     for (let j = 0; j < 5; j++) {

@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentsRepository } from '../../infrastructure/comments-repository';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { CommentDbType } from '../../types/comment-db.type';
+import { CommentDb } from '../../types/comment-db.type';
 import { DeleteCommentDto } from '../../dto/delete-comment.dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 
@@ -14,9 +14,14 @@ export class DeleteCommentUseCase implements ICommandHandler<DeleteCommentComman
   constructor(private readonly commentsRepository: CommentsRepository) {}
 
   async execute({ dto }: DeleteCommentCommand): Promise<void> {
-    const comment: CommentDbType = await this.commentsRepository.getByIdOrNotFoundFail(
-      dto.commentId,
-    );
+    const comment: CommentDb | null = await this.commentsRepository.getById(dto.commentId);
+
+    if (!comment) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The comment with ID (${dto.commentId}) does not exist`,
+      });
+    }
 
     if (comment.commentatorId !== dto.userId) {
       throw new DomainException({

@@ -19,30 +19,31 @@ export class PostsQueryRepository {
   constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getByIdOrNotFoundFail(id: number, user: UserContextDto | null): Promise<PostViewDto> {
-    const { rows: posts }: QueryResult<PostViewDto> = await this.pool.query(
+    const { rows }: QueryResult<PostViewDto> = await this.pool.query(
       `
         WITH "LikesCount" AS (SELECT "postId", COUNT(*) AS "count"
                               FROM "PostsReactions"
                               WHERE "status" = 'Like'
                               GROUP BY "postId"),
-
              "DislikesCount" AS (SELECT "postId", COUNT(*) AS "count"
                                  FROM "PostsReactions"
                                  WHERE "status" = 'Dislike'
                                  GROUP BY "postId"),
-
-             "NewestLikes" AS (SELECT "postId",
+             "NewestLikes" AS (SELECT pr2."postId",
                                       json_agg(
                                         json_build_object(
-                                          'addedAt', pr."createdAt",
-                                          'userId', pr."userId"::text,
+                                          'addedAt', pr2."createdAt",
+                                          'userId', pr2."userId"::text,
                                           'login', u."login"
-                                        ) ORDER BY pr."createdAt" DESC
-                                      ) FILTER (WHERE pr."status" = 'Like') AS "likes"
-                               FROM "PostsReactions" pr
-                                      JOIN "Users" u ON u."id" = pr."userId"
-                               GROUP BY "postId")
-
+                                        ) ORDER BY pr2."createdAt" DESC
+                                      ) AS "likes"
+                               FROM (SELECT pr.*,
+                                            ROW_NUMBER() OVER (PARTITION BY pr."postId" ORDER BY pr."createdAt" DESC) AS rn
+                                     FROM "PostsReactions" pr
+                                     WHERE pr."status" = 'Like') pr2
+                                      JOIN "Users" u ON u."id" = pr2."userId"
+                               WHERE pr2.rn <= 3
+                               GROUP BY pr2."postId")
         SELECT p."id"::text, p."title",
                p."shortDescription",
                p."content",
@@ -58,23 +59,22 @@ export class PostsQueryRepository {
                JOIN "Blogs" b ON b."id" = p."blogId"
                LEFT JOIN "LikesCount" lc ON lc."postId" = p."id"
                LEFT JOIN "DislikesCount" dc ON dc."postId" = p."id"
-               LEFT JOIN "PostsReactions" pr ON pr."postId" = p."id"
-          AND pr."userId" = $2
+               LEFT JOIN "PostsReactions" pr ON pr."postId" = p."id" AND pr."userId" = $2
                LEFT JOIN "NewestLikes" nl ON nl."postId" = p."id"
         WHERE p."id" = $1
           AND p."deletedAt" IS NULL;
       `,
-      [id, user],
+      [id, user?.id ?? null],
     );
 
-    if (posts.length === 0) {
+    if (rows.length === 0) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `The post with ID (${id}) does not exist`,
       });
     }
 
-    return posts[0];
+    return rows[0];
   }
 
   async getAll(
@@ -118,17 +118,21 @@ export class PostsQueryRepository {
                                  WHERE "status" = 'Dislike'
                                  GROUP BY "postId"),
 
-             "NewestLikes" AS (SELECT "postId",
+             "NewestLikes" AS (SELECT pr2."postId",
                                       json_agg(
                                         json_build_object(
-                                          'addedAt', pr."createdAt",
-                                          'userId', pr."userId"::text,
+                                          'addedAt', pr2."createdAt",
+                                          'userId', pr2."userId"::text,
                                           'login', u."login"
-                                        ) ORDER BY pr."createdAt" DESC
+                                        ) ORDER BY pr2."createdAt" DESC
                                       ) AS "likes"
-                               FROM "PostsReactions" pr
-                                      JOIN "Users" u ON u."id" = pr."userId"
-                               GROUP BY "postId")
+                               FROM (SELECT pr.*,
+                                            ROW_NUMBER() OVER (PARTITION BY pr."postId" ORDER BY pr."createdAt" DESC) AS rn
+                                     FROM "PostsReactions" pr
+                                     WHERE pr."status" = 'Like') pr2
+                                      JOIN "Users" u ON u."id" = pr2."userId"
+                               WHERE pr2.rn <= 3
+                               GROUP BY pr2."postId")
 
         SELECT COUNT(*) OVER() AS "totalCount", p."id"::text, p."title",
                p."shortDescription",

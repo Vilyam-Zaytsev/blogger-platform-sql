@@ -60,7 +60,7 @@ describe('BlogsAdminController - createBlog() (POST: /sa/blogs)', () => {
       name: dto.name,
       description: dto.description,
       websiteUrl: dto.websiteUrl,
-      createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}\.\d{3,6}\+\d{2}$/),
+      createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
       isMembership: false,
     });
 
