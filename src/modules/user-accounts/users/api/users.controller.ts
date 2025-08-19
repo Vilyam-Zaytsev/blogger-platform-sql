@@ -8,6 +8,7 @@ import {
   Param,
   Post,
   Query,
+  UseGuards,
 } from '@nestjs/common';
 import { UserInputDto } from './input-dto/user.input-dto';
 import { UserViewDto } from './view-dto/user.view-dto';
@@ -20,8 +21,10 @@ import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetUsersQuery } from '../application/queries/get-users.query-handler';
 import { IdInputDto } from '../../../../core/dto/id.input-dto';
 import { DeleteUserCommand } from '../application/usecases/delete-user.usecase';
+import { BasicAuthGuard } from '../../auth/domain/guards/basic/basic-auth.guard';
 
-@Controller('users')
+@Controller('sa/users')
+@UseGuards(BasicAuthGuard)
 export class UsersController {
   constructor(
     private readonly queryBus: QueryBus,
@@ -31,17 +34,13 @@ export class UsersController {
   ) {}
 
   @Get()
-  async getAll(
-    @Query() query: GetUsersQueryParams,
-  ): Promise<PaginatedViewDto<UserViewDto>> {
+  async getAll(@Query() query: GetUsersQueryParams): Promise<PaginatedViewDto<UserViewDto>> {
     return this.queryBus.execute(new GetUsersQuery(query));
   }
 
   @Post()
   async createUser(@Body() body: UserInputDto): Promise<UserViewDto> {
-    const userId: number = await this.commandBus.execute(
-      new CreateUserCommand(body),
-    );
+    const userId: number = await this.commandBus.execute(new CreateUserCommand(body));
 
     return this.usersQueryRepository.getByIdOrNotFoundFail(userId);
   }

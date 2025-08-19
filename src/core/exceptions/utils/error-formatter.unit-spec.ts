@@ -1,6 +1,6 @@
 import { ValidationError } from '@nestjs/common';
 import { errorFormatter } from './error-formatter';
-import { Extension } from '../damain-exceptions';
+import { Extension } from '../domain-exceptions';
 
 describe('errorFormatter', () => {
   it('should format flat errors with constrains', () => {

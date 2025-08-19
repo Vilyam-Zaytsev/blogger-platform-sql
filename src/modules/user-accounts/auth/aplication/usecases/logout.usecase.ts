@@ -1,0 +1,30 @@
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { SessionContextDto } from '../../domain/guards/dto/session-context.dto';
+import { SessionsRepository } from '../../infrastructure/sessions.repository';
+import { SessionDbType } from '../../types/session-db.type';
+
+export class LogoutCommand {
+  constructor(public readonly sessionData: SessionContextDto) {}
+}
+
+@CommandHandler(LogoutCommand)
+export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
+  constructor(private readonly sessionsRepository: SessionsRepository) {}
+
+  async execute({ sessionData }: LogoutCommand): Promise<void> {
+    const session: SessionDbType | null = await this.sessionsRepository.getByDeviceId(
+      sessionData.deviceId,
+    );
+
+    if (!session) {
+      throw new DomainException({
+        code: DomainExceptionCode.Unauthorized,
+        message: `Unauthorized`,
+      });
+    }
+
+    await this.sessionsRepository.softDeleteSession(session.id);
+  }
+}

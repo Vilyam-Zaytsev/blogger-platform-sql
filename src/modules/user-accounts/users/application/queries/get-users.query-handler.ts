@@ -14,9 +14,7 @@ export class GetUsersQueryHandler
 {
   constructor(private readonly usersQueryRepository: UsersQueryRepository) {}
 
-  async execute({
-    queryParams,
-  }: GetUsersQuery): Promise<PaginatedViewDto<UserViewDto>> {
+  async execute({ queryParams }: GetUsersQuery): Promise<PaginatedViewDto<UserViewDto>> {
     return this.usersQueryRepository.getAll(queryParams);
   }
 }

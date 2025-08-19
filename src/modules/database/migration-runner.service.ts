@@ -26,10 +26,7 @@ export class MigrationRunnerService implements OnModuleInit {
         try {
           await client.query('BEGIN');
           await client.query(sql);
-          await client.query(
-            'INSERT INTO schema_migrations (name) VALUES ($1)',
-            [file],
-          );
+          await client.query('INSERT INTO schema_migrations (name) VALUES ($1)', [file]);
           await client.query('COMMIT');
           console.log(`Applied: ${file}`);
         } catch (error) {

@@ -59,8 +59,7 @@ export class CoreConfig {
   @IsNumber(
     {},
     {
-      message:
-        'Set Env variable THROTTLE_TTL to a numeric value. Example: 10 (in seconds)',
+      message: 'Set Env variable THROTTLE_TTL to a numeric value. Example: 10 (in seconds)',
     },
   )
   throttleTtl: number;
@@ -68,8 +67,7 @@ export class CoreConfig {
   @IsNumber(
     {},
     {
-      message:
-        'Set Env variable THROTTLE_LIMIT to a numeric value. Example: 5 (requests per TTL)',
+      message: 'Set Env variable THROTTLE_LIMIT to a numeric value. Example: 5 (requests per TTL)',
     },
   )
   throttleLimit: number;

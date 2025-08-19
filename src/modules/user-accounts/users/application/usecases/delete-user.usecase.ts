@@ -1,7 +1,7 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { IdInputDto } from '../../../../../core/dto/id.input-dto';
 import { UsersRepository } from '../../infrastructure/users.repository';
-import { DomainException } from '../../../../../core/exceptions/damain-exceptions';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
 export class DeleteUserCommand {
@@ -13,7 +13,7 @@ export class DeleteUserUseCase implements ICommandHandler<DeleteUserCommand> {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async execute({ dto }: DeleteUserCommand): Promise<void> {
-    const result = await this.usersRepository.softDelete(dto.id);
+    const result: boolean = await this.usersRepository.softDelete(dto.id);
 
     if (!result) {
       throw new DomainException({
