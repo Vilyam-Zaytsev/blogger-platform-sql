@@ -3,7 +3,6 @@ import { CoreConfig } from './core/core.config';
 import { configModule } from './dynamic-config.module';
 import { CoreModule } from './core/core.module';
 import { TestingModule } from './modules/testing/testing.module';
-import { DatabaseModule } from './modules/database/database.module';
 import { UserAccountsModule } from './modules/user-accounts/user-accounts.module';
 import { APP_FILTER } from '@nestjs/core';
 import { AllHttpExceptionsFilter } from './core/exceptions/filters/all-exceptions.filter';
@@ -12,6 +11,7 @@ import { ValidationExceptionFilter } from './core/exceptions/filters/validation-
 import { ThrottlerModule } from '@nestjs/throttler';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
+import { DatabaseModule } from './modules/database/database.module';
 
 @Module({
   imports: [
