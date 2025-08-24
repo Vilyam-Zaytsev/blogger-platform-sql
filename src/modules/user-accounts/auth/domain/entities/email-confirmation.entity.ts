@@ -7,7 +7,7 @@ export enum ConfirmationStatus {
 }
 
 @Entity()
-export class EmailConfirmation extends BaseEntity {
+export class EmailConfirmationCode extends BaseEntity {
   @Column({
     type: 'varchar',
     length: 255,

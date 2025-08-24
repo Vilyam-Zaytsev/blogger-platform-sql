@@ -36,12 +36,12 @@ import { DeleteSessionUseCase } from './sessions/application/usecases/delete-ses
 import { UsersExternalRepository } from './users/infrastructure/external/users.external-repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/domain/entities/user.entity';
-import { EmailConfirmation } from './auth/domain/entities/email-confirmation.entity';
-import { PasswordRecovery } from './auth/domain/entities/password-recovery.entity';
+import { EmailConfirmationCode } from './auth/domain/entities/email-confirmation.entity';
+import { PasswordRecoveryCode } from './auth/domain/entities/password-recovery.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, EmailConfirmation, PasswordRecovery]),
+    TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode]),
     NotificationsModule,
   ],
   controllers: [UsersController, AuthController, SessionsController],

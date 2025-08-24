@@ -2,7 +2,7 @@ import { Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 
 @Entity()
-export class PasswordRecovery extends BaseEntity {
+export class PasswordRecoveryCode extends BaseEntity {
   @Column({
     type: 'varchar',
     length: 255,
