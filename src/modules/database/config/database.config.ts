@@ -52,9 +52,7 @@ export class DatabaseConfig {
       password: this.postgresPassword,
       database: this.postgresDbName,
       autoLoadEntities: true,
-      synchronize: false,
-      migrationsRun: true,
-      migrations: [`${__dirname}/..migrations/*.ts`],
+      synchronize: true,
     };
   }
 }
