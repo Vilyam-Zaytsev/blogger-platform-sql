@@ -34,9 +34,11 @@ import { SessionsQueryRepository } from './sessions/infrastructure/query/session
 import { DeleteSessionsUseCase } from './sessions/application/usecases/delete-sessions.usecase';
 import { DeleteSessionUseCase } from './sessions/application/usecases/delete-session.usecase';
 import { UsersExternalRepository } from './users/infrastructure/external/users.external-repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './users/domain/entities/user.entity';
 
 @Module({
-  imports: [NotificationsModule],
+  imports: [TypeOrmModule.forFeature([User]), NotificationsModule],
   controllers: [UsersController, AuthController, SessionsController],
   providers: [
     //🔸 Auth:
