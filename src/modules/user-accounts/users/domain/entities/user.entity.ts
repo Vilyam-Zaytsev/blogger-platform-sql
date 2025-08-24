@@ -1,5 +1,6 @@
-import { Check, Column, Entity } from 'typeorm';
+import { Check, Column, Entity, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { EmailConfirmationCode } from '../../../auth/domain/entities/email-confirmation.entity';
 
 export const loginConstraints = {
   minLength: 3,
@@ -40,4 +41,7 @@ export class User extends BaseEntity {
 
   @Column({ length: 255 })
   public passwordHash: string;
+
+  @OneToOne(() => EmailConfirmationCode, (emailConfirmationCode) => emailConfirmationCode.user)
+  emailConfirmationCode: EmailConfirmationCode;
 }
