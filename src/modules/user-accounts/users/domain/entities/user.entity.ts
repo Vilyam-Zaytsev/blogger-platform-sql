@@ -1,6 +1,7 @@
 import { Check, Column, Entity, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { EmailConfirmationCode } from '../../../auth/domain/entities/email-confirmation.entity';
+import { PasswordRecoveryCode } from 'src/modules/user-accounts/auth/domain/entities/password-recovery.entity';
 
 export const loginConstraints = {
   minLength: 3,
@@ -44,4 +45,7 @@ export class User extends BaseEntity {
 
   @OneToOne(() => EmailConfirmationCode, (emailConfirmationCode) => emailConfirmationCode.user)
   emailConfirmationCode: EmailConfirmationCode;
+
+  @OneToOne(() => PasswordRecoveryCode, (passwordRecoveryCode) => passwordRecoveryCode.user)
+  passwordRecoveryCode: PasswordRecoveryCode;
 }
