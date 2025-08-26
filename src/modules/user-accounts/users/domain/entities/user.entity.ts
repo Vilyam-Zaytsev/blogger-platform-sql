@@ -4,8 +4,8 @@ import {
   ConfirmationStatus,
   EmailConfirmationCode,
 } from '../../../auth/domain/entities/email-confirmation-code.entity';
-import { PasswordRecoveryCode } from 'src/modules/user-accounts/auth/domain/entities/password-recovery-code.entity';
 import { UserCreateDomainDto } from '../dto/user.create-domain-dto';
+import { PasswordRecoveryCode } from '../../../auth/domain/entities/password-recovery-code.entity';
 
 export const loginConstraints = {
   minLength: 3,
