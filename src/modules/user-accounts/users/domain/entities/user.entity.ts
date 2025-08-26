@@ -1,7 +1,8 @@
 import { Check, Column, Entity, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
-import { EmailConfirmationCode } from '../../../auth/domain/entities/email-confirmation.entity';
-import { PasswordRecoveryCode } from 'src/modules/user-accounts/auth/domain/entities/password-recovery.entity';
+import { EmailConfirmationCode } from '../../../auth/domain/entities/email-confirmation-code.entity';
+import { PasswordRecoveryCode } from 'src/modules/user-accounts/auth/domain/entities/password-recovery-code.entity';
+import { UserCreateDomainDto } from '../dto/user.create-domain-dto';
 
 export const loginConstraints = {
   minLength: 3,
@@ -42,6 +43,28 @@ export class User extends BaseEntity {
 
   @Column({ length: 255 })
   public passwordHash: string;
+
+  //TODO: есть ли необходимость в добавить protected (protected потому что private не получится из за наследования) конструктор для того чтобы закрыть создание экземпляров из вне?
+
+  static create({
+    email,
+    login,
+    passwordHash,
+    confirmationCode,
+    expirationDate,
+  }: UserCreateDomainDto): User {
+    const user = new this();
+
+    user.email = email;
+    user.login = login;
+    user.passwordHash = passwordHash;
+    user.emailConfirmationCode = EmailConfirmationCode.create({
+      confirmationCode,
+      expirationDate,
+    });
+
+    return user;
+  }
 
   @OneToOne(() => EmailConfirmationCode, (emailConfirmationCode) => emailConfirmationCode.user)
   emailConfirmationCode: EmailConfirmationCode;
