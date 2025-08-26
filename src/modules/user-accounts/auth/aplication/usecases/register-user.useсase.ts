@@ -4,10 +4,10 @@ import { UserValidationService } from '../../../users/application/services/user-
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
 import { CryptoService } from '../../../users/application/services/crypto.service';
 import { CreateUserDto } from '../../../users/dto/create-user.dto';
-import { ConfirmationStatus } from '../../types/email-confirmation-db.type';
 import { CreateEmailConfirmationDto } from '../../dto/create-email-confirmation.dto';
 import { add } from 'date-fns';
 import { UserRegisteredEvent } from '../../domain/events/user-registered.event';
+import { ConfirmationStatus } from '../../domain/entities/email-confirmation-code.entity';
 
 export class RegisterUserCommand {
   constructor(public dto: UserInputDto) {}
@@ -31,7 +31,8 @@ export class RegisterUserUseCase implements ICommandHandler<RegisterUserCommand>
     const createUserDto: CreateUserDto = {
       login,
       email,
-      passwordHash,
+      //TODO: password ЗАГЛУШКА!!!
+      password: passwordHash,
     };
 
     const userId: number = await this.usersRepository.insertUser(createUserDto);

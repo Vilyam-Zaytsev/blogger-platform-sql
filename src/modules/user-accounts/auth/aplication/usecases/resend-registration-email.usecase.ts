@@ -5,14 +5,12 @@ import { RegistrationEmailResandingInputDto } from '../../api/input-dto/registra
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
 import { CryptoService } from '../../../users/application/services/crypto.service';
 import { UserDbType } from '../../../users/types/user-db.type';
-import {
-  ConfirmationStatus,
-  EmailConfirmationDbType,
-} from '../../types/email-confirmation-db.type';
+import { EmailConfirmationDbType } from '../../types/email-confirmation-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { UpdateEmailConfirmationDto } from '../../dto/create-email-confirmation.dto';
 import { UserResendRegisteredEvent } from '../../domain/events/user-resend-registered.event';
+import { ConfirmationStatus } from '../../domain/entities/email-confirmation-code.entity';
 
 export class ResendRegistrationEmailCommand {
   constructor(public readonly dto: RegistrationEmailResandingInputDto) {}

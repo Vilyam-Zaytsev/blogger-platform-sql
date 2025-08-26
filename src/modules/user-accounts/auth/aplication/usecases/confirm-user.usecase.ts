@@ -2,11 +2,9 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { RegistrationConfirmationCodeInputDto } from '../../api/input-dto/registration-confirmation-code.input-dto';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
-import {
-  ConfirmationStatus,
-  EmailConfirmationDbType,
-} from '../../types/email-confirmation-db.type';
+import { EmailConfirmationDbType } from '../../types/email-confirmation-db.type';
 import { UpdateEmailConfirmationDto } from '../../dto/create-email-confirmation.dto';
+import { ConfirmationStatus } from '../../domain/entities/email-confirmation-code.entity';
 
 export class ConfirmUserCommand {
   constructor(public readonly dto: RegistrationConfirmationCodeInputDto) {}

@@ -38,6 +38,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/domain/entities/user.entity';
 import { EmailConfirmationCode } from './auth/domain/entities/email-confirmation-code.entity';
 import { PasswordRecoveryCode } from './auth/domain/entities/password-recovery-code.entity';
+import { UsersFactory } from './users/application/factories/users.factory';
 
 @Module({
   imports: [
@@ -84,6 +85,8 @@ import { PasswordRecoveryCode } from './auth/domain/entities/password-recovery-c
     //services
     CryptoService,
     UserValidationService,
+    //factories
+    UsersFactory,
     //repo
     UsersRepository,
     UsersQueryRepository,

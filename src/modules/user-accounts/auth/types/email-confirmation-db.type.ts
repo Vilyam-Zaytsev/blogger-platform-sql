@@ -1,7 +1,4 @@
-export enum ConfirmationStatus {
-  Confirmed = 'Confirmed',
-  NotConfirmed = 'Not confirmed',
-}
+import { ConfirmationStatus } from '../domain/entities/email-confirmation-code.entity';
 
 export type EmailConfirmationDbType = {
   userId: number;
