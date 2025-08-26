@@ -1,6 +1,9 @@
 import { Check, Column, Entity, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
-import { EmailConfirmationCode } from '../../../auth/domain/entities/email-confirmation-code.entity';
+import {
+  ConfirmationStatus,
+  EmailConfirmationCode,
+} from '../../../auth/domain/entities/email-confirmation-code.entity';
 import { PasswordRecoveryCode } from 'src/modules/user-accounts/auth/domain/entities/password-recovery-code.entity';
 import { UserCreateDomainDto } from '../dto/user.create-domain-dto';
 
@@ -64,6 +67,12 @@ export class User extends BaseEntity {
     });
 
     return user;
+  }
+
+  public confirmEmail() {
+    this.emailConfirmationCode.confirmationCode = null;
+    this.emailConfirmationCode.expirationDate = null;
+    this.emailConfirmationCode.confirmationStatus = ConfirmationStatus.Confirmed;
   }
 
   @OneToOne(() => EmailConfirmationCode, (emailConfirmationCode) => emailConfirmationCode.user)
