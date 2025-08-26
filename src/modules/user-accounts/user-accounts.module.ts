@@ -36,8 +36,8 @@ import { DeleteSessionUseCase } from './sessions/application/usecases/delete-ses
 import { UsersExternalRepository } from './users/infrastructure/external/users.external-repository';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './users/domain/entities/user.entity';
-import { EmailConfirmationCode } from './auth/domain/entities/email-confirmation.entity';
-import { PasswordRecoveryCode } from './auth/domain/entities/password-recovery.entity';
+import { EmailConfirmationCode } from './auth/domain/entities/email-confirmation-code.entity';
+import { PasswordRecoveryCode } from './auth/domain/entities/password-recovery-code.entity';
 
 @Module({
   imports: [
