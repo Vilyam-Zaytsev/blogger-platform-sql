@@ -13,18 +13,31 @@ import { CreatePasswordRecoveryDto } from '../../auth/dto/create-password-recove
 import { PasswordRecoveryDbType } from '../../auth/types/password-recovery-db.type';
 import { UpdatePassword } from '../../auth/aplication/types/update-password.type';
 import { DomainException } from '../../../../core/exceptions/domain-exceptions';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../domain/entities/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersRepository {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  constructor(
+    @Inject(PG_POOL) private readonly pool: Pool,
+    @InjectRepository(User) private readonly repository: Repository<User>,
+  ) {}
 
+  async save(user: User): Promise<number> {
+    const { id }: User = await this.repository.save(user);
+
+    return id;
+  }
+
+  //TODO: УДАЛИТЬ!!!!
   async insertUser(dto: CreateUserDto): Promise<number> {
     const query: string = `
       INSERT INTO "Users" ("login", "email", "passwordHash")
       VALUES ($1, $2, $3) RETURNING id;
     `;
 
-    const values: string[] = [dto.login, dto.email, dto.passwordHash];
+    const values: string[] = [dto.login, dto.email, 'dto.passwordHash'];
 
     const queryResult: QueryResult<{ id: number }> = await this.pool.query<{
       id: number;
