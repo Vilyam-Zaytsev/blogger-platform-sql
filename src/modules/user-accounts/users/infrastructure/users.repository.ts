@@ -30,6 +30,14 @@ export class UsersRepository {
     return id;
   }
 
+  async softDelete(id: number): Promise<void> {
+    await this.repository.softDelete(id);
+  }
+
+  async getByIdOrNotFoundFail(id: number): Promise<User> {
+    return await this.repository.findOneByOrFail({ id: id });
+  }
+
   //TODO: УДАЛИТЬ!!!!
   async insertUser(dto: CreateUserDto): Promise<number> {
     const query: string = `
@@ -46,7 +54,8 @@ export class UsersRepository {
     return queryResult.rows[0].id;
   }
 
-  async getByIdOrNotFoundFail(id: number): Promise<UserDbType> {
+  //TODO: УДАЛИТЬ!!!
+  async getByIdOrNotFoundFail2(id: number): Promise<UserDbType> {
     const queryResult: QueryResult<UserDbType> = await this.pool.query<UserDbType>(
       `SELECT *
          FROM "Users"
@@ -175,16 +184,11 @@ export class UsersRepository {
     );
   }
 
-  async softDelete(id: number): Promise<boolean> {
-    const queryResult: QueryResult = await this.pool.query(
-      `UPDATE "Users"
-       SET "deletedAt" = NOW()
-       WHERE id = $1
-         AND "deletedAt" IS NULL`,
-      [id],
-    );
+  //TODO: УДАЛИТЬ!!!
+  async softDelete2(id: number): Promise<boolean> {
+    const result = await this.repository.softDelete({ id: id });
 
-    return queryResult.rowCount === 1;
+    return result.affected === 1;
   }
 
   async insertOrUpdatePasswordRecovery(dto: CreatePasswordRecoveryDto): Promise<void> {
