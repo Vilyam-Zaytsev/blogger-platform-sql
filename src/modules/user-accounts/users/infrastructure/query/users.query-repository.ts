@@ -2,7 +2,6 @@ import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
 import { UserViewDto } from '../../api/view-dto/user.view-dto';
-import { UserDbType } from '../../types/user-db.type';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import {
   GetUsersQueryParams,
@@ -13,28 +12,27 @@ import { SortDirection } from '../../../../../core/dto/base.query-params.input-d
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { SearchFilterBuilder } from '../../../../../core/utils/search-filter.builder';
+import { InjectRepository } from '@nestjs/typeorm';
+import { User } from '../../domain/entities/user.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  constructor(
+    @Inject(PG_POOL) private readonly pool: Pool,
+    @InjectRepository(User) private readonly repository: Repository<User>,
+  ) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<UserViewDto> {
-    const result: QueryResult<UserDbType> = await this.pool.query(
-      `SELECT *
-       FROM "Users"
-       WHERE id = $1
-         AND "deletedAt" IS NULL`,
-      [id],
-    );
+    const user: User = await this.repository.findOneByOrFail({ id: id });
 
-    if (result.rowCount === 0) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: 'User not found.',
-      });
-    }
+    return UserViewDto.mapToView(user);
+  }
 
-    return UserViewDto.mapToView(result.rows[0]);
+  async getAll2(query: GetUsersQueryParams) {
+    const skip: number = query.calculateSkip();
+
+    const users: User[] = await this.repository.find();
   }
 
   async getAll(query: GetUsersQueryParams): Promise<PaginatedViewDto<UserViewDto>> {
@@ -71,7 +69,7 @@ export class UsersQueryRepository {
     }
 
     try {
-      const users: QueryResult<UserDbType> = await this.pool.query(
+      const users: QueryResult<User> = await this.pool.query(
         `SELECT *
          FROM "Users"
          WHERE "deletedAt" IS NULL
@@ -90,7 +88,7 @@ export class UsersQueryRepository {
       );
 
       const items: UserViewDto[] = users.rows.map(
-        (user: UserDbType): UserViewDto => UserViewDto.mapToView(user),
+        (user: User): UserViewDto => UserViewDto.mapToView(user),
       );
 
       const totalCount: number = Number(totalCountResult.rows[0].totalCount);

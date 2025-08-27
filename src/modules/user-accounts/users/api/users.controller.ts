@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Post,
   Query,
   UseGuards,
@@ -18,7 +19,6 @@ import { UsersQueryRepository } from '../infrastructure/query/users.query-reposi
 import { GetUsersQueryParams } from './input-dto/get-users-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetUsersQuery } from '../application/queries/get-users.query-handler';
-import { IdInputDto } from '../../../../core/dto/id.input-dto';
 import { DeleteUserCommand } from '../application/usecases/delete-user.usecase';
 import { BasicAuthGuard } from '../../auth/domain/guards/basic/basic-auth.guard';
 
@@ -38,14 +38,14 @@ export class UsersController {
     return this.usersQueryRepository.getByIdOrNotFoundFail(userId);
   }
 
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteUser(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.commandBus.execute(new DeleteUserCommand(id));
+  }
+
   @Get()
   async getAll(@Query() query: GetUsersQueryParams): Promise<PaginatedViewDto<UserViewDto>> {
     return this.queryBus.execute(new GetUsersQuery(query));
-  }
-
-  @Delete(':id')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteUser(@Param() params: IdInputDto): Promise<void> {
-    await this.commandBus.execute(new DeleteUserCommand(params));
   }
 }

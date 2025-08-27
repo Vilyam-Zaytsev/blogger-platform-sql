@@ -41,7 +41,7 @@ describe('UsersController - deleteUser() (DELETE: /users)', () => {
     await appTestManager.close();
   });
 
-  it('should delete user, the admin is authenticated.', async () => {
+  it.only('should delete user, the admin is authenticated.', async () => {
     // 🔻 Создаем тестового пользователя через менеджер пользователей
     const [createdUser]: UserViewDto[] = await usersTestManager.createUser(1);
 

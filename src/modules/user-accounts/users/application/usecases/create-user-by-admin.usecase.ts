@@ -24,6 +24,6 @@ export class CreateUserByAdminUseCase implements ICommandHandler<CreateUserComma
 
     user.confirmEmail();
 
-    return this.usersRepository.save(user);
+    return await this.usersRepository.save(user);
   }
 }

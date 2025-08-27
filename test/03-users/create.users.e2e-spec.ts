@@ -43,7 +43,7 @@ describe('UsersController - createUser() (POST: /sa/users)', () => {
     await appTestManager.close();
   });
 
-  it.only('should create a new user, the admin is authenticated.', async () => {
+  it('should create a new user, the admin is authenticated.', async () => {
     // 🔻 Создаем тестовые данные для нового пользователя
     const [dto]: UserInputDto[] = TestDtoFactory.generateUserInputDto(1);
 
@@ -54,14 +54,14 @@ describe('UsersController - createUser() (POST: /sa/users)', () => {
       .set('Authorization', adminCredentialsInBase64)
       .expect(HttpStatus.CREATED);
 
-    // // 🔸 Проверяем корректность ответа сервера
-    // expect(resCreateUser.body).toEqual({
-    //   id: expect.any(String),
-    //   email: dto.email,
-    //   login: dto.login,
-    //   createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
-    // });
-    //
+    // 🔸 Проверяем корректность ответа сервера
+    expect(resCreateUser.body).toEqual({
+      id: expect.any(String),
+      email: dto.email,
+      login: dto.login,
+      createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
+    });
+
     // // 🔻 Получаем список всех пользователей из базы данных
     // const users: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
     //
