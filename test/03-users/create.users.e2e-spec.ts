@@ -62,22 +62,22 @@ describe('UsersController - createUser() (POST: /sa/users)', () => {
       createdAt: expect.stringMatching(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/),
     });
 
-    // // 🔻 Получаем список всех пользователей из базы данных
-    // const users: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
-    //
-    // // 🔸 Проверяем, что в базе появился ровно один новый пользователь
-    // expect(users.items).toHaveLength(1);
-    //
-    // // 🔸 Проверяем соответствие созданного пользователя данным из ответа сервера
-    // expect(users.items[0]).toEqual(resCreateUser.body);
-    //
-    // if (testLoggingEnabled) {
-    //   TestLoggers.logE2E(
-    //     resCreateUser.body,
-    //     resCreateUser.statusCode,
-    //     'Test №1: UsersController - createUser() (POST: /sa/users)',
-    //   );
-    // }
+    // 🔻 Получаем список всех пользователей из базы данных
+    const users: PaginatedViewDto<UserViewDto> = await usersTestManager.getAll();
+
+    // 🔸 Проверяем, что в базе появился ровно один новый пользователь
+    expect(users.items).toHaveLength(1);
+
+    // 🔸 Проверяем соответствие созданного пользователя данным из ответа сервера
+    expect(users.items[0]).toEqual(resCreateUser.body);
+
+    if (testLoggingEnabled) {
+      TestLoggers.logE2E(
+        resCreateUser.body,
+        resCreateUser.statusCode,
+        'Test №1: UsersController - createUser() (POST: /sa/users)',
+      );
+    }
   });
 
   it('should not create a user if the admin is not authenticated.', async () => {

@@ -35,7 +35,16 @@ export class UsersRepository {
   }
 
   async getByIdOrNotFoundFail(id: number): Promise<User> {
-    return await this.repository.findOneByOrFail({ id: id });
+    const user: User | null = await this.repository.findOneBy({ id: id });
+
+    if (!user) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The user with ID (${id}) does not exist`,
+      });
+    }
+
+    return user;
   }
 
   //TODO: УДАЛИТЬ!!!!
@@ -77,7 +86,7 @@ export class UsersRepository {
   async getByLogin(login: string): Promise<UserDbType | null> {
     const queryResult: QueryResult<UserDbType> = await this.pool.query<UserDbType>(
       `SELECT *
-         FROM "Users"
+         FROM users
          WHERE login = $1
            AND "deletedAt" IS NULL`,
       [login],
@@ -93,7 +102,7 @@ export class UsersRepository {
   async getByEmail(email: string): Promise<UserDbType | null> {
     const queryResult: QueryResult<UserDbType> = await this.pool.query<UserDbType>(
       `SELECT *
-         FROM "Users"
+         FROM users
          WHERE email = $1
            AND "deletedAt" IS NULL`,
       [email],
@@ -109,7 +118,7 @@ export class UsersRepository {
   async insertEmailConfirmation(dto: CreateEmailConfirmationDto): Promise<string> {
     const { userId, confirmationCode, expirationDate, confirmationStatus } = dto;
     const query: string = `
-      INSERT INTO "EmailConfirmation" ("userId",
+      INSERT INTO email_confirmation ("userId",
                                        "confirmationCode",
                                        "expirationDate",
                                        "confirmationStatus")
@@ -129,7 +138,7 @@ export class UsersRepository {
     const queryResult: QueryResult<EmailConfirmationDbType> =
       await this.pool.query<EmailConfirmationDbType>(
         `SELECT *
-         FROM "EmailConfirmation"
+         FROM email_confirmation
          WHERE "userId" = $1`,
         [id],
       );

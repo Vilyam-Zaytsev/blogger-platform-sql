@@ -15,18 +15,28 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
     const message: string = exception.message || 'Unknown exception occurred.';
     let status: number = HttpStatus.INTERNAL_SERVER_ERROR;
     if (exception instanceof HttpException) status = exception.getStatus();
-    const responseBody: ErrorResponseBody = this.buildResponseBody(request.url, message);
+    const responseBody: ErrorResponseBody = this.buildResponseBody(
+      request.url,
+      request.method,
+      message,
+    );
 
     console.error(exception.stack);
 
     response.status(status).json(responseBody);
   }
 
-  private buildResponseBody(requestUrl: string, message: string): ErrorResponseBody {
+  //TODO: create DTO for params
+  private buildResponseBody(
+    requestUrl: string,
+    requestMethod: string,
+    message: string,
+  ): ErrorResponseBody {
     if (!this.coreConfig.sendInternalServerErrorDetails) {
       return {
         timestamp: new Date().toISOString(),
         path: null,
+        method: null,
         message: 'Some error occurred',
         extensions: [],
         code: DomainExceptionCode.InternalServerError,
@@ -36,6 +46,7 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
     return {
       timestamp: new Date().toISOString(),
       path: requestUrl,
+      method: requestMethod,
       message,
       extensions: [],
       code: DomainExceptionCode.InternalServerError,

@@ -12,15 +12,25 @@ export class DomainHttpExceptionsFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     const status: number = DomainExceptionsCodeMapper.mapToHttpStatus(exception.code);
-    const responseBody: ErrorResponseBody = this.buildResponseBody(exception, request.url);
+    const responseBody: ErrorResponseBody = this.buildResponseBody(
+      exception,
+      request.url,
+      request.method,
+    );
 
     response.status(status).json(responseBody);
   }
 
-  private buildResponseBody(exception: DomainException, requestUrl: string): ErrorResponseBody {
+  //TODO: create DTO for params
+  private buildResponseBody(
+    exception: DomainException,
+    requestUrl: string,
+    requestMethod: string,
+  ): ErrorResponseBody {
     return {
       timestamp: new Date().toISOString(),
       path: requestUrl,
+      method: requestMethod,
       message: exception.message,
       code: exception.code,
       extensions: exception.extensions,
