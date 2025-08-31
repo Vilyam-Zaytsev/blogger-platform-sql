@@ -71,6 +71,7 @@ export class AuthController {
       new LoginUserCommand(user, clientInfo),
     );
 
+    //TODO: вынести в отдельную функцию/метод!
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,

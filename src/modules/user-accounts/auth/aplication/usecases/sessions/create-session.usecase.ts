@@ -2,20 +2,27 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateSessionDto } from '../../../dto/create-session.dto';
 import { SessionsRepository } from '../../../infrastructure/sessions.repository';
 import { parseUserAgent } from '../../../../../../core/utils/user-agent.parser';
-import { CreateSessionDomainDto } from '../../../domain/dto/create-session.domain.dto';
+import { SessionCreateDomainDto } from '../../../domain/dto/session.create-domain.dto';
+import { Session } from '../../../domain/entities/session.entity';
+import { User } from 'src/modules/user-accounts/users/domain/entities/user.entity';
+import { UsersRepository } from '../../../../users/infrastructure/users.repository';
 
 export class CreateSessionCommand {
-  constructor(public dto: CreateSessionDto) {}
+  constructor(public readonly dto: CreateSessionDto) {}
 }
 
 @CommandHandler(CreateSessionCommand)
 export class CreateSessionUseCase implements ICommandHandler<CreateSessionCommand> {
-  constructor(private readonly sessionsRepository: SessionsRepository) {}
+  constructor(
+    private readonly sessionsRepository: SessionsRepository,
+    private readonly usersRepository: UsersRepository,
+  ) {}
 
   async execute({ dto }: CreateSessionCommand): Promise<void> {
+    const user: User = await this.usersRepository.getByIdOrNotFoundFail(dto.userId);
     const deviceName: string = parseUserAgent(dto.userAgent);
 
-    const createSessionDomainDto: CreateSessionDomainDto = {
+    const createSessionDomainDto: SessionCreateDomainDto = {
       userId: dto.userId,
       deviceId: dto.deviceId,
       deviceName,
@@ -24,6 +31,10 @@ export class CreateSessionUseCase implements ICommandHandler<CreateSessionComman
       exp: new Date(dto.exp * 1000),
     };
 
-    await this.sessionsRepository.insertSession(createSessionDomainDto);
+    const session: Session = Session.create(createSessionDomainDto);
+    //TODO: правильно ли я настраиваю связь с пользователем?
+    session.user = user;
+
+    await this.sessionsRepository.save(session);
   }
 }

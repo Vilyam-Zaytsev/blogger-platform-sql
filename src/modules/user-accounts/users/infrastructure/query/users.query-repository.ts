@@ -12,11 +12,11 @@ import { FindOptionsWhere, ILike, Repository } from 'typeorm';
 export class UsersQueryRepository {
   constructor(
     @Inject(PG_POOL) private readonly pool: Pool,
-    @InjectRepository(User) private readonly repository: Repository<User>,
+    @InjectRepository(User) private readonly users: Repository<User>,
   ) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<UserViewDto> {
-    const user: User = await this.repository.findOneByOrFail({ id: id });
+    const user: User = await this.users.findOneByOrFail({ id: id });
 
     return UserViewDto.mapToView(user);
   }
@@ -36,7 +36,7 @@ export class UsersQueryRepository {
     if (searchLoginTerm) whereOptions.push({ login: ILike(`%${searchLoginTerm}%`) });
     if (searchEmailTerm) whereOptions.push({ email: ILike(`%${searchEmailTerm}%`) });
 
-    const [users, totalCount]: [User[], number] = await this.repository.findAndCount({
+    const [users, totalCount]: [User[], number] = await this.users.findAndCount({
       select: ['id', 'login', 'email', 'createdAt'],
       where: whereOptions,
       order: {

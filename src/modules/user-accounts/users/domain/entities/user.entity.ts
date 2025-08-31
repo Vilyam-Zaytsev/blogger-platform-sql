@@ -1,4 +1,4 @@
-import { Check, Column, Entity, OneToOne } from 'typeorm';
+import { Check, Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import {
   ConfirmationStatus,
@@ -6,6 +6,7 @@ import {
 } from '../../../auth/domain/entities/email-confirmation-code.entity';
 import { UserCreateDomainDto } from '../dto/user.create-domain-dto';
 import { PasswordRecoveryCode } from '../../../auth/domain/entities/password-recovery-code.entity';
+import { Session } from '../../../auth/domain/entities/session.entity';
 
 export const loginConstraints = {
   minLength: 3,
@@ -75,9 +76,19 @@ export class User extends BaseEntity {
     this.emailConfirmationCode.confirmationStatus = ConfirmationStatus.Confirmed;
   }
 
-  @OneToOne(() => EmailConfirmationCode, (emailConfirmationCode) => emailConfirmationCode.user)
+  public updateEmailConfirmationCode(confirmationCode: string, expirationDate: Date) {
+    this.emailConfirmationCode.confirmationCode = confirmationCode;
+    this.emailConfirmationCode.expirationDate = expirationDate;
+  }
+
+  @OneToOne(() => EmailConfirmationCode, (emailConfirmationCode) => emailConfirmationCode.user, {
+    cascade: true,
+  })
   emailConfirmationCode: EmailConfirmationCode;
 
   @OneToOne(() => PasswordRecoveryCode, (passwordRecoveryCode) => passwordRecoveryCode.user)
   passwordRecoveryCode: PasswordRecoveryCode;
+
+  @OneToMany(() => Session, (session) => session.user)
+  sessions: Session[];
 }

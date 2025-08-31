@@ -46,7 +46,9 @@ export class EmailConfirmationCode extends BaseEntity {
     return emailConfirmationCode;
   }
 
-  @OneToOne(() => User, (user) => user.emailConfirmationCode, { onDelete: 'CASCADE' })
+  @OneToOne(() => User, (user) => user.emailConfirmationCode, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({ name: 'userId' })
   user: User;
 

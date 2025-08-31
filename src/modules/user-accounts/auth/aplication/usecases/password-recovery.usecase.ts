@@ -3,9 +3,9 @@ import { add } from 'date-fns';
 import { PasswordRecoveryInputDto } from '../../api/input-dto/password-recovery.input-dto';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
 import { CryptoService } from '../../../users/application/services/crypto.service';
-import { UserDbType } from '../../../users/types/user-db.type';
 import { CreatePasswordRecoveryDto } from '../../dto/create-password-recovery.dto';
 import { PasswordRecoveryEvent } from '../../domain/events/password-recovery.event';
+import { User } from '../../../users/domain/entities/user.entity';
 
 export class PasswordRecoveryCommand {
   constructor(public readonly dto: PasswordRecoveryInputDto) {}
@@ -20,7 +20,7 @@ export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecovery
   ) {}
 
   async execute({ dto }: PasswordRecoveryCommand): Promise<void> {
-    const user: UserDbType | null = await this.usersRepository.getByEmail(dto.email);
+    const user: User | null = await this.usersRepository.getByEmail(dto.email);
 
     if (!user) return;
 
@@ -33,7 +33,7 @@ export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecovery
       expirationDate,
     };
 
-    await this.usersRepository.insertOrUpdatePasswordRecovery(createPasswordRecoveryDto);
+    // await this.usersRepository.insertOrUpdatePasswordRecovery(createPasswordRecoveryDto);
 
     this.eventBus.publish(new PasswordRecoveryEvent(user.email, recoveryCode));
   }

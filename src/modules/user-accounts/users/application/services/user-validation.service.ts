@@ -2,10 +2,10 @@ import { Injectable } from '@nestjs/common';
 import { UsersRepository } from '../../infrastructure/users.repository';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { UserContextDto } from 'src/modules/user-accounts/auth/domain/guards/dto/user-context.dto';
-import { UserDbType } from '../../types/user-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { CryptoService } from './crypto.service';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { User } from '../../domain/entities/user.entity';
 
 @Injectable()
 export class UserValidationService {
@@ -39,7 +39,7 @@ export class UserValidationService {
   }
 
   async authenticateUser(loginOrEmail: string, password: string): Promise<UserContextDto> {
-    let user: UserDbType | null = await this.usersRepository.getByEmail(loginOrEmail);
+    let user: User | null = await this.usersRepository.getByEmail(loginOrEmail);
 
     if (!user) {
       user = await this.usersRepository.getByLogin(loginOrEmail);

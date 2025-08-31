@@ -51,6 +51,6 @@ export class NewPasswordUseCase implements ICommandHandler<NewPasswordCommand> {
     };
 
     await this.usersRepository.updatePassword(updatePasswordDto);
-    await this.usersRepository.insertOrUpdatePasswordRecovery(updatePasswordRecoveryDto);
+    // await this.usersRepository.insertOrUpdatePasswordRecovery(updatePasswordRecoveryDto);
   }
 }

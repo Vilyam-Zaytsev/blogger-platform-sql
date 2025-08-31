@@ -1,16 +1,28 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
-import { CreateSessionDomainDto } from '../domain/dto/create-session.domain.dto';
+import { SessionCreateDomainDto } from '../domain/dto/session.create-domain.dto';
 import { SessionDbType } from '../types/session-db.type';
 import { UpdateSessionTimestamps } from '../aplication/types/update-session-timestamps.type';
 import { SessionContextDto } from '../domain/guards/dto/session-context.dto';
+import { Session } from '../domain/entities/session.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class SessionsRepository {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  constructor(
+    @InjectRepository(Session) private readonly sessions: Repository<Session>,
+    @Inject(PG_POOL) private readonly pool: Pool,
+  ) {}
 
-  async insertSession(dto: CreateSessionDomainDto): Promise<number> {
+  async save(session: Session): Promise<number> {
+    const { id } = await this.sessions.save(session);
+
+    return id;
+  }
+
+  async insertSession(dto: SessionCreateDomainDto): Promise<number> {
     const queryResult: QueryResult<{ id: number }> = await this.pool.query<{
       id: number;
     }>(

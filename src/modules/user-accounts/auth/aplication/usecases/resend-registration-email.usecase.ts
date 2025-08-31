@@ -4,13 +4,11 @@ import { ValidationException } from '../../../../../core/exceptions/validation-e
 import { RegistrationEmailResandingInputDto } from '../../api/input-dto/registration-email-resending.input-dto';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
 import { CryptoService } from '../../../users/application/services/crypto.service';
-import { UserDbType } from '../../../users/types/user-db.type';
-import { EmailConfirmationDbType } from '../../types/email-confirmation-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { UpdateEmailConfirmationDto } from '../../dto/create-email-confirmation.dto';
 import { UserResendRegisteredEvent } from '../../domain/events/user-resend-registered.event';
 import { ConfirmationStatus } from '../../domain/entities/email-confirmation-code.entity';
+import { User } from '../../../users/domain/entities/user.entity';
 
 export class ResendRegistrationEmailCommand {
   constructor(public readonly dto: RegistrationEmailResandingInputDto) {}
@@ -27,8 +25,11 @@ export class ResendRegistrationEmailUseCase
   ) {}
 
   async execute({ dto }: ResendRegistrationEmailCommand): Promise<void> {
-    const user: UserDbType | null = await this.usersRepository.getByEmail(dto.email);
+    const user: User | null = await this.usersRepository.getByEmailWithEmailConfirmationCode(
+      dto.email,
+    );
 
+    //TODO: нужно ли вынести эти проверки в отдельную функцию/метод?
     if (!user) {
       throw new ValidationException([
         {
@@ -38,17 +39,14 @@ export class ResendRegistrationEmailUseCase
       ]);
     }
 
-    const emailConfirmation: EmailConfirmationDbType | null =
-      await this.usersRepository.getEmailConfirmationByUserId(user.id);
-
-    if (!emailConfirmation) {
+    if (!user.emailConfirmationCode) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `Email confirmation request does not exist for user with id: ${user.id}`,
       });
     }
 
-    if (emailConfirmation.confirmationStatus === ConfirmationStatus.Confirmed) {
+    if (user.emailConfirmationCode.confirmationStatus === ConfirmationStatus.Confirmed) {
       throw new ValidationException([
         {
           message: `The email address (${dto.email}) has already been verified`,
@@ -60,14 +58,8 @@ export class ResendRegistrationEmailUseCase
     const confirmationCode: string = this.cryptoService.generateUUID();
     const expirationDate: Date = add(new Date(), { hours: 1, minutes: 1 });
 
-    const updateEmailConfirmationDto: UpdateEmailConfirmationDto = {
-      userId: user.id,
-      confirmationCode,
-      expirationDate,
-      confirmationStatus: ConfirmationStatus.NotConfirmed,
-    };
-
-    await this.usersRepository.updateEmailConfirmation(updateEmailConfirmationDto);
+    user.updateEmailConfirmationCode(confirmationCode, expirationDate);
+    await this.usersRepository.save(user);
 
     this.eventBus.publish(new UserResendRegisteredEvent(user.email, confirmationCode));
   }

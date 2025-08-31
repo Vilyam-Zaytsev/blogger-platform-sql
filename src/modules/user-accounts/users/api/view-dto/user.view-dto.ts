@@ -1,5 +1,4 @@
 import { OmitType } from '@nestjs/swagger';
-import { UserDbType } from '../../types/user-db.type';
 import { User } from '../../domain/entities/user.entity';
 
 export class UserViewDto {
@@ -23,7 +22,7 @@ export class UserViewDto {
 export class MeViewDto extends OmitType(UserViewDto, ['createdAt', 'id'] as const) {
   userId: string;
 
-  static mapToView(user: UserDbType): MeViewDto {
+  static mapToView(user: User): MeViewDto {
     const dto = new this();
 
     dto.email = user.email;

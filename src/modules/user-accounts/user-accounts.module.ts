@@ -39,10 +39,11 @@ import { User } from './users/domain/entities/user.entity';
 import { EmailConfirmationCode } from './auth/domain/entities/email-confirmation-code.entity';
 import { PasswordRecoveryCode } from './auth/domain/entities/password-recovery-code.entity';
 import { UsersFactory } from './users/application/factories/users.factory';
+import { Session } from './auth/domain/entities/session.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode]),
+    TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode, Session]),
     NotificationsModule,
   ],
   controllers: [UsersController, AuthController, SessionsController],

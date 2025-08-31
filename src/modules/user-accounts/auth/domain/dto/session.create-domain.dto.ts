@@ -1,4 +1,4 @@
-export class CreateSessionDomainDto {
+export class SessionCreateDomainDto {
   userId: number;
   deviceId: string;
   deviceName: string;
