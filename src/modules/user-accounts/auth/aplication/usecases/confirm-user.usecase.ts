@@ -14,7 +14,7 @@ export class ConfirmUserUseCase implements ICommandHandler<ConfirmUserCommand> {
   constructor(private readonly usersRepository: UsersRepository) {}
 
   async execute({ dto }: ConfirmUserCommand): Promise<void> {
-    const user: User | null = await this.usersRepository.getByConfirmationCode(dto.code);
+    const user: User | null = await this.usersRepository.getByEmailConfirmationCode(dto.code);
 
     //TODO: есть ли необходимость выносить эту проверку в обдельную функцию/метод???
     if (

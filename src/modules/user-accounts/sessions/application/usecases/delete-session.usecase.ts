@@ -4,6 +4,7 @@ import { SessionContextDto } from '../../../auth/domain/guards/dto/session-conte
 import { SessionsRepository } from '../../../auth/infrastructure/sessions.repository';
 import { SessionDbType } from '../../../auth/types/session-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { Session } from '../../../auth/domain/entities/session.entity';
 
 export class DeleteSessionCommand {
   constructor(
@@ -17,7 +18,7 @@ export class DeleteSessionUseCase implements ICommandHandler<DeleteSessionComman
   constructor(private readonly sessionsRepository: SessionsRepository) {}
 
   async execute({ dto, deviceId }: DeleteSessionCommand): Promise<void> {
-    const session: SessionDbType | null = await this.sessionsRepository.getByDeviceId(deviceId);
+    const session: Session | null = await this.sessionsRepository.getByDeviceId(deviceId);
 
     if (!session) {
       throw new DomainException({
@@ -33,6 +34,6 @@ export class DeleteSessionUseCase implements ICommandHandler<DeleteSessionComman
       });
     }
 
-    await this.sessionsRepository.softDeleteSession(session.id);
+    await this.sessionsRepository.softDeleteCurrentSession(session.id);
   }
 }

@@ -3,19 +3,19 @@ import { DomainException } from '../../../../../core/exceptions/domain-exception
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { SessionContextDto } from '../../domain/guards/dto/session-context.dto';
 import { SessionsRepository } from '../../infrastructure/sessions.repository';
-import { SessionDbType } from '../../types/session-db.type';
+import { Session } from '../../domain/entities/session.entity';
 
 export class LogoutCommand {
-  constructor(public readonly sessionData: SessionContextDto) {}
+  constructor(public readonly sessionContextDto: SessionContextDto) {}
 }
 
 @CommandHandler(LogoutCommand)
 export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
   constructor(private readonly sessionsRepository: SessionsRepository) {}
 
-  async execute({ sessionData }: LogoutCommand): Promise<void> {
-    const session: SessionDbType | null = await this.sessionsRepository.getByDeviceId(
-      sessionData.deviceId,
+  async execute({ sessionContextDto }: LogoutCommand): Promise<void> {
+    const session: Session | null = await this.sessionsRepository.getByDeviceId(
+      sessionContextDto.deviceId,
     );
 
     if (!session) {
@@ -25,6 +25,6 @@ export class LogoutUseCase implements ICommandHandler<LogoutCommand> {
       });
     }
 
-    await this.sessionsRepository.softDeleteSession(session.id);
+    await this.sessionsRepository.softDeleteCurrentSession(session.id);
   }
 }

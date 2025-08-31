@@ -40,7 +40,7 @@ export class AuthController {
   @Post('registration')
   @HttpCode(HttpStatus.NO_CONTENT)
   async registration(@Body() body: UserInputDto): Promise<void> {
-    return this.commandBus.execute(new RegisterUserCommand(body));
+    await this.commandBus.execute(new RegisterUserCommand(body));
   }
 
   @Post('registration-confirmation')
@@ -48,7 +48,7 @@ export class AuthController {
   async registrationConfirmation(
     @Body() body: RegistrationConfirmationCodeInputDto,
   ): Promise<void> {
-    return this.commandBus.execute(new ConfirmUserCommand(body));
+    await this.commandBus.execute(new ConfirmUserCommand(body));
   }
 
   @Post('registration-email-resending')
@@ -56,7 +56,7 @@ export class AuthController {
   async registrationEmailResending(
     @Body() body: RegistrationEmailResandingInputDto,
   ): Promise<void> {
-    return this.commandBus.execute(new ResendRegistrationEmailCommand(body));
+    await this.commandBus.execute(new ResendRegistrationEmailCommand(body));
   }
 
   @Post('login')
@@ -83,17 +83,24 @@ export class AuthController {
     return { accessToken };
   }
 
+  //TODO: реализовать скедулер для удаления завершенных сессий.
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshAuthGuard)
   async logout(@ExtractSessionFromRequest() session: SessionContextDto): Promise<void> {
-    return this.commandBus.execute(new LogoutCommand(session));
+    await this.commandBus.execute(new LogoutCommand(session));
   }
 
   @Post('password-recovery')
   @HttpCode(HttpStatus.NO_CONTENT)
   async passwordRecovery(@Body() body: PasswordRecoveryInputDto): Promise<void> {
-    return this.commandBus.execute(new PasswordRecoveryCommand(body));
+    await this.commandBus.execute(new PasswordRecoveryCommand(body));
+  }
+
+  @Post('new-password')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async newPassword(@Body() body: NewPasswordInputDto): Promise<void> {
+    await this.commandBus.execute(new NewPasswordCommand(body));
   }
 
   @Post('refresh-token')
@@ -116,12 +123,6 @@ export class AuthController {
     });
 
     return { accessToken };
-  }
-
-  @Post('new-password')
-  @HttpCode(HttpStatus.NO_CONTENT)
-  async newPassword(@Body() body: NewPasswordInputDto): Promise<void> {
-    return this.commandBus.execute(new NewPasswordCommand(body));
   }
 
   @Get('me')

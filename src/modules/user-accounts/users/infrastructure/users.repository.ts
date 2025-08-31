@@ -56,12 +56,21 @@ export class UsersRepository {
     });
   }
 
-  async getByConfirmationCode(confirmationCode: string): Promise<User | null> {
+  async getByEmailConfirmationCode(confirmationCode: string): Promise<User | null> {
     return await this.users.findOne({
       relations: {
         emailConfirmationCode: true,
       },
       where: { emailConfirmationCode: { confirmationCode } },
+    });
+  }
+
+  async getByPasswordRecoveryCode(recoveryCode: string): Promise<User | null> {
+    return await this.users.findOne({
+      relations: {
+        passwordRecoveryCode: true,
+      },
+      where: { passwordRecoveryCode: { recoveryCode } },
     });
   }
 

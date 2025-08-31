@@ -1,8 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../database/constants/database.constants';
-import { Pool, QueryResult } from 'pg';
-import { SessionCreateDomainDto } from '../domain/dto/session.create-domain.dto';
-import { SessionDbType } from '../types/session-db.type';
+import { Pool } from 'pg';
 import { UpdateSessionTimestamps } from '../aplication/types/update-session-timestamps.type';
 import { SessionContextDto } from '../domain/guards/dto/session-context.dto';
 import { Session } from '../domain/entities/session.entity';
@@ -22,45 +20,12 @@ export class SessionsRepository {
     return id;
   }
 
-  async insertSession(dto: SessionCreateDomainDto): Promise<number> {
-    const queryResult: QueryResult<{ id: number }> = await this.pool.query<{
-      id: number;
-    }>(
-      `
-        INSERT INTO "Sessions" ("userId", "deviceId", "deviceName", "ip", "iat", "exp")
-        VALUES ($1, $2, $3, $4, $5, $6) RETURNING id;
-      `,
-      [dto.userId, dto.deviceId, dto.deviceName, dto.ip, dto.iat, dto.exp],
-    );
-
-    return queryResult.rows[0].id;
+  async softDeleteCurrentSession(id: number): Promise<void> {
+    await this.sessions.softDelete(id);
   }
 
-  // async getAllSessionsExceptCurrent(
-  //   userId: string,
-  //   deviceId: string,
-  // ): Promise<SessionDocument[]> {
-  //   return this.SessionModel.find({
-  //     userId,
-  //     deviceId: { $ne: deviceId },
-  //     deletedAt: null,
-  //   });
-  // }
-
-  async getByDeviceId(deviceId: string): Promise<SessionDbType | null> {
-    const queryResult: QueryResult<SessionDbType> = await this.pool.query<SessionDbType>(
-      `SELECT *
-         FROM "Sessions"
-         WHERE "deviceId" = $1
-           AND "deletedAt" IS NULL`,
-      [deviceId],
-    );
-
-    if (queryResult.rowCount === 0) {
-      return null;
-    }
-
-    return queryResult.rows[0];
+  async getByDeviceId(deviceId: string): Promise<Session | null> {
+    return await this.sessions.findOneBy({ deviceId });
   }
 
   async updateTimestamps(dto: UpdateSessionTimestamps): Promise<void> {
@@ -73,16 +38,6 @@ export class SessionsRepository {
        WHERE "id" = $3
          AND "deletedAt" IS NULL`,
       [iat, exp, sessionId],
-    );
-  }
-
-  async softDeleteSession(id: number): Promise<void> {
-    await this.pool.query(
-      `UPDATE "Sessions"
-       SET "deletedAt" = NOW()
-       WHERE id = $1
-         AND "deletedAt" IS NULL`,
-      [id],
     );
   }
 

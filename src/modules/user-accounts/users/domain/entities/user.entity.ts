@@ -81,6 +81,16 @@ export class User extends BaseEntity {
     this.emailConfirmationCode.expirationDate = expirationDate;
   }
 
+  //TODO: нормально ли делать так???
+  public createOrUpdatePasswordRecoveryCode(recoveryCode?: string, expirationDate?: Date) {
+    this.passwordRecoveryCode.recoveryCode = recoveryCode ? recoveryCode : null;
+    this.passwordRecoveryCode.expirationDate = expirationDate ? expirationDate : null;
+  }
+
+  public updatePasswordHash(newPasswordHash: string) {
+    this.passwordHash = newPasswordHash;
+  }
+
   @OneToOne(() => EmailConfirmationCode, (emailConfirmationCode) => emailConfirmationCode.user, {
     cascade: true,
   })

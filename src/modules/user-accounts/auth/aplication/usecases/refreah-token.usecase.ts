@@ -13,6 +13,7 @@ import { AuthTokens } from '../../domain/types/auth-tokens.type';
 import { PayloadRefreshToken } from '../types/payload-refresh-token.type';
 import { SessionDbType } from '../../types/session-db.type';
 import { UpdateSessionTimestamps } from '../types/update-session-timestamps.type';
+import { Session } from '../../domain/entities/session.entity';
 
 export class RefreshTokenCommand {
   constructor(public readonly dto: SessionContextDto) {}
@@ -42,7 +43,7 @@ export class RefreshTokenUseCase implements ICommandHandler<RefreshTokenCommand>
     const { iat, exp }: PayloadRefreshToken =
       this.refreshTokenContext.decode<PayloadRefreshToken>(refreshToken);
 
-    const session: SessionDbType | null = await this.sessionsRepository.getByDeviceId(dto.deviceId);
+    const session: Session | null = await this.sessionsRepository.getByDeviceId(dto.deviceId);
 
     if (!session) {
       throw new DomainException({

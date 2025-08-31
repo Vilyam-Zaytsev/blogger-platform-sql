@@ -3,7 +3,6 @@ import { add } from 'date-fns';
 import { PasswordRecoveryInputDto } from '../../api/input-dto/password-recovery.input-dto';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
 import { CryptoService } from '../../../users/application/services/crypto.service';
-import { CreatePasswordRecoveryDto } from '../../dto/create-password-recovery.dto';
 import { PasswordRecoveryEvent } from '../../domain/events/password-recovery.event';
 import { User } from '../../../users/domain/entities/user.entity';
 
@@ -27,13 +26,8 @@ export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecovery
     const recoveryCode: string = this.cryptoService.generateUUID();
     const expirationDate: Date = add(new Date(), { hours: 1, minutes: 1 });
 
-    const createPasswordRecoveryDto: CreatePasswordRecoveryDto = {
-      userId: user.id,
-      recoveryCode,
-      expirationDate,
-    };
-
-    // await this.usersRepository.insertOrUpdatePasswordRecovery(createPasswordRecoveryDto);
+    user.createOrUpdatePasswordRecoveryCode(recoveryCode, expirationDate);
+    await this.usersRepository.save(user);
 
     this.eventBus.publish(new PasswordRecoveryEvent(user.email, recoveryCode));
   }
