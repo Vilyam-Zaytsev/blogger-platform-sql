@@ -42,6 +42,11 @@ export class Session extends BaseEntity {
     return session;
   }
 
+  public updateTimestamps(iat: Date, exp: Date) {
+    this.iat = iat;
+    this.exp = exp;
+  }
+
   @ManyToOne(() => User, (user) => user.sessions, {
     onDelete: 'CASCADE',
   })

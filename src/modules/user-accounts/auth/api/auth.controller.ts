@@ -71,7 +71,7 @@ export class AuthController {
       new LoginUserCommand(user, clientInfo),
     );
 
-    //TODO: вынести в отдельную функцию/метод!
+    //TODO: вынести в config!
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
@@ -114,6 +114,7 @@ export class AuthController {
       new RefreshTokenCommand(session),
     );
 
+    //TODO: вынести в config!
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,

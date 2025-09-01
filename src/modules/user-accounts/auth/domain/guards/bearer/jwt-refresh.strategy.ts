@@ -6,7 +6,6 @@ import { UserAccountsConfig } from '../../../../config/user-accounts.config';
 import { SessionsRepository } from '../../../infrastructure/sessions.repository';
 import { ICookieRequest } from '../../../../../../core/interfaces/cookie-request.interface';
 import { PayloadRefreshToken } from '../../../aplication/types/payload-refresh-token.type';
-import { SessionDbType } from '../../../types/session-db.type';
 import { DomainException } from '../../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../../core/exceptions/domain-exception-codes';
 import { Session } from '../../entities/session.entity';
