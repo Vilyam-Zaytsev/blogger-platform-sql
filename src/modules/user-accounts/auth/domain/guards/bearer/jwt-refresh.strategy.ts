@@ -3,12 +3,12 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { SessionContextDto } from '../dto/session-context.dto';
 import { UserAccountsConfig } from '../../../../config/user-accounts.config';
-import { SessionsRepository } from '../../../infrastructure/sessions.repository';
+import { SessionsRepository } from '../../../../sessions/infrastructure/sessions.repository';
 import { ICookieRequest } from '../../../../../../core/interfaces/cookie-request.interface';
 import { PayloadRefreshToken } from '../../../aplication/types/payload-refresh-token.type';
 import { DomainException } from '../../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../../core/exceptions/domain-exception-codes';
-import { Session } from '../../entities/session.entity';
+import { Session } from '../../../../sessions/domain/entities/session.entity';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {

@@ -2,8 +2,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { SessionContextDto } from '../../domain/guards/dto/session-context.dto';
-import { SessionsRepository } from '../../infrastructure/sessions.repository';
-import { Session } from '../../domain/entities/session.entity';
+import { SessionsRepository } from '../../../sessions/infrastructure/sessions.repository';
+import { Session } from '../../../sessions/domain/entities/session.entity';
 
 export class LogoutCommand {
   constructor(public readonly sessionContextDto: SessionContextDto) {}

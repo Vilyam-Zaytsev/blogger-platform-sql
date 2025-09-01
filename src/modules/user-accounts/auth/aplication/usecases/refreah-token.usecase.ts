@@ -8,10 +8,10 @@ import {
   ACCESS_TOKEN_STRATEGY_INJECT_TOKEN,
   REFRESH_TOKEN_STRATEGY_INJECT_TOKEN,
 } from '../../constants/auth-tokens.inject-constants';
-import { SessionsRepository } from '../../infrastructure/sessions.repository';
+import { SessionsRepository } from '../../../sessions/infrastructure/sessions.repository';
 import { AuthTokens } from '../../domain/types/auth-tokens.type';
 import { PayloadRefreshToken } from '../types/payload-refresh-token.type';
-import { Session } from '../../domain/entities/session.entity';
+import { Session } from '../../../sessions/domain/entities/session.entity';
 
 export class RefreshTokenCommand {
   constructor(public readonly dto: SessionContextDto) {}

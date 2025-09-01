@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
+import { Column, Entity, ManyToOne, RelationId } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { User } from '../../../users/domain/entities/user.entity';
 import { SessionCreateDomainDto } from '../dto/session.create-domain.dto';

@@ -10,8 +10,8 @@ import {
 import { CryptoService } from '../../../users/application/services/crypto.service';
 import { AuthTokens } from '../../domain/types/auth-tokens.type';
 import { PayloadRefreshToken } from '../types/payload-refresh-token.type';
-import { CreateSessionDto } from '../../dto/create-session.dto';
-import { CreateSessionCommand } from './sessions/create-session.usecase';
+import { CreateSessionDto } from '../../../sessions/dto/create-session.dto';
+import { CreateSessionCommand } from '../../../sessions/application/usecases/create-session.usecase';
 
 export class LoginUserCommand {
   constructor(

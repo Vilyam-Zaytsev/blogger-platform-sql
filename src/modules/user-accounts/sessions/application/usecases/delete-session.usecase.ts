@@ -1,10 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { SessionContextDto } from '../../../auth/domain/guards/dto/session-context.dto';
-import { SessionsRepository } from '../../../auth/infrastructure/sessions.repository';
-import { SessionDbType } from '../../../auth/types/session-db.type';
+import { SessionsRepository } from '../../infrastructure/sessions.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
-import { Session } from '../../../auth/domain/entities/session.entity';
+import { Session } from '../../domain/entities/session.entity';
 
 export class DeleteSessionCommand {
   constructor(

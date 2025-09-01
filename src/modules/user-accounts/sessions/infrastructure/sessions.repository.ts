@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../database/constants/database.constants';
 import { Pool } from 'pg';
-import { SessionContextDto } from '../domain/guards/dto/session-context.dto';
+import { SessionContextDto } from '../../auth/domain/guards/dto/session-context.dto';
 import { Session } from '../domain/entities/session.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Not, Repository } from 'typeorm';
 
 @Injectable()
 export class SessionsRepository {
@@ -23,18 +23,14 @@ export class SessionsRepository {
     await this.sessions.softDelete(id);
   }
 
-  async getByDeviceId(deviceId: string): Promise<Session | null> {
-    return await this.sessions.findOneBy({ deviceId });
+  async softDeleteAllSessionsExceptCurrent(dto: SessionContextDto): Promise<void> {
+    await this.sessions.softDelete({
+      userId: dto.userId,
+      deviceId: Not(dto.deviceId),
+    });
   }
 
-  async softDeleteAllSessionsExceptCurrent(dto: SessionContextDto): Promise<void> {
-    await this.pool.query(
-      `UPDATE "Sessions"
-       SET "deletedAt" = NOW()
-       WHERE "userId" = $1
-         AND "deviceId" <> $2
-         AND "deletedAt" IS NULL`,
-      [dto.userId, dto.deviceId],
-    );
+  async getByDeviceId(deviceId: string): Promise<Session | null> {
+    return await this.sessions.findOneBy({ deviceId });
   }
 }

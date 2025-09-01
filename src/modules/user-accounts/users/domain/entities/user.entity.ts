@@ -6,7 +6,7 @@ import {
 } from '../../../auth/domain/entities/email-confirmation-code.entity';
 import { UserCreateDomainDto } from '../dto/user.create-domain-dto';
 import { PasswordRecoveryCode } from '../../../auth/domain/entities/password-recovery-code.entity';
-import { Session } from '../../../auth/domain/entities/session.entity';
+import { Session } from '../../../sessions/domain/entities/session.entity';
 
 export const loginConstraints = {
   minLength: 3,
@@ -62,10 +62,7 @@ export class User extends BaseEntity {
     user.email = email;
     user.login = login;
     user.passwordHash = passwordHash;
-    user.emailConfirmationCode = EmailConfirmationCode.create({
-      confirmationCode,
-      expirationDate,
-    });
+    user.emailConfirmationCode = EmailConfirmationCode.create(confirmationCode, expirationDate);
 
     return user;
   }

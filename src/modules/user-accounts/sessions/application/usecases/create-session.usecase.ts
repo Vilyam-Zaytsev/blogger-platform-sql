@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { CreateSessionDto } from '../../../dto/create-session.dto';
-import { SessionsRepository } from '../../../infrastructure/sessions.repository';
-import { parseUserAgent } from '../../../../../../core/utils/user-agent.parser';
-import { SessionCreateDomainDto } from '../../../domain/dto/session.create-domain.dto';
-import { Session } from '../../../domain/entities/session.entity';
+import { CreateSessionDto } from '../../dto/create-session.dto';
+import { SessionsRepository } from '../../infrastructure/sessions.repository';
+import { parseUserAgent } from '../../../../../core/utils/user-agent.parser';
+import { SessionCreateDomainDto } from '../../domain/dto/session.create-domain.dto';
+import { Session } from '../../domain/entities/session.entity';
 import { User } from 'src/modules/user-accounts/users/domain/entities/user.entity';
-import { UsersRepository } from '../../../../users/infrastructure/users.repository';
+import { UsersRepository } from '../../../users/infrastructure/users.repository';
 
 export class CreateSessionCommand {
   constructor(public readonly dto: CreateSessionDto) {}
