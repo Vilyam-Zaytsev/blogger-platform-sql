@@ -7,6 +7,8 @@ import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../domain/entities/user.entity';
 import { FindOptionsWhere, ILike, Repository } from 'typeorm';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
 @Injectable()
 export class UsersQueryRepository {
@@ -16,7 +18,14 @@ export class UsersQueryRepository {
   ) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<UserViewDto> {
-    const user: User = await this.users.findOneByOrFail({ id: id });
+    const user: User | null = await this.users.findOneBy({ id: id });
+
+    if (!user) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The user with ID (${id}) does not exist`,
+      });
+    }
 
     return UserViewDto.mapToView(user);
   }
