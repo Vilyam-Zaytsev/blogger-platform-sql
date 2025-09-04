@@ -40,6 +40,7 @@ export class Session extends BaseEntity {
     session.ip = dto.ip;
     session.iat = dto.iat;
     session.exp = dto.exp;
+    session.userId = dto.userId;
 
     return session;
   }
