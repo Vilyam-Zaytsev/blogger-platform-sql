@@ -4,7 +4,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UserInputDto } from '../../users/api/input-dto/user.input-dto';
 import { RegisterUserCommand } from '../aplication/usecases/register-user.useсase';
 import { RegistrationConfirmationCodeInputDto } from './input-dto/registration-confirmation-code.input-dto';
-import { ConfirmUserCommand } from '../aplication/usecases/confirm-user.usecase';
+import { ConfirmEmailCommand } from '../aplication/usecases/confirm-email-usecase';
 import { RegistrationEmailResandingInputDto } from './input-dto/registration-email-resending.input-dto';
 import { ResendRegistrationEmailCommand } from '../aplication/usecases/resend-registration-email.usecase';
 import { LocalAuthGuard } from '../domain/guards/local/local-auth.guard';
@@ -48,7 +48,7 @@ export class AuthController {
   async registrationConfirmation(
     @Body() body: RegistrationConfirmationCodeInputDto,
   ): Promise<void> {
-    await this.commandBus.execute(new ConfirmUserCommand(body));
+    await this.commandBus.execute(new ConfirmEmailCommand(body));
   }
 
   @Post('registration-email-resending')

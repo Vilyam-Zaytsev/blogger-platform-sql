@@ -5,15 +5,15 @@ import { UsersRepository } from '../../../users/infrastructure/users.repository'
 import { ConfirmationStatus } from '../../domain/entities/email-confirmation-code.entity';
 import { User } from '../../../users/domain/entities/user.entity';
 
-export class ConfirmUserCommand {
+export class ConfirmEmailCommand {
   constructor(public readonly dto: RegistrationConfirmationCodeInputDto) {}
 }
 
-@CommandHandler(ConfirmUserCommand)
-export class ConfirmUserUseCase implements ICommandHandler<ConfirmUserCommand> {
+@CommandHandler(ConfirmEmailCommand)
+export class ConfirmEmailUsecase implements ICommandHandler<ConfirmEmailCommand> {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  async execute({ dto }: ConfirmUserCommand): Promise<void> {
+  async execute({ dto }: ConfirmEmailCommand): Promise<void> {
     const user: User | null = await this.usersRepository.getByEmailConfirmationCode(dto.code);
 
     //TODO: есть ли необходимость выносить эту проверку в обдельную функцию/метод??? разбить на три ошибки

@@ -9,7 +9,7 @@ import { GetUsersQueryHandler } from './users/application/queries/get-users.quer
 import { DeleteUserUseCase } from './users/application/usecases/delete-user.usecase';
 import { AuthController } from './auth/api/auth.controller';
 import { RegisterUserUseCase } from './auth/aplication/usecases/register-user.useсase';
-import { ConfirmUserUseCase } from './auth/aplication/usecases/confirm-user.usecase';
+import { ConfirmEmailUsecase } from './auth/aplication/usecases/confirm-email-usecase';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { ResendRegistrationEmailUseCase } from './auth/aplication/usecases/resend-registration-email.usecase';
 import { BasicStrategy } from './auth/domain/guards/basic/basic.strategy';
@@ -59,7 +59,7 @@ import { Session } from './sessions/domain/entities/session.entity';
     BasicStrategy,
     //use-cases
     RegisterUserUseCase,
-    ConfirmUserUseCase,
+    ConfirmEmailUsecase,
     ResendRegistrationEmailUseCase,
     LoginUserUseCase,
     CreateSessionUseCase,
