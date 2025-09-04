@@ -71,7 +71,7 @@ export class AuthController {
       new LoginUserCommand(user, clientInfo),
     );
 
-    //TODO: вынести в отдельную функцию/метод!
+    //TODO: вынести в config!
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,
@@ -83,7 +83,7 @@ export class AuthController {
     return { accessToken };
   }
 
-  //TODO: реализовать скедулер для удаления завершенных сессий.
+  //TODO: реализовать скедулер для удаления завершенных сессий. ПОЧИСТИТЬ КУКУ!!!
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshAuthGuard)
@@ -114,6 +114,7 @@ export class AuthController {
       new RefreshTokenCommand(session),
     );
 
+    //TODO: вынести в config!
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: true,

@@ -5,7 +5,7 @@ import { User } from '../../../users/domain/entities/user.entity';
 
 @Injectable()
 export class AuthQueryRepository {
-  constructor(private usersRepository: UsersRepository) {}
+  constructor(private readonly usersRepository: UsersRepository) {}
 
   async me(id: number): Promise<MeViewDto> {
     const user: User = await this.usersRepository.getByIdOrNotFoundFail(id);

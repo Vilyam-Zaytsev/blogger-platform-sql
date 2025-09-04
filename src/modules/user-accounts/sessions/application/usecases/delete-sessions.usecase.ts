@@ -1,6 +1,6 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { SessionContextDto } from '../../../auth/domain/guards/dto/session-context.dto';
-import { SessionsRepository } from '../../../auth/infrastructure/sessions.repository';
+import { SessionsRepository } from '../../infrastructure/sessions.repository';
 
 export class DeleteSessionsCommand {
   constructor(public readonly dto: SessionContextDto) {}

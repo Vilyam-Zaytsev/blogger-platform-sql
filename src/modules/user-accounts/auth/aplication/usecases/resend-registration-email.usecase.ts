@@ -39,6 +39,7 @@ export class ResendRegistrationEmailUseCase
       ]);
     }
 
+    //TODO: объединить
     if (!user.emailConfirmationCode) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,

@@ -41,11 +41,7 @@ export class NewPasswordUseCase implements ICommandHandler<NewPasswordCommand> {
 
     const passwordHash: string = await this.cryptoService.createPasswordHash(dto.newPassword);
 
-    //TODO: правильно ли разделять эти операции???
     user.updatePasswordHash(passwordHash);
-    await this.usersRepository.save(user);
-
-    user.createOrUpdatePasswordRecoveryCode();
     await this.usersRepository.save(user);
   }
 }

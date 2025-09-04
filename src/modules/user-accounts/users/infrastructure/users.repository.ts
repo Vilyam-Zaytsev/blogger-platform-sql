@@ -1,9 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { PG_POOL } from '../../../database/constants/database.constants';
-import { Pool, QueryResult } from 'pg';
+import { Pool } from 'pg';
 import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
-import { PasswordRecoveryDbType } from '../../auth/types/password-recovery-db.type';
-import { UpdatePassword } from '../../auth/aplication/types/update-password.type';
 import { DomainException } from '../../../../core/exceptions/domain-exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../domain/entities/user.entity';
@@ -56,6 +54,15 @@ export class UsersRepository {
     });
   }
 
+  async getByEmailWithPasswordRecoveryCode(email: string): Promise<User | null> {
+    return await this.users.findOne({
+      relations: {
+        passwordRecoveryCode: true,
+      },
+      where: { email },
+    });
+  }
+
   async getByEmailConfirmationCode(confirmationCode: string): Promise<User | null> {
     return await this.users.findOne({
       relations: {
@@ -72,32 +79,5 @@ export class UsersRepository {
       },
       where: { passwordRecoveryCode: { recoveryCode } },
     });
-  }
-
-  async updatePassword(dto: UpdatePassword): Promise<void> {
-    const { userId, newPasswordHash } = dto;
-
-    await this.pool.query(
-      `UPDATE "Users"
-       SET "passwordHash" = $1
-       WHERE "id" = $2`,
-      [newPasswordHash, userId],
-    );
-  }
-
-  async getPasswordRecoveryByRecoveryCode(code: string): Promise<PasswordRecoveryDbType | null> {
-    const queryResult: QueryResult<PasswordRecoveryDbType> =
-      await this.pool.query<PasswordRecoveryDbType>(
-        `SELECT *
-         FROM "PasswordRecovery"
-         WHERE "recoveryCode" = $1`,
-        [code],
-      );
-
-    if (queryResult.rowCount === 0) {
-      return null;
-    }
-
-    return queryResult.rows[0];
   }
 }

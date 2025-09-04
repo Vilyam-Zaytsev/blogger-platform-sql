@@ -12,8 +12,8 @@ import { UsersRepository } from '../../src/modules/user-accounts/users/infrastru
 import { EmailService } from '../../src/modules/notifications/services/email.service';
 import { UserViewDto } from '../../src/modules/user-accounts/users/api/view-dto/user.view-dto';
 import { CryptoService } from '../../src/modules/user-accounts/users/application/services/crypto.service';
-import { PasswordRecoveryDbType } from '../../src/modules/user-accounts/auth/types/password-recovery-db.type';
 import SpyInstance = jest.SpyInstance;
+import { User } from '../../src/modules/user-accounts/users/domain/entities/user.entity';
 
 describe('AuthController - passwordRecovery() (POST: /auth)', () => {
   let appTestManager: AppTestManager;
@@ -64,39 +64,37 @@ describe('AuthController - passwordRecovery() (POST: /auth)', () => {
   });
 
   it('should send the recovery code by email and save the recovery code and the date of the expiration to the database if the user has sent the correct data: (email address)', async () => {
-    // 🔻 Создаём одного пользователя
-    const [user]: UserViewDto[] = await usersTestManager.createUser(1);
+    // 🔻 Создаём пользователя и очищаем мок шпиона перед тестом
+    const [createdUser]: UserViewDto[] = await usersTestManager.createUser(1);
+    spy.mockClear();
 
-    // 🔻 Отправляем POST-запрос на /auth/password-recovery с корректным email
+    // 🔻 Отправляем POST-запрос на восстановление пароля с email пользователя, ожидаем 204 No Content
     const resPasswordRecovery: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/password-recovery`)
       .send({
-        email: user.email, // 🔸 Передаём email существующего пользователя
+        email: createdUser.email,
       })
-      // 🔸 Ожидаем статус 204 No Content, потому что по контракту ответ без тела
       .expect(HttpStatus.NO_CONTENT);
 
-    // 🔻 Получаем recoveryCode из мокнутого spy-функционала генератора кода
-    const passwordRecovery: PasswordRecoveryDbType | null =
-      await usersRepository.getPasswordRecoveryByRecoveryCode(spy.mock.results[0].value);
+    // 🔻 Получаем пользователя из БД по коду восстановления, сгенерированному моком
+    const user: User | null = await usersRepository.getByPasswordRecoveryCode(
+      spy.mock.results[0].value,
+    );
+    expect(user).not.toBeNull();
 
-    // 🔸 Проверяем, что запись с таким recoveryCode найдена в базе
-    expect(passwordRecovery).not.toBeNull();
-
-    if (!passwordRecovery) {
+    if (!user) {
       throw new Error(
-        'Test №1: AuthController - newPassword() (POST: /auth/password-recovery): PasswordRecovery not found',
+        'Test №1: AuthController - registrationConfirmation() (POST: /auth/registration-confirmation): User not found',
       );
     }
 
-    // 🔸 Проверяем, что в базе сохранена корректная запись восстановления пароля
-    expect(passwordRecovery).toEqual({
-      userId: Number(user.id), // 🔸 ID пользователя совпадает
-      recoveryCode: spy.mock.results[0].value, // 🔸 Код совпадает с тем, что был сгенерирован
-      expirationDate: expect.any(Date), // 🔸 Дата истечения срока должна быть объектом Date
+    // 🔻 Проверяем, что у пользователя сохранён recoveryCode и дата истечения срока действия
+    expect(user.passwordRecoveryCode).toMatchObject({
+      recoveryCode: spy.mock.results[0].value,
+      expirationDate: expect.any(Date),
     });
 
-    // 🔸 Убеждаемся, что email-отправка была вызвана
+    // 🔻 Проверяем, что письмо было отправлено ровно один раз
     expect(sendEmailMock).toHaveBeenCalled();
     expect(sendEmailMock).toHaveBeenCalledTimes(1);
 
@@ -118,9 +116,8 @@ describe('AuthController - passwordRecovery() (POST: /auth)', () => {
       await request(server)
         .post(`/${GLOBAL_PREFIX}/auth/password-recovery`)
         .send({
-          email: user.email, // 🔸 Отправляем корректный email
+          email: user.email,
         })
-        // 🔸 Ожидаем статус 204 No Content — запросы пока укладываются в лимит
         .expect(HttpStatus.NO_CONTENT);
     }
 
@@ -128,9 +125,8 @@ describe('AuthController - passwordRecovery() (POST: /auth)', () => {
     const resPasswordRecovery: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/password-recovery`)
       .send({
-        email: user.email, // 🔸 Всё ещё корректный email
+        email: user.email,
       })
-      // 🔸 Ожидаем статус 429 Too Many Requests — лимит превышен
       .expect(HttpStatus.TOO_MANY_REQUESTS);
 
     // 🔸 Проверяем, что sendEmailMock вызывался ровно 5 раз (только при первых 5 успешных попытках)
@@ -158,7 +154,6 @@ describe('AuthController - passwordRecovery() (POST: /auth)', () => {
         .send({
           email: 'incorrect-email@example.com', // 🔸 Email не соответствует ни одному пользователю
         })
-        // 🔸 Ожидаем статус 204 No Content — даже если email неверный, ответ без тела
         .expect(HttpStatus.NO_CONTENT);
 
       // 🔸 Убеждаемся, что мок отправки письма НЕ вызывался
@@ -185,9 +180,8 @@ describe('AuthController - passwordRecovery() (POST: /auth)', () => {
       const resPasswordRecovery: Response = await request(server)
         .post(`/${GLOBAL_PREFIX}/auth/password-recovery`)
         .send({
-          email: 'invalid-email', // 🔸 Явно невалидный email (без "@", без домена и т.п.)
+          email: 'invalid-email',
         })
-        // 🔸 Ожидаем статус 400 Bad Request, так как данные не прошли валидацию
         .expect(HttpStatus.BAD_REQUEST);
 
       // 🔸 Проверяем структуру тела ответа — ожидаем сообщение об ошибке валидации по полю "email"

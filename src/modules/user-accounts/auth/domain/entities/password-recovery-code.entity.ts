@@ -18,6 +18,15 @@ export class PasswordRecoveryCode extends BaseEntity {
   })
   public expirationDate: Date | null;
 
+  static create(recoveryCode: string, expirationDate: Date): PasswordRecoveryCode {
+    const passwordRecoveryCode = new this();
+
+    passwordRecoveryCode.recoveryCode = recoveryCode;
+    passwordRecoveryCode.expirationDate = expirationDate;
+
+    return passwordRecoveryCode;
+  }
+
   @OneToOne(() => User, (user) => user.passwordRecoveryCode, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'userId' })
   user: User;

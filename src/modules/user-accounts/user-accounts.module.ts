@@ -19,8 +19,8 @@ import { RefreshTokenProvider } from './auth/providers/refresh-token.provider';
 import { UserAccountsConfig } from './config/user-accounts.config';
 import { JwtStrategy } from './auth/domain/guards/bearer/jwt.strategy';
 import { LocalStrategy } from './auth/domain/guards/local/local.strategy';
-import { CreateSessionUseCase } from './auth/aplication/usecases/sessions/create-session.usecase';
-import { SessionsRepository } from './auth/infrastructure/sessions.repository';
+import { CreateSessionUseCase } from './sessions/application/usecases/create-session.usecase';
+import { SessionsRepository } from './sessions/infrastructure/sessions.repository';
 import { JwtRefreshStrategy } from './auth/domain/guards/bearer/jwt-refresh.strategy';
 import { RefreshTokenUseCase } from './auth/aplication/usecases/refreah-token.usecase';
 import { LogoutUseCase } from './auth/aplication/usecases/logout.usecase';
@@ -39,7 +39,7 @@ import { User } from './users/domain/entities/user.entity';
 import { EmailConfirmationCode } from './auth/domain/entities/email-confirmation-code.entity';
 import { PasswordRecoveryCode } from './auth/domain/entities/password-recovery-code.entity';
 import { UsersFactory } from './users/application/factories/users.factory';
-import { Session } from './auth/domain/entities/session.entity';
+import { Session } from './sessions/domain/entities/session.entity';
 
 @Module({
   imports: [

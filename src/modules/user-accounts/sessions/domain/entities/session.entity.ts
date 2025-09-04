@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, RelationId } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { User } from '../../../users/domain/entities/user.entity';
 import { SessionCreateDomainDto } from '../dto/session.create-domain.dto';
@@ -15,12 +15,14 @@ export class Session extends BaseEntity {
   @Column({
     type: 'varchar',
     length: 255,
+    collation: 'C',
   })
   public deviceName: string;
 
   @Column({
     type: 'varchar',
     length: 255,
+    collation: 'C',
   })
   public ip: string;
 
@@ -42,11 +44,16 @@ export class Session extends BaseEntity {
     return session;
   }
 
+  public updateTimestamps(iat: Date, exp: Date) {
+    this.iat = iat;
+    this.exp = exp;
+  }
+
   @ManyToOne(() => User, (user) => user.sessions, {
     onDelete: 'CASCADE',
   })
   user: User;
 
-  @RelationId((session: Session) => session.user)
+  @Column()
   public userId: number;
 }

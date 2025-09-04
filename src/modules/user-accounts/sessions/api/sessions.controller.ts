@@ -36,8 +36,6 @@ export class SessionsController {
   async deleteSession(
     @ExtractSessionFromRequest() session: SessionContextDto,
     //TODO: как правильно провалидировать id в параметрах? напсать свой дикоратор
-
-    // @Param('id', ParseUUIDPipe) id: string,
     @Param(
       'id',
       new ParseUUIDPipe({

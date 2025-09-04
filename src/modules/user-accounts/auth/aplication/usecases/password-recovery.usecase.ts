@@ -19,14 +19,18 @@ export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecovery
   ) {}
 
   async execute({ dto }: PasswordRecoveryCommand): Promise<void> {
-    const user: User | null = await this.usersRepository.getByEmail(dto.email);
+    const user: User | null = await this.usersRepository.getByEmailWithPasswordRecoveryCode(
+      dto.email,
+    );
 
     if (!user) return;
 
     const recoveryCode: string = this.cryptoService.generateUUID();
     const expirationDate: Date = add(new Date(), { hours: 1, minutes: 1 });
 
-    user.createOrUpdatePasswordRecoveryCode(recoveryCode, expirationDate);
+    if (!user.passwordRecoveryCode) user.createPasswordRecoveryCode(recoveryCode, expirationDate);
+    else user.updatePasswordRecoveryCode(recoveryCode, expirationDate);
+
     await this.usersRepository.save(user);
 
     this.eventBus.publish(new PasswordRecoveryEvent(user.email, recoveryCode));

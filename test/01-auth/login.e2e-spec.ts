@@ -50,10 +50,10 @@ describe('AuthController - login() (POST: /auth/login)', () => {
     const resLogin: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/login`)
       .send({
-        loginOrEmail: user.login, // можно было бы использовать и user.email
-        password: 'qwerty', // это пароль, заданный по умолчанию в createUser()
+        loginOrEmail: user.login,
+        password: 'qwerty',
       })
-      .expect(HttpStatus.OK); // 🔸 Ожидаем статус 200
+      .expect(HttpStatus.OK);
 
     // 🔸 Проверяем, что в ответе пришёл accessToken
     expect(resLogin.body).toEqual({
@@ -95,7 +95,7 @@ describe('AuthController - login() (POST: /auth/login)', () => {
         loginOrEmail: createdUser.login,
         password: 'qwerty',
       })
-      .expect(HttpStatus.TOO_MANY_REQUESTS); // 429 Too Many Requests
+      .expect(HttpStatus.TOO_MANY_REQUESTS);
 
     if (testLoggingEnabled) {
       TestLoggers.logE2E(
@@ -111,7 +111,7 @@ describe('AuthController - login() (POST: /auth/login)', () => {
     const resLogin: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/login`)
       .send({})
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем ошибку 400
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔸 Проверяем тело ответа с ошибками валидации по полям loginOrEmail и password
     expect(resLogin.body).toEqual({
@@ -147,7 +147,7 @@ describe('AuthController - login() (POST: /auth/login)', () => {
         loginOrEmail: 123,
         password: 123,
       })
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем ошибку 400
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔸 Проверяем тело ответа с ошибками валидации по полям loginOrEmail и password
     expect(resLogin.body).toEqual({
@@ -183,7 +183,7 @@ describe('AuthController - login() (POST: /auth/login)', () => {
         loginOrEmail: '   ',
         password: '   ',
       })
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем ошибку 400
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔸 Проверяем тело ответа с ошибками валидации по длине строк в loginOrEmail и password
     expect(resLogin.body).toEqual({
@@ -222,7 +222,7 @@ describe('AuthController - login() (POST: /auth/login)', () => {
         loginOrEmail,
         password,
       })
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем ошибку 400
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔸 Проверяем тело ответа с ошибками валидации по максимальной длине loginOrEmail и password
     expect(resLogin.body).toEqual({
@@ -261,7 +261,7 @@ describe('AuthController - login() (POST: /auth/login)', () => {
         loginOrEmail,
         password,
       })
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем ошибку 400
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔸 Проверяем тело ответа с ошибками валидации по минимальной длине loginOrEmail и password
     expect(resLogin.body).toEqual({
@@ -300,10 +300,10 @@ describe('AuthController - login() (POST: /auth/login)', () => {
     const resLogin: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/login`)
       .send({
-        loginOrEmail, // случайный, несуществующий логин
-        password: 'qwerty', // корректный пароль
+        loginOrEmail,
+        password: 'qwerty',
       })
-      .expect(HttpStatus.UNAUTHORIZED); // 🔸 Ожидаем статус 401, так как логин не существует
+      .expect(HttpStatus.UNAUTHORIZED);
 
     // 🔸 Убеждаемся, что refreshToken не установлен в Set-Cookie
     expect(resLogin.headers['set-cookie']).toBeUndefined();
@@ -325,10 +325,10 @@ describe('AuthController - login() (POST: /auth/login)', () => {
     const resLogin: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/login`)
       .send({
-        loginOrEmail: user.email, // корректный email
-        password: 'incorrect_password', // 🔸 неверный пароль
+        loginOrEmail: user.email,
+        password: 'incorrect_password',
       })
-      .expect(HttpStatus.UNAUTHORIZED); // 🔸 Ожидаем статус 401 (неавторизован)
+      .expect(HttpStatus.UNAUTHORIZED);
 
     // 🔸 Проверяем, что refreshToken не установлен в заголовках Set-Cookie
     expect(resLogin.headers['set-cookie']).toBeUndefined();
