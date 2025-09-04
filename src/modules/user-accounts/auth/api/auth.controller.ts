@@ -28,11 +28,13 @@ import { NewPasswordCommand } from '../aplication/usecases/new-password.usecase'
 import { JwtAuthGuard } from '../domain/guards/bearer/jwt-auth.guard';
 import { MeViewDto } from '../../users/api/view-dto/user.view-dto';
 import { GetMeQuery } from '../aplication/queries/get-me.query-handler';
+import { UserAccountsConfig } from '../../config/user-accounts.config';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
+    private readonly userAccountsConfig: UserAccountsConfig,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
@@ -71,14 +73,7 @@ export class AuthController {
       new LoginUserCommand(user, clientInfo),
     );
 
-    //TODO: вынести в config!
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 120000,
-      path: '/',
-    });
+    res.cookie('refreshToken', refreshToken, this.userAccountsConfig.getCookieConfig());
 
     return { accessToken };
   }
