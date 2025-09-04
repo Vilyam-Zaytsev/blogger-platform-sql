@@ -13,7 +13,7 @@ export class UsersQueryRepository {
   constructor(@InjectRepository(User) private readonly users: Repository<User>) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<UserViewDto> {
-    const user: User | null = await this.users.findOneBy({ id: id });
+    const user: User | null = await this.users.findOneBy({ id });
 
     if (!user) {
       throw new DomainException({

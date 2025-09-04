@@ -20,7 +20,7 @@ export class UsersRepository {
   }
 
   async getByIdOrNotFoundFail(id: number): Promise<User> {
-    const user: User | null = await this.users.findOneBy({ id: id });
+    const user: User | null = await this.users.findOneBy({ id });
 
     if (!user) {
       throw new DomainException({
