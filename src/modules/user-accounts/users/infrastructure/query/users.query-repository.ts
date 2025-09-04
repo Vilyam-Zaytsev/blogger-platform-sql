@@ -1,6 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { PG_POOL } from '../../../../database/constants/database.constants';
-import { Pool } from 'pg';
+import { Injectable } from '@nestjs/common';
 import { UserViewDto } from '../../api/view-dto/user.view-dto';
 import { GetUsersQueryParams } from '../../api/input-dto/get-users-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
@@ -12,10 +10,7 @@ import { DomainExceptionCode } from '../../../../../core/exceptions/domain-excep
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(
-    @Inject(PG_POOL) private readonly pool: Pool,
-    @InjectRepository(User) private readonly users: Repository<User>,
-  ) {}
+  constructor(@InjectRepository(User) private readonly users: Repository<User>) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<UserViewDto> {
     const user: User | null = await this.users.findOneBy({ id: id });
