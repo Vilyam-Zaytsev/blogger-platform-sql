@@ -35,6 +35,7 @@ export class User extends BaseEntity {
     type: 'varchar',
     length: loginConstraints.maxLength,
     unique: true,
+    collation: 'C',
   })
   public login: string;
 
@@ -42,13 +43,14 @@ export class User extends BaseEntity {
     type: 'varchar',
     length: 255,
     unique: true,
+    collation: 'C',
   })
   public email: string;
 
   @Column({ length: 255 })
   public passwordHash: string;
 
-  //TODO: есть ли необходимость в добавить protected (protected потому что private не получится из за наследования) конструктор для того чтобы закрыть создание экземпляров из вне?
+  //TODO: есть ли необходимость в добавить protected (protected потому что private не получится из за наследования) конструктор для того чтобы закрыть создание экземпляров из вне? ДА!!!
 
   static create({
     email,
@@ -78,14 +80,20 @@ export class User extends BaseEntity {
     this.emailConfirmationCode.expirationDate = expirationDate;
   }
 
-  //TODO: нормально ли делать так???
-  public createOrUpdatePasswordRecoveryCode(recoveryCode?: string, expirationDate?: Date) {
-    this.passwordRecoveryCode.recoveryCode = recoveryCode ? recoveryCode : null;
-    this.passwordRecoveryCode.expirationDate = expirationDate ? expirationDate : null;
+  public createPasswordRecoveryCode(recoveryCode: string, expirationDate: Date) {
+    this.passwordRecoveryCode = PasswordRecoveryCode.create(recoveryCode, expirationDate);
+  }
+
+  public updatePasswordRecoveryCode(recoveryCode: string, expirationDate: Date) {
+    this.passwordRecoveryCode.recoveryCode = recoveryCode;
+    this.passwordRecoveryCode.expirationDate = expirationDate;
   }
 
   public updatePasswordHash(newPasswordHash: string) {
     this.passwordHash = newPasswordHash;
+
+    this.passwordRecoveryCode.recoveryCode = null;
+    this.passwordRecoveryCode.expirationDate = null;
   }
 
   @OneToOne(() => EmailConfirmationCode, (emailConfirmationCode) => emailConfirmationCode.user, {
@@ -93,7 +101,9 @@ export class User extends BaseEntity {
   })
   emailConfirmationCode: EmailConfirmationCode;
 
-  @OneToOne(() => PasswordRecoveryCode, (passwordRecoveryCode) => passwordRecoveryCode.user)
+  @OneToOne(() => PasswordRecoveryCode, (passwordRecoveryCode) => passwordRecoveryCode.user, {
+    cascade: true,
+  })
   passwordRecoveryCode: PasswordRecoveryCode;
 
   @OneToMany(() => Session, (session) => session.user)

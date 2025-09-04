@@ -69,7 +69,6 @@ describe('AuthController - me() (POST: /auth/me)', () => {
     const resMe: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/auth/me`)
       .set('Authorization', `Bearer ${accessToken}`)
-      // 🔸 Ожидаем успешный ответ (200 OK)
       .expect(HttpStatus.OK);
 
     // 🔻 Проверяем, что тело ответа содержит корректную информацию о пользователе
@@ -94,7 +93,7 @@ describe('AuthController - me() (POST: /auth/me)', () => {
     // 🔻 Создаём нового пользователя
     const [user]: UserViewDto[] = await usersTestManager.createUser(1);
 
-    // 🔻 Логинимся под этим пользователем и получаем пару access/pfghjrefresh токенов
+    // 🔻 Логинимся под этим пользователем и получаем пару access/refresh токенов
     const [resultLogin]: TestResultLogin[] = await usersTestManager.login([user.login]);
 
     // 🔻 Сохраняем accessToken, который через 3 секунды станет невалидным
@@ -107,7 +106,6 @@ describe('AuthController - me() (POST: /auth/me)', () => {
     const resMe: Response = await request(server)
       .get(`/${GLOBAL_PREFIX}/auth/me`)
       .set('Authorization', `Bearer ${accessToken}`)
-      // 🔸 Ожидаем, что сервер вернёт 401 Unauthorized
       .expect(HttpStatus.UNAUTHORIZED);
 
     if (testLoggingEnabled) {

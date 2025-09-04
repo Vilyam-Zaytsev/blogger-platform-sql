@@ -23,7 +23,6 @@ export class CreateUserByAdminUseCase implements ICommandHandler<CreateUserComma
     const user: User = await this.userFactory.create(dto);
 
     user.confirmEmail();
-
     return await this.usersRepository.save(user);
   }
 }

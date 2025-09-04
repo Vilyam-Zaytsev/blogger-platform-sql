@@ -83,7 +83,7 @@ export class AuthController {
     return { accessToken };
   }
 
-  //TODO: реализовать скедулер для удаления завершенных сессий.
+  //TODO: реализовать скедулер для удаления завершенных сессий. ПОЧИСТИТЬ КУКУ!!!
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshAuthGuard)

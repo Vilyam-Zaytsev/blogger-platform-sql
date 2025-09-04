@@ -24,7 +24,7 @@ export class RegisterUserUseCase implements ICommandHandler<RegisterUserCommand>
     const user: User = await this.userFactory.create(dto);
     await this.usersRepository.save(user);
 
-    //TODO: как правильно избавиться от '!' тут user.emailConfirmationCode.confirmationCode!
+    //TODO: как правильно избавиться от '!' тут user.emailConfirmationCode.confirmationCode! 500
     this.eventBus.publish(
       new UserRegisteredEvent(user.email, user.emailConfirmationCode.confirmationCode!),
     );

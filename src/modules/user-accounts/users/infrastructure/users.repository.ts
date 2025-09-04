@@ -54,6 +54,15 @@ export class UsersRepository {
     });
   }
 
+  async getByEmailWithPasswordRecoveryCode(email: string): Promise<User | null> {
+    return await this.users.findOne({
+      relations: {
+        passwordRecoveryCode: true,
+      },
+      where: { email },
+    });
+  }
+
   async getByEmailConfirmationCode(confirmationCode: string): Promise<User | null> {
     return await this.users.findOne({
       relations: {
