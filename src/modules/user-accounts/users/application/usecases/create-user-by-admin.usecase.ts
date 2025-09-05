@@ -2,13 +2,11 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CreateUserDto } from '../../dto/create-user.dto';
 import { UserValidationService } from '../services/user-validation.service';
 import { UsersRepository } from '../../infrastructure/users.repository';
-import { UserInputDto } from '../../api/input-dto/user.input-dto';
-import { CryptoService } from '../services/crypto.service';
-import { CreateEmailConfirmationDto } from '../../../auth/dto/create-email-confirmation.dto';
-import { ConfirmationStatus } from '../../../auth/types/email-confirmation-db.type';
+import { User } from '../../domain/entities/user.entity';
+import { UsersFactory } from '../factories/users.factory';
 
 export class CreateUserCommand {
-  constructor(public readonly dto: UserInputDto) {}
+  constructor(public readonly dto: CreateUserDto) {}
 }
 
 @CommandHandler(CreateUserCommand)
@@ -16,32 +14,15 @@ export class CreateUserByAdminUseCase implements ICommandHandler<CreateUserComma
   constructor(
     private readonly userValidation: UserValidationService,
     private readonly usersRepository: UsersRepository,
-    private readonly cryptoService: CryptoService,
+    private readonly userFactory: UsersFactory,
   ) {}
 
   async execute({ dto }: CreateUserCommand): Promise<number> {
-    const { login, email, password } = dto;
+    await this.userValidation.validateUniqueUser(dto.login, dto.email);
 
-    await this.userValidation.validateUniqueUser(login, email);
+    const user: User = await this.userFactory.create(dto);
 
-    const passwordHash: string = await this.cryptoService.createPasswordHash(password);
-    const createUserDto: CreateUserDto = {
-      login,
-      email,
-      passwordHash,
-    };
-
-    const userId: number = await this.usersRepository.insertUser(createUserDto);
-
-    const createEmailConfirmationDto: CreateEmailConfirmationDto = {
-      userId,
-      confirmationCode: null,
-      expirationDate: null,
-      confirmationStatus: ConfirmationStatus.Confirmed,
-    };
-
-    await this.usersRepository.insertEmailConfirmation(createEmailConfirmationDto);
-
-    return userId;
+    user.confirmEmail();
+    return await this.usersRepository.save(user);
   }
 }

@@ -1,2 +1,0 @@
-ALTER TABLE "Sessions"
-   ADD COLUMN "deletedAt" TIMESTAMPTZ

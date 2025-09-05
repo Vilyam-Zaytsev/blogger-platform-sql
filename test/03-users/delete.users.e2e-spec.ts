@@ -101,7 +101,7 @@ describe('UsersController - deleteUser() (DELETE: /users)', () => {
     // 🔻 Создаем тестового пользователя через менеджер пользователей
     const [createdUser]: UserViewDto[] = await usersTestManager.createUser(1);
     // 🔻 Формируем некорректный ID пользователя для тестирования
-    const incorrectUserId: number = Number(createdUser.id) + 1;
+    const incorrectUserId: string = '1000000';
 
     // 🔻 Пытаемся удалить несуществующий пользователь с корректным токеном
     const resDeleteUser: Response = await request(server)

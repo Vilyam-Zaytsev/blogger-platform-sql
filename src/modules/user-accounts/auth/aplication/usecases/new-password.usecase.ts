@@ -1,12 +1,10 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { NewPasswordInputDto } from '../../api/input-dto/new-password-input.dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
-import { PasswordRecoveryDbType } from '../../types/password-recovery-db.type';
-import { UpdatePassword } from '../types/update-password.type';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { CryptoService } from '../../../users/application/services/crypto.service';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
-import { CreatePasswordRecoveryDto } from '../../dto/create-password-recovery.dto';
+import { User } from '../../../users/domain/entities/user.entity';
 
 export class NewPasswordCommand {
   constructor(public readonly dto: NewPasswordInputDto) {}
@@ -20,37 +18,30 @@ export class NewPasswordUseCase implements ICommandHandler<NewPasswordCommand> {
   ) {}
 
   async execute({ dto }: NewPasswordCommand): Promise<void> {
-    const passwordRecovery: PasswordRecoveryDbType | null =
-      await this.usersRepository.getPasswordRecoveryByRecoveryCode(dto.recoveryCode);
+    const user: User | null = await this.usersRepository.getByPasswordRecoveryCode(
+      dto.recoveryCode,
+    );
 
-    if (!passwordRecovery) {
+    if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: 'Recovery code incorrect',
       });
     }
 
-    if (passwordRecovery.expirationDate && new Date(passwordRecovery.expirationDate) < new Date()) {
+    if (
+      user.passwordRecoveryCode.expirationDate &&
+      new Date(user.passwordRecoveryCode.expirationDate) < new Date()
+    ) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: 'The code has expired',
       });
     }
 
-    const hash: string = await this.cryptoService.createPasswordHash(dto.newPassword);
+    const passwordHash: string = await this.cryptoService.createPasswordHash(dto.newPassword);
 
-    const updatePasswordDto: UpdatePassword = {
-      userId: passwordRecovery.userId,
-      newPasswordHash: hash,
-    };
-
-    const updatePasswordRecoveryDto: CreatePasswordRecoveryDto = {
-      userId: passwordRecovery.userId,
-      recoveryCode: null,
-      expirationDate: null,
-    };
-
-    await this.usersRepository.updatePassword(updatePasswordDto);
-    await this.usersRepository.insertOrUpdatePasswordRecovery(updatePasswordRecoveryDto);
+    user.updatePasswordHash(passwordHash);
+    await this.usersRepository.save(user);
   }
 }

@@ -6,13 +6,13 @@ import { AdminCredentials } from '../types';
 import { UserInputDto } from '../../src/modules/user-accounts/users/api/input-dto/user.input-dto';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import { PaginatedViewDto } from '../../src/core/dto/paginated.view-dto';
-import { UserViewDto } from 'src/modules/user-accounts/users/api/view-dto/user.view-dto';
 import { UsersTestManager } from '../managers/users.test-manager';
 import { TestDtoFactory } from '../helpers/test.dto-factory';
 import { TestUtils } from '../helpers/test.utils';
 import { TestLoggers } from '../helpers/test.loggers';
+import { UserViewDto } from '../../src/modules/user-accounts/users/api/view-dto/user.view-dto';
 
-describe('UsersController - createUser() (POST: /users)', () => {
+describe('UsersController - createUser() (POST: /sa/users)', () => {
   let appTestManager: AppTestManager;
   let usersTestManager: UsersTestManager;
   let adminCredentials: AdminCredentials;
@@ -75,7 +75,7 @@ describe('UsersController - createUser() (POST: /users)', () => {
       TestLoggers.logE2E(
         resCreateUser.body,
         resCreateUser.statusCode,
-        'Test №1: UsersController - createUser() (POST: /users)',
+        'Test №1: UsersController - createUser() (POST: /sa/users)',
       );
     }
   });

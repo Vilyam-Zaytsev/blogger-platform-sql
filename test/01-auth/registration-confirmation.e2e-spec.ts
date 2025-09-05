@@ -12,12 +12,9 @@ import { HttpStatus } from '@nestjs/common';
 import { UsersRepository } from '../../src/modules/user-accounts/users/infrastructure/users.repository';
 import { EmailService } from '../../src/modules/notifications/services/email.service';
 import { UserInputDto } from '../../src/modules/user-accounts/users/api/input-dto/user.input-dto';
-import { UserDbType } from '../../src/modules/user-accounts/users/types/user-db.type';
-import {
-  ConfirmationStatus,
-  EmailConfirmationDbType,
-} from '../../src/modules/user-accounts/auth/types/email-confirmation-db.type';
 import { CryptoService } from '../../src/modules/user-accounts/users/application/services/crypto.service';
+import { ConfirmationStatus } from '../../src/modules/user-accounts/auth/domain/entities/email-confirmation-code.entity';
+import { User } from '../../src/modules/user-accounts/users/domain/entities/user.entity';
 
 describe('AuthController - registrationConfirmation() (POST: /auth/registration-confirmation)', () => {
   let appTestManager: AppTestManager;
@@ -64,59 +61,58 @@ describe('AuthController - registrationConfirmation() (POST: /auth/registration-
   });
 
   it('should be confirmed if the user has sent the correct verification code.', async () => {
-    // 🔻 Создаем валидные данные для регистрации
+    // 🔻 Генерируем данные для регистрации пользователя
     const [dto]: UserInputDto[] = TestDtoFactory.generateUserInputDto(1);
 
-    // 🔻 Регистрируем пользователя через менеджер
+    // 🔻 Регистрируем пользователя
     await usersTestManager.registration(dto);
 
-    // 🔻 Получаем созданного пользователя из базы по email
-    const user: UserDbType | null = await usersRepository.getByEmail(dto.email);
-    expect(user).not.toBeNull();
+    // 🔻 Получаем пользователя из БД вместе с кодом подтверждения
+    const user_NotConfirmed: User | null =
+      await usersRepository.getByEmailWithEmailConfirmationCode(dto.email);
+    expect(user_NotConfirmed).not.toBeNull();
 
-    if (!user) {
+    if (!user_NotConfirmed) {
       throw new Error(
         'Test №1: AuthController - registrationConfirmation() (POST: /auth/registration-confirmation): User not found',
       );
     }
 
-    // 🔻 Проверяем наличие записи подтверждения email в статусе NotConfirmed
-    const emailConfirmationRecord_NotConfirmed: EmailConfirmationDbType | null =
-      await usersRepository.getEmailConfirmationByUserId(user.id);
-
-    expect(emailConfirmationRecord_NotConfirmed).toEqual({
-      userId: user.id,
+    // 🔻 Проверяем, что у пользователя есть код подтверждения и статус "Не подтверждён"
+    expect(user_NotConfirmed.emailConfirmationCode).toMatchObject({
       confirmationCode: expect.any(String),
       expirationDate: expect.any(Date),
       confirmationStatus: ConfirmationStatus.NotConfirmed,
     });
 
-    if (!emailConfirmationRecord_NotConfirmed) {
-      throw new Error(
-        `Test №1: AuthController - registrationConfirmation() (POST: /auth/registration-confirmation): Registration confirmation error. The email confirmation record was not found for the user with the ID: ${user.id}`,
-      );
-    }
-
-    // 🔻 Подтверждаем email пользователя
+    // 🔻 Отправляем POST-запрос с корректным кодом подтверждения, ожидаем 204 No Content
     const resRegistrationConfirmation: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/registration-confirmation`)
       .send({
-        code: emailConfirmationRecord_NotConfirmed.confirmationCode,
+        code: user_NotConfirmed.emailConfirmationCode.confirmationCode,
       })
       .expect(HttpStatus.NO_CONTENT);
 
-    // 🔻 Проверяем обновление статуса подтверждения email
-    const emailConfirmationRecord_Confirmed: EmailConfirmationDbType | null =
-      await usersRepository.getEmailConfirmationByUserId(user.id);
+    // 🔻 Получаем пользователя заново из БД после подтверждения
+    const user_Confirmed: User | null = await usersRepository.getByEmailWithEmailConfirmationCode(
+      dto.email,
+    );
+    expect(user_Confirmed).not.toBeNull();
 
-    expect(emailConfirmationRecord_Confirmed).toEqual({
-      userId: user.id,
+    if (!user_Confirmed) {
+      throw new Error(
+        'Test №1: AuthController - registrationConfirmation() (POST: /auth/registration-confirmation): User not found',
+      );
+    }
+
+    // 🔻 Проверяем, что код подтверждения сброшен и статус изменён на "Подтверждён"
+    expect(user_Confirmed.emailConfirmationCode).toMatchObject({
       confirmationCode: null,
       expirationDate: null,
       confirmationStatus: ConfirmationStatus.Confirmed,
     });
 
-    // 🔻 Проверяем, что email был отправлен один раз
+    // 🔻 Проверяем, что отправка письма была выполнена один раз
     expect(sendEmailMock).toHaveBeenCalled();
     expect(sendEmailMock).toHaveBeenCalledTimes(1);
 
@@ -130,39 +126,40 @@ describe('AuthController - registrationConfirmation() (POST: /auth/registration-
   });
 
   it('should not confirm the email if the user has sent more than 5 requests from one IP to "/login/registration-confirmation" in the last 10 seconds.', async () => {
-    // 🔻 Создаём шпион на метод генерации UUID для доступа к сгенерированным кодам подтверждения
+    // 🔻 Создаём шпион на метод генерации UUID, чтобы отслеживать коды подтверждения
     const spy = jest.spyOn(cryptoService, 'generateUUID');
 
-    // 🔻 Генерируем массив из 5 DTO пользователей
+    // 🔻 Генерируем данные для регистрации 5 пользователей
     const dtos: UserInputDto[] = TestDtoFactory.generateUserInputDto(5);
 
-    // 🔻 Регистрируем 5 пользователей
+    // 🔻 Регистрируем каждого пользователя
     for (let i = 0; i < dtos.length; i++) {
       await usersTestManager.registration(dtos[i]);
     }
 
-    // 🔻 Отправляем 5 успешных запросов на подтверждение email с корректными кодами подтверждения
+    // 🔻 Отправляем 5 запросов на подтверждение с кодами из шпиона, ожидаем 204 No Content
     for (let i = 0; i < 5; i++) {
       await request(server)
         .post(`/${GLOBAL_PREFIX}/auth/registration-confirmation`)
         .send({
-          code: spy.mock.results[i].value, // 🔸 используем код подтверждения из вызова generateUUID()
+          code: spy.mock.results[i].value,
         })
-        .expect(HttpStatus.NO_CONTENT); // 🔸 Ожидаем статус 204 (успешно, без контента)
+        .expect(HttpStatus.NO_CONTENT);
     }
 
-    // 🔻 Отправляем 6-й запрос на подтверждение email с новым (неизвестным) UUID
+    // 🔻 Отправляем 6-й запрос с новым сгенерированным кодом, ожидаем 429 Too Many Requests
     const resRegistrationConfirmation = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/registration-confirmation`)
       .send({
-        code: cryptoService.generateUUID(), // 🔸 фейковый код, чтобы точно не сработал
+        code: cryptoService.generateUUID(),
       })
-      .expect(HttpStatus.TOO_MANY_REQUESTS); // 🔸 Ожидаем статус 429 (слишком много запросов)
+      .expect(HttpStatus.TOO_MANY_REQUESTS);
 
-    // 🔸 Проверяем, что почтовый сервис вызывался ровно 5 раз (только для успешных регистраций)
+    // 🔻 Проверяем, что отправка письма была выполнена ровно 5 раз
     expect(sendEmailMock).toHaveBeenCalled();
     expect(sendEmailMock).toHaveBeenCalledTimes(5);
 
+    // 🔻 Очищаем мок шпиона
     spy.mockClear();
 
     if (testLoggingEnabled) {
@@ -191,9 +188,9 @@ describe('AuthController - registrationConfirmation() (POST: /auth/registration-
     const resRegistrationConfirmation: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/registration-confirmation`)
       .send({
-        code: incorrectCode, // 🔸 Передаём несуществующий код
+        code: incorrectCode,
       })
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем 400 — ошибка валидации кода
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔸 Проверяем, что тело ответа содержит сообщение об ошибке с указанием поля "code"
     expect(resRegistrationConfirmation.body).toEqual({
@@ -205,15 +202,19 @@ describe('AuthController - registrationConfirmation() (POST: /auth/registration-
       ],
     });
 
-    // 🔻 Получаем из базы информацию о подтверждении email по реальному коду из spy
-    const emailConfirmation: EmailConfirmationDbType | null =
-      await usersRepository.getEmailConfirmationByConfirmationCode(
-        spy.mock.results[0].value, // 🔸 именно тот код, который система сгенерировала
+    // 🔻 Получаем пользователя из БД вместе с кодом подтверждения
+    const user_NotConfirmed: User | null =
+      await usersRepository.getByEmailWithEmailConfirmationCode(dto.email);
+    expect(user_NotConfirmed).not.toBeNull();
+
+    if (!user_NotConfirmed) {
+      throw new Error(
+        'Test №1: AuthController - registrationConfirmation() (POST: /auth/registration-confirmation): User not found',
       );
+    }
 
     // 🔸 Проверяем, что подтверждение email всё ещё не завершено (confirmationStatus: NotConfirmed)
-    expect(emailConfirmation).toEqual({
-      userId: expect.any(Number),
+    expect(user_NotConfirmed.emailConfirmationCode).toMatchObject({
       confirmationCode: spy.mock.results[0].value,
       expirationDate: expect.any(Date),
       confirmationStatus: ConfirmationStatus.NotConfirmed,
@@ -241,29 +242,19 @@ describe('AuthController - registrationConfirmation() (POST: /auth/registration-
     // 🔸 Регистрируем пользователя
     await usersTestManager.registration(dto);
 
-    // 🔻 Получаем пользователя из базы данных по email
-    const user_NotConfirmed: UserDbType | null = await usersRepository.getByEmail(dto.email);
-    expect(user_NotConfirmed).not.toBeNull(); // 🔸 Проверяем, что пользователь существует
+    // 🔻 Получаем пользователя из БД вместе с кодом подтверждения
+    const user_NotConfirmed: User | null =
+      await usersRepository.getByEmailWithEmailConfirmationCode(dto.email);
+    expect(user_NotConfirmed).not.toBeNull();
 
     if (!user_NotConfirmed) {
       throw new Error(
-        'Test №4: AuthController - registrationConfirmation() (POST: /auth/registration-confirmation): User not found',
+        'Test №1: AuthController - registrationConfirmation() (POST: /auth/registration-confirmation): User not found',
       );
     }
 
-    // 🔻 Получаем сущность email-подтверждения по userId
-    const emailConfirmation_NotConfirmed: EmailConfirmationDbType | null =
-      await usersRepository.getEmailConfirmationByUserId(user_NotConfirmed.id);
-
-    if (!emailConfirmation_NotConfirmed) {
-      throw new Error(
-        'Test №4: AuthController - registrationConfirmation() (POST: /auth/registration-confirmation): EmailConfirmation not found',
-      );
-    }
-
-    // 🔸 Проверяем, что email еще не подтверждён
-    expect(emailConfirmation_NotConfirmed).toEqual({
-      userId: user_NotConfirmed.id,
+    // 🔸 Проверяем, что подтверждение email всё ещё не завершено (confirmationStatus: NotConfirmed)
+    expect(user_NotConfirmed.emailConfirmationCode).toMatchObject({
       confirmationCode: expect.any(String),
       expirationDate: expect.any(Date),
       confirmationStatus: ConfirmationStatus.NotConfirmed,
@@ -273,23 +264,24 @@ describe('AuthController - registrationConfirmation() (POST: /auth/registration-
     await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/registration-confirmation`)
       .send({
-        code: emailConfirmation_NotConfirmed.confirmationCode,
+        code: user_NotConfirmed.emailConfirmationCode.confirmationCode,
       })
-      .expect(HttpStatus.NO_CONTENT); // 🔸 Ожидаем успешное подтверждение
+      .expect(HttpStatus.NO_CONTENT);
 
-    // 🔻 Повторно получаем emailConfirmation из базы данных
-    const emailConfirmation_Confirmed: EmailConfirmationDbType | null =
-      await usersRepository.getEmailConfirmationByUserId(user_NotConfirmed.id);
+    // 🔻 Получаем пользователя заново из БД после подтверждения
+    const user_Confirmed: User | null = await usersRepository.getByEmailWithEmailConfirmationCode(
+      dto.email,
+    );
+    expect(user_Confirmed).not.toBeNull();
 
-    if (!emailConfirmation_Confirmed) {
+    if (!user_Confirmed) {
       throw new Error(
-        'Test №4: AuthController - registrationConfirmation() (POST: /auth/registration-confirmation): EmailConfirmation not found',
+        'Test №1: AuthController - registrationConfirmation() (POST: /auth/registration-confirmation): User not found',
       );
     }
 
-    // 🔸 Проверяем, что код и дата подтверждения сброшены, а статус — Confirmed
-    expect(emailConfirmation_Confirmed).toEqual({
-      userId: user_NotConfirmed.id,
+    // 🔻 Проверяем, что код подтверждения сброшен и статус изменён на "Подтверждён"
+    expect(user_Confirmed.emailConfirmationCode).toMatchObject({
       confirmationCode: null,
       expirationDate: null,
       confirmationStatus: ConfirmationStatus.Confirmed,
@@ -299,15 +291,15 @@ describe('AuthController - registrationConfirmation() (POST: /auth/registration-
     const resRegistrationConfirmation: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/registration-confirmation`)
       .send({
-        code: emailConfirmation_NotConfirmed.confirmationCode,
+        code: user_NotConfirmed.emailConfirmationCode.confirmationCode,
       })
-      .expect(HttpStatus.BAD_REQUEST); // 🔸 Ожидаем 400 Bad Request
+      .expect(HttpStatus.BAD_REQUEST);
 
     // 🔸 Проверяем тело ответа: ожидается ошибка с указанием поля `code`
     expect(resRegistrationConfirmation.body).toEqual({
       errorsMessages: [
         {
-          message: `Confirmation code (${emailConfirmation_NotConfirmed.confirmationCode}) incorrect or the email address has already been confirmed`,
+          message: `Confirmation code (${user_NotConfirmed.emailConfirmationCode.confirmationCode}) incorrect or the email address has already been confirmed`,
           field: 'code',
         },
       ],

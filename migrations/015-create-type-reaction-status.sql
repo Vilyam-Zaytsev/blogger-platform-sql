@@ -1,1 +1,0 @@
-CREATE TYPE "ReactionStatus" AS ENUM ('None', 'Like', 'Dislike');

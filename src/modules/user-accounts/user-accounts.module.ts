@@ -9,7 +9,7 @@ import { GetUsersQueryHandler } from './users/application/queries/get-users.quer
 import { DeleteUserUseCase } from './users/application/usecases/delete-user.usecase';
 import { AuthController } from './auth/api/auth.controller';
 import { RegisterUserUseCase } from './auth/aplication/usecases/register-user.useсase';
-import { ConfirmUserUseCase } from './auth/aplication/usecases/confirm-user.usecase';
+import { ConfirmEmailUseCase } from './auth/aplication/usecases/confirm-email-usecase';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { ResendRegistrationEmailUseCase } from './auth/aplication/usecases/resend-registration-email.usecase';
 import { BasicStrategy } from './auth/domain/guards/basic/basic.strategy';
@@ -19,8 +19,8 @@ import { RefreshTokenProvider } from './auth/providers/refresh-token.provider';
 import { UserAccountsConfig } from './config/user-accounts.config';
 import { JwtStrategy } from './auth/domain/guards/bearer/jwt.strategy';
 import { LocalStrategy } from './auth/domain/guards/local/local.strategy';
-import { CreateSessionUseCase } from './auth/aplication/usecases/sessions/create-session.usecase';
-import { SessionsRepository } from './auth/infrastructure/sessions.repository';
+import { CreateSessionUseCase } from './sessions/application/usecases/create-session.usecase';
+import { SessionsRepository } from './sessions/infrastructure/sessions.repository';
 import { JwtRefreshStrategy } from './auth/domain/guards/bearer/jwt-refresh.strategy';
 import { RefreshTokenUseCase } from './auth/aplication/usecases/refreah-token.usecase';
 import { LogoutUseCase } from './auth/aplication/usecases/logout.usecase';
@@ -34,9 +34,18 @@ import { SessionsQueryRepository } from './sessions/infrastructure/query/session
 import { DeleteSessionsUseCase } from './sessions/application/usecases/delete-sessions.usecase';
 import { DeleteSessionUseCase } from './sessions/application/usecases/delete-session.usecase';
 import { UsersExternalRepository } from './users/infrastructure/external/users.external-repository';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from './users/domain/entities/user.entity';
+import { EmailConfirmationCode } from './auth/domain/entities/email-confirmation-code.entity';
+import { PasswordRecoveryCode } from './auth/domain/entities/password-recovery-code.entity';
+import { UsersFactory } from './users/application/factories/users.factory';
+import { Session } from './sessions/domain/entities/session.entity';
 
 @Module({
-  imports: [NotificationsModule],
+  imports: [
+    TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode, Session]),
+    NotificationsModule,
+  ],
   controllers: [UsersController, AuthController, SessionsController],
   providers: [
     //🔸 Auth:
@@ -50,7 +59,7 @@ import { UsersExternalRepository } from './users/infrastructure/external/users.e
     BasicStrategy,
     //use-cases
     RegisterUserUseCase,
-    ConfirmUserUseCase,
+    ConfirmEmailUseCase,
     ResendRegistrationEmailUseCase,
     LoginUserUseCase,
     CreateSessionUseCase,
@@ -77,6 +86,8 @@ import { UsersExternalRepository } from './users/infrastructure/external/users.e
     //services
     CryptoService,
     UserValidationService,
+    //factories
+    UsersFactory,
     //repo
     UsersRepository,
     UsersQueryRepository,

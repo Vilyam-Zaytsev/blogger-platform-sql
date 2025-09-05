@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { IsNotEmpty, IsNumber } from 'class-validator';
 import { ConfigService } from '@nestjs/config';
 import { configValidator } from '../../../core/utils/config.validator';
+import { TypeOrmModuleOptions } from '@nestjs/typeorm';
 
 @Injectable()
 export class DatabaseConfig {
@@ -40,5 +41,18 @@ export class DatabaseConfig {
     this.postgresDbName = this.configService.get('POSTGRES_DB_NAME');
 
     configValidator.validateConfig(this);
+  }
+
+  getTypeOrmConfigForPostgres(): TypeOrmModuleOptions {
+    return {
+      type: 'postgres',
+      host: this.postgresHost,
+      port: this.postgresPort,
+      username: this.postgresUser,
+      password: this.postgresPassword,
+      database: this.postgresDbName,
+      autoLoadEntities: true,
+      synchronize: true,
+    };
   }
 }

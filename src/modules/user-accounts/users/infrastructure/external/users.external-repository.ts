@@ -1,30 +1,24 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { PG_POOL } from '../../../../database/constants/database.constants';
-import { Pool, QueryResult } from 'pg';
-import { UserDbType } from '../../types/user-db.type';
+import { Injectable } from '@nestjs/common';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { User } from '../../domain/entities/user.entity';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersExternalRepository {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  constructor(@InjectRepository(User) private readonly users: Repository<User>) {}
 
-  async getByIdOrNotFoundFail(id: number): Promise<UserDbType> {
-    const queryResult: QueryResult<UserDbType> = await this.pool.query<UserDbType>(
-      `SELECT *
-         FROM "Users"
-         WHERE id = $1
-           AND "deletedAt" IS NULL`,
-      [id],
-    );
+  async getByIdOrNotFoundFail(id: number): Promise<User> {
+    const user: User | null = await this.users.findOneBy({ id });
 
-    if (!queryResult.rows[0]) {
+    if (!user) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `The user with ID (${id}) does not exist`,
       });
     }
 
-    return queryResult.rows[0];
+    return user;
   }
 }

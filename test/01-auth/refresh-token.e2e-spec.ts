@@ -78,15 +78,15 @@ describe('AuthController - refreshToken() (POST: /auth/refresh-token)', () => {
     // 🔻 Отправляем Refresh token для получения новой пары токенов
     const resRefreshToken: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/refresh-token`)
-      .set('Cookie', [...cookiesLogin]) // 🔸 Передаём Refresh token из куки
-      .expect(HttpStatus.OK); // 🔸 Ожидаем статус 200 OK
+      .set('Cookie', [...cookiesLogin])
+      .expect(HttpStatus.OK);
 
     // 🔻 Сохраняем новую пару Set-Cookie (новый Refresh token)
     const cookiesRefreshToken: string = resRefreshToken.headers['set-cookie'];
 
     // 🔸 Проверяем, что новые Access/Refresh токены отличаются от старых
-    expect(resLogin.body).not.toEqual(resRefreshToken.body); // 🔸 новый Access токен
-    expect(cookiesLogin).not.toEqual(cookiesRefreshToken); // 🔸 новый Refresh токен
+    expect(resLogin.body).not.toEqual(resRefreshToken.body);
+    expect(cookiesLogin).not.toEqual(cookiesRefreshToken);
 
     if (testLoggingEnabled) {
       TestLoggers.logE2E(
@@ -108,7 +108,6 @@ describe('AuthController - refreshToken() (POST: /auth/refresh-token)', () => {
         loginOrEmail: createdUser.login,
         password: 'qwerty',
       })
-      // 🔸 Ожидаем статус 200 OK — успешная авторизация
       .expect(HttpStatus.OK);
 
     // 🔻 Сохраняем Refresh токен из куков (для последующего запроса)
@@ -120,8 +119,7 @@ describe('AuthController - refreshToken() (POST: /auth/refresh-token)', () => {
     // 🔻 Пытаемся использовать просроченный Refresh токен для получения новой пары токенов
     const resRefreshToken: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/refresh-token`)
-      .set('Cookie', [...cookiesLogin]) // 🔸 Передаём старый Refresh token
-      // 🔸 Ожидаем статус 401 UNAUTHORIZED — токен должен быть признан недействительным
+      .set('Cookie', [...cookiesLogin])
       .expect(HttpStatus.UNAUTHORIZED);
 
     if (testLoggingEnabled) {
@@ -144,7 +142,6 @@ describe('AuthController - refreshToken() (POST: /auth/refresh-token)', () => {
         loginOrEmail: createdUser.login,
         password: 'qwerty',
       })
-      // 🔸 Ожидаем успешную авторизацию со статусом 200 OK
       .expect(HttpStatus.OK);
 
     // 🔻 Сохраняем куки с Refresh токеном для дальнейшего использования
@@ -153,15 +150,13 @@ describe('AuthController - refreshToken() (POST: /auth/refresh-token)', () => {
     // 🔻 Выполняем logout, чтобы Refresh токен стал недействительным (удалён или занесён в blacklist)
     await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/logout`)
-      .set('Cookie', [...cookiesLogin]) // 🔸 Передаём актуальный Refresh токен
-      // 🔸 Ожидаем статус 204 No Content — успешный выход из системы
+      .set('Cookie', [...cookiesLogin])
       .expect(HttpStatus.NO_CONTENT);
 
     // 🔻 Пробуем снова использовать тот же Refresh токен, который теперь должен быть недействительным
     const resRefreshToken: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/refresh-token`)
-      .set('Cookie', [...cookiesLogin]) // 🔸 Передаём старый токен, который должен быть "отозван"
-      // 🔸 Ожидаем статус 401 Unauthorized — токен недействителен после logout
+      .set('Cookie', [...cookiesLogin])
       .expect(HttpStatus.UNAUTHORIZED);
 
     if (testLoggingEnabled) {
@@ -184,7 +179,6 @@ describe('AuthController - refreshToken() (POST: /auth/refresh-token)', () => {
         loginOrEmail: createdUser.login,
         password: 'qwerty',
       })
-      // 🔸 Ожидаем успешный вход (200 OK)
       .expect(HttpStatus.OK);
 
     // 🔻 Сохраняем первую пару токенов (будем использовать её как "старую")
@@ -196,15 +190,13 @@ describe('AuthController - refreshToken() (POST: /auth/refresh-token)', () => {
     // 🔻 Обновляем токены через endpoint /auth/refresh-token
     const resRefreshToken: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/refresh-token`)
-      .set('Cookie', [...cookiesLogin]) // 🔸 Передаём старый Refresh токен, который будет заменён на новый
-      // 🔸 Ожидаем успешную замену токенов (200 OK)
+      .set('Cookie', [...cookiesLogin])
       .expect(HttpStatus.OK);
 
     // 🔻 Пытаемся использовать старый Refresh токен снова — для logout
     await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/logout`)
-      .set('Cookie', [...cookiesLogin]) // 🔸 Передаём старый (уже заменённый) токен
-      // 🔸 Ожидаем 401 Unauthorized — токен больше невалиден после ротации
+      .set('Cookie', [...cookiesLogin])
       .expect(HttpStatus.UNAUTHORIZED);
 
     if (testLoggingEnabled) {

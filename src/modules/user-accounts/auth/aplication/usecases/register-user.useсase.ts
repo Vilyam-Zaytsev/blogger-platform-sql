@@ -2,12 +2,11 @@ import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { UserInputDto } from '../../../users/api/input-dto/user.input-dto';
 import { UserValidationService } from '../../../users/application/services/user-validation.service';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
-import { CryptoService } from '../../../users/application/services/crypto.service';
-import { CreateUserDto } from '../../../users/dto/create-user.dto';
-import { ConfirmationStatus } from '../../types/email-confirmation-db.type';
-import { CreateEmailConfirmationDto } from '../../dto/create-email-confirmation.dto';
-import { add } from 'date-fns';
 import { UserRegisteredEvent } from '../../domain/events/user-registered.event';
+import { UsersFactory } from '../../../users/application/factories/users.factory';
+import { User } from '../../../users/domain/entities/user.entity';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
 export class RegisterUserCommand {
   constructor(public dto: UserInputDto) {}
@@ -18,35 +17,26 @@ export class RegisterUserUseCase implements ICommandHandler<RegisterUserCommand>
   constructor(
     private readonly userValidation: UserValidationService,
     private readonly usersRepository: UsersRepository,
-    private readonly cryptoService: CryptoService,
+    private readonly userFactory: UsersFactory,
     private readonly eventBus: EventBus,
   ) {}
 
   async execute({ dto }: RegisterUserCommand): Promise<void> {
-    const { login, email, password } = dto;
+    await this.userValidation.validateUniqueUser(dto.login, dto.email);
+    const user: User = await this.userFactory.create(dto);
 
-    await this.userValidation.validateUniqueUser(login, email);
+    if (!user.emailConfirmationCode.confirmationCode) {
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message:
+          'Email confirmation code is not generated. Registration failed due to internal error.',
+      });
+    }
 
-    const passwordHash: string = await this.cryptoService.createPasswordHash(password);
-    const createUserDto: CreateUserDto = {
-      login,
-      email,
-      passwordHash,
-    };
+    await this.usersRepository.save(user);
 
-    const userId: number = await this.usersRepository.insertUser(createUserDto);
-
-    const createEmailConfirmationDto: CreateEmailConfirmationDto = {
-      userId: userId,
-      confirmationCode: this.cryptoService.generateUUID(),
-      expirationDate: add(new Date(), { hours: 1, minutes: 1 }),
-      confirmationStatus: ConfirmationStatus.NotConfirmed,
-    };
-
-    const confirmationCode: string = await this.usersRepository.insertEmailConfirmation(
-      createEmailConfirmationDto,
+    this.eventBus.publish(
+      new UserRegisteredEvent(user.email, user.emailConfirmationCode.confirmationCode),
     );
-
-    this.eventBus.publish(new UserRegisteredEvent(email, confirmationCode));
   }
 }

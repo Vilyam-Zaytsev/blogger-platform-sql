@@ -18,31 +18,6 @@
  * и бизнес-сценариев.
  */
 export class SearchFilterBuilder {
-  static buildUserSearchFilter(
-    searchLoginTerm: string | null,
-    searchEmailTerm: string | null,
-    startIndex = 1,
-  ): { condition: string; values: string[] } {
-    const filters: string[] = [];
-    const values: string[] = [];
-    let index: number = startIndex;
-
-    if (searchLoginTerm) {
-      filters.push(`login ILIKE '%' || $${index} || '%'`);
-      values.push(searchLoginTerm);
-      index++;
-    }
-
-    if (searchEmailTerm) {
-      filters.push(`email ILIKE '%' || $${index} || '%'`);
-      values.push(searchEmailTerm);
-      index++;
-    }
-
-    const condition: string = filters.length > 0 ? filters.join(' OR ') : '';
-    return { condition, values };
-  }
-
   static buildBlogsSearchFilter(
     searchNameTerm: string | null,
     startIndex = 1,
