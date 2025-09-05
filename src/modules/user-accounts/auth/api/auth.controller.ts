@@ -4,7 +4,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UserInputDto } from '../../users/api/input-dto/user.input-dto';
 import { RegisterUserCommand } from '../aplication/usecases/register-user.useсase';
 import { RegistrationConfirmationCodeInputDto } from './input-dto/registration-confirmation-code.input-dto';
-import { ConfirmUserCommand } from '../aplication/usecases/confirm-user.usecase';
+import { ConfirmEmailCommand } from '../aplication/usecases/confirm-email-usecase';
 import { RegistrationEmailResandingInputDto } from './input-dto/registration-email-resending.input-dto';
 import { ResendRegistrationEmailCommand } from '../aplication/usecases/resend-registration-email.usecase';
 import { LocalAuthGuard } from '../domain/guards/local/local-auth.guard';
@@ -28,11 +28,13 @@ import { NewPasswordCommand } from '../aplication/usecases/new-password.usecase'
 import { JwtAuthGuard } from '../domain/guards/bearer/jwt-auth.guard';
 import { MeViewDto } from '../../users/api/view-dto/user.view-dto';
 import { GetMeQuery } from '../aplication/queries/get-me.query-handler';
+import { UserAccountsConfig } from '../../config/user-accounts.config';
 
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
+    private readonly userAccountsConfig: UserAccountsConfig,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
@@ -48,7 +50,7 @@ export class AuthController {
   async registrationConfirmation(
     @Body() body: RegistrationConfirmationCodeInputDto,
   ): Promise<void> {
-    await this.commandBus.execute(new ConfirmUserCommand(body));
+    await this.commandBus.execute(new ConfirmEmailCommand(body));
   }
 
   @Post('registration-email-resending')
@@ -71,24 +73,29 @@ export class AuthController {
       new LoginUserCommand(user, clientInfo),
     );
 
-    //TODO: вынести в config!
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 120000,
-      path: '/',
-    });
+    res.cookie('refreshToken', refreshToken, this.userAccountsConfig.getCookieConfig());
 
     return { accessToken };
   }
 
-  //TODO: реализовать скедулер для удаления завершенных сессий. ПОЧИСТИТЬ КУКУ!!!
+  //TODO: реализовать скедулер для удаления завершенных сессий.
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshAuthGuard)
-  async logout(@ExtractSessionFromRequest() session: SessionContextDto): Promise<void> {
+  async logout(
+    @ExtractSessionFromRequest() session: SessionContextDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
     await this.commandBus.execute(new LogoutCommand(session));
+
+    const { httpOnly, secure, sameSite, path } = this.userAccountsConfig.getCookieConfig();
+
+    res.clearCookie('refreshToken', {
+      httpOnly,
+      secure,
+      sameSite,
+      path,
+    });
   }
 
   @Post('password-recovery')
@@ -114,14 +121,7 @@ export class AuthController {
       new RefreshTokenCommand(session),
     );
 
-    //TODO: вынести в config!
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 120000,
-      path: '/',
-    });
+    res.cookie('refreshToken', refreshToken, this.userAccountsConfig.getCookieConfig());
 
     return { accessToken };
   }

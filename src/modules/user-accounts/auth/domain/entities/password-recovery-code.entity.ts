@@ -18,6 +18,10 @@ export class PasswordRecoveryCode extends BaseEntity {
   })
   public expirationDate: Date | null;
 
+  protected constructor() {
+    super();
+  }
+
   static create(recoveryCode: string, expirationDate: Date): PasswordRecoveryCode {
     const passwordRecoveryCode = new this();
 

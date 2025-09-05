@@ -1,6 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { PG_POOL } from '../../../database/constants/database.constants';
-import { Pool } from 'pg';
+import { Injectable } from '@nestjs/common';
 import { SessionContextDto } from '../../auth/domain/guards/dto/session-context.dto';
 import { Session } from '../domain/entities/session.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -8,10 +6,7 @@ import { Not, Repository } from 'typeorm';
 
 @Injectable()
 export class SessionsRepository {
-  constructor(
-    @InjectRepository(Session) private readonly sessions: Repository<Session>,
-    @Inject(PG_POOL) private readonly pool: Pool,
-  ) {}
+  constructor(@InjectRepository(Session) private readonly sessions: Repository<Session>) {}
 
   async save(session: Session): Promise<number> {
     const { id } = await this.sessions.save(session);

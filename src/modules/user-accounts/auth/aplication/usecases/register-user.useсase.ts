@@ -5,6 +5,8 @@ import { UsersRepository } from '../../../users/infrastructure/users.repository'
 import { UserRegisteredEvent } from '../../domain/events/user-registered.event';
 import { UsersFactory } from '../../../users/application/factories/users.factory';
 import { User } from '../../../users/domain/entities/user.entity';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
 export class RegisterUserCommand {
   constructor(public dto: UserInputDto) {}
@@ -22,11 +24,19 @@ export class RegisterUserUseCase implements ICommandHandler<RegisterUserCommand>
   async execute({ dto }: RegisterUserCommand): Promise<void> {
     await this.userValidation.validateUniqueUser(dto.login, dto.email);
     const user: User = await this.userFactory.create(dto);
+
+    if (!user.emailConfirmationCode.confirmationCode) {
+      throw new DomainException({
+        code: DomainExceptionCode.InternalServerError,
+        message:
+          'Email confirmation code is not generated. Registration failed due to internal error.',
+      });
+    }
+
     await this.usersRepository.save(user);
 
-    //TODO: как правильно избавиться от '!' тут user.emailConfirmationCode.confirmationCode! 500
     this.eventBus.publish(
-      new UserRegisteredEvent(user.email, user.emailConfirmationCode.confirmationCode!),
+      new UserRegisteredEvent(user.email, user.emailConfirmationCode.confirmationCode),
     );
   }
 }

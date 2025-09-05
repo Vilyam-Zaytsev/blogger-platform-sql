@@ -1,6 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { PG_POOL } from '../../../database/constants/database.constants';
-import { Pool } from 'pg';
+import { Injectable } from '@nestjs/common';
 import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
 import { DomainException } from '../../../../core/exceptions/domain-exceptions';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,10 +7,7 @@ import { Repository } from 'typeorm';
 
 @Injectable()
 export class UsersRepository {
-  constructor(
-    @Inject(PG_POOL) private readonly pool: Pool,
-    @InjectRepository(User) private readonly users: Repository<User>,
-  ) {}
+  constructor(@InjectRepository(User) private readonly users: Repository<User>) {}
 
   async save(user: User): Promise<number> {
     const { id }: User = await this.users.save(user);
@@ -25,7 +20,7 @@ export class UsersRepository {
   }
 
   async getByIdOrNotFoundFail(id: number): Promise<User> {
-    const user: User | null = await this.users.findOneBy({ id: id });
+    const user: User | null = await this.users.findOneBy({ id });
 
     if (!user) {
       throw new DomainException({

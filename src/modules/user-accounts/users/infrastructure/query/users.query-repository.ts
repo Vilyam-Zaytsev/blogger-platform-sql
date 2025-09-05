@@ -1,22 +1,26 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { PG_POOL } from '../../../../database/constants/database.constants';
-import { Pool } from 'pg';
+import { Injectable } from '@nestjs/common';
 import { UserViewDto } from '../../api/view-dto/user.view-dto';
 import { GetUsersQueryParams } from '../../api/input-dto/get-users-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../domain/entities/user.entity';
 import { FindOptionsWhere, ILike, Repository } from 'typeorm';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(
-    @Inject(PG_POOL) private readonly pool: Pool,
-    @InjectRepository(User) private readonly users: Repository<User>,
-  ) {}
+  constructor(@InjectRepository(User) private readonly users: Repository<User>) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<UserViewDto> {
-    const user: User = await this.users.findOneByOrFail({ id: id });
+    const user: User | null = await this.users.findOneBy({ id });
+
+    if (!user) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The user with ID (${id}) does not exist`,
+      });
+    }
 
     return UserViewDto.mapToView(user);
   }
