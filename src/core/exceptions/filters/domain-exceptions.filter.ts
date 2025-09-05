@@ -21,7 +21,6 @@ export class DomainHttpExceptionsFilter implements ExceptionFilter {
     response.status(status).json(responseBody);
   }
 
-  //TODO: create DTO for params
   private buildResponseBody(
     exception: DomainException,
     requestUrl: string,

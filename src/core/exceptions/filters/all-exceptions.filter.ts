@@ -26,7 +26,6 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
     response.status(status).json(responseBody);
   }
 
-  //TODO: create DTO for params
   private buildResponseBody(
     requestUrl: string,
     requestMethod: string,
