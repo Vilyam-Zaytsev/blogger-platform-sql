@@ -80,11 +80,13 @@ export class User extends BaseEntity {
     this.emailConfirmationCode.expirationDate = expirationDate;
   }
 
-  public createPasswordRecoveryCode(recoveryCode: string, expirationDate: Date) {
-    this.passwordRecoveryCode = PasswordRecoveryCode.create(recoveryCode, expirationDate);
-  }
-
   public updatePasswordRecoveryCode(recoveryCode: string, expirationDate: Date) {
+    if (!this.passwordRecoveryCode) {
+      this.passwordRecoveryCode = PasswordRecoveryCode.create(recoveryCode, expirationDate);
+
+      return;
+    }
+
     this.passwordRecoveryCode.recoveryCode = recoveryCode;
     this.passwordRecoveryCode.expirationDate = expirationDate;
   }

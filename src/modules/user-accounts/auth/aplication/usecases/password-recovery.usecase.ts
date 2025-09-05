@@ -28,9 +28,7 @@ export class PasswordRecoveryUseCase implements ICommandHandler<PasswordRecovery
     const recoveryCode: string = this.cryptoService.generateUUID();
     const expirationDate: Date = add(new Date(), { hours: 1, minutes: 1 });
 
-    if (!user.passwordRecoveryCode) user.createPasswordRecoveryCode(recoveryCode, expirationDate);
-    else user.updatePasswordRecoveryCode(recoveryCode, expirationDate);
-
+    user.updatePasswordRecoveryCode(recoveryCode, expirationDate);
     await this.usersRepository.save(user);
 
     this.eventBus.publish(new PasswordRecoveryEvent(user.email, recoveryCode));
