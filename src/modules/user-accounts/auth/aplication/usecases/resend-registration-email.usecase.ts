@@ -29,7 +29,6 @@ export class ResendRegistrationEmailUseCase
       dto.email,
     );
 
-    //тут тоже все четко!!!
     //TODO: нужно ли вынести эти проверки в отдельную функцию/метод?
     if (!user) {
       throw new ValidationException([

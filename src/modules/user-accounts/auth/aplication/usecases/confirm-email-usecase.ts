@@ -16,7 +16,6 @@ export class ConfirmEmailUseCase implements ICommandHandler<ConfirmEmailCommand>
   async execute({ dto }: ConfirmEmailCommand): Promise<void> {
     const user: User | null = await this.usersRepository.getByEmailConfirmationCode(dto.code);
 
-    //тут все четко!!!
     //TODO: есть ли необходимость выносить эту проверку в обдельную функцию/метод??? разбить на три ошибки
     if (
       !user ||

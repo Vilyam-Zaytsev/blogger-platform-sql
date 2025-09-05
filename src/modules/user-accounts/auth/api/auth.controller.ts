@@ -78,12 +78,24 @@ export class AuthController {
     return { accessToken };
   }
 
-  //TODO: реализовать скедулер для удаления завершенных сессий. ПОЧИСТИТЬ КУКУ!!!
+  //TODO: реализовать скедулер для удаления завершенных сессий.
   @Post('logout')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtRefreshAuthGuard)
-  async logout(@ExtractSessionFromRequest() session: SessionContextDto): Promise<void> {
+  async logout(
+    @ExtractSessionFromRequest() session: SessionContextDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<void> {
     await this.commandBus.execute(new LogoutCommand(session));
+
+    const { httpOnly, secure, sameSite, path } = this.userAccountsConfig.getCookieConfig();
+
+    res.clearCookie('refreshToken', {
+      httpOnly,
+      secure,
+      sameSite,
+      path,
+    });
   }
 
   @Post('password-recovery')
