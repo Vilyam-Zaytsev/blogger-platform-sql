@@ -121,14 +121,7 @@ export class AuthController {
       new RefreshTokenCommand(session),
     );
 
-    //TODO: вынести в config!
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: true,
-      sameSite: 'strict',
-      maxAge: 120000,
-      path: '/',
-    });
+    res.cookie('refreshToken', refreshToken, this.userAccountsConfig.getCookieConfig());
 
     return { accessToken };
   }
