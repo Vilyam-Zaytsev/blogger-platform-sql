@@ -30,7 +30,9 @@ export class EmailConfirmationCode extends BaseEntity {
   })
   public confirmationStatus: ConfirmationStatus;
 
-  //TODO: есть ли необходимость в добавить protected (protected потому что private не получится из за наследования) конструктор для того чтобы закрыть создание экземпляров из вне?
+  protected constructor() {
+    super();
+  }
 
   static create(confirmationCode: string, expirationDate: Date): EmailConfirmationCode {
     const emailConfirmationCode = new this();

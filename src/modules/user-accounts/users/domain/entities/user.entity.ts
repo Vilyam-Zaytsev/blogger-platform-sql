@@ -50,7 +50,9 @@ export class User extends BaseEntity {
   @Column({ length: 255 })
   public passwordHash: string;
 
-  //TODO: есть ли необходимость в добавить protected (protected потому что private не получится из за наследования) конструктор для того чтобы закрыть создание экземпляров из вне? ДА!!!
+  protected constructor() {
+    super();
+  }
 
   static create({
     email,

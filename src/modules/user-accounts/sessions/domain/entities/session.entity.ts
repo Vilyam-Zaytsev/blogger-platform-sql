@@ -32,6 +32,10 @@ export class Session extends BaseEntity {
   @Column({ type: 'timestamptz' })
   public exp: Date;
 
+  protected constructor() {
+    super();
+  }
+
   static create(dto: SessionCreateDomainDto): Session {
     const session = new this();
 
