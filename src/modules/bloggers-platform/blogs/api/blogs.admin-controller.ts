@@ -24,7 +24,6 @@ import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
-import { CreateBlogDto } from '../dto/create-blog.dto';
 import { PostInputDto } from '../../posts/api/input-dto/post-input.dto';
 import { PostViewDto } from '../../posts/api/view-dto/post-view.dto';
 import { CreatePostDto } from '../../posts/dto/create-post.dto';
@@ -53,8 +52,7 @@ export class BlogsAdminController {
 
   @Post()
   async createBlog(@Body() body: BlogInputDto): Promise<BlogViewDto> {
-    const dto: CreateBlogDto = new CreateBlogDto(body);
-    const idCreatedBlog: number = await this.commandBus.execute(new CreateBlogCommand(dto));
+    const idCreatedBlog: number = await this.commandBus.execute(new CreateBlogCommand(body));
 
     return this.blogsQueryRepository.getByIdOrNotFoundFail(idCreatedBlog);
   }
