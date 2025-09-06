@@ -5,10 +5,22 @@ import { PG_POOL } from '../../../database/constants/database.constants';
 import { BlogDb } from '../types/blog-db.type';
 import { UpdateBlogDto } from '../dto/update-blog.dto';
 import { BaseRepository } from '../../../../core/repositories/base.repository';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Blog } from '../domain/entities/blog.entity';
+import { Repository } from 'typeorm';
 
 export class BlogsRepository extends BaseRepository<BlogDb, CreateBlogDto, UpdateBlogDto> {
-  constructor(@Inject(PG_POOL) pool: Pool) {
+  constructor(
+    @InjectRepository(Blog) private readonly blogs: Repository<Blog>,
+    @Inject(PG_POOL) pool: Pool,
+  ) {
     super(pool, 'Blogs');
+  }
+
+  async save(blog: Blog): Promise<number> {
+    const { id }: Blog = await this.blogs.save(blog);
+
+    return id;
   }
 
   async create(dto: CreateBlogDto): Promise<number> {
