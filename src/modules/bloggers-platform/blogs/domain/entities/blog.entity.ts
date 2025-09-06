@@ -61,7 +61,7 @@ export class Blog extends BaseEntity {
     super();
   }
 
-  static create({ name, description, websiteUrl }: BlogInputDto) {
+  static create({ name, description, websiteUrl }: BlogInputDto): Blog {
     const blog = new this();
 
     blog.name = name;
