@@ -1,5 +1,6 @@
 import { Check, Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BlogInputDto } from '../../api/input-dto/blog-input.dto';
 
 export const nameConstraints = {
   minLength: 1,
@@ -58,5 +59,16 @@ export class Blog extends BaseEntity {
 
   protected constructor() {
     super();
+  }
+
+  static create({ name, description, websiteUrl }: BlogInputDto) {
+    const blog = new this();
+
+    blog.name = name;
+    blog.description = description;
+    blog.websiteUrl = websiteUrl;
+    blog.isMembership = false;
+
+    return blog;
   }
 }
