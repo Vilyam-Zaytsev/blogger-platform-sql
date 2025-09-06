@@ -1,3 +1,6 @@
+import { Check, Column, Entity } from 'typeorm';
+import { BaseEntity } from '../../../../../core/entities/base.entity';
+
 export const nameConstraints = {
   minLength: 1,
   maxLength: 15,
@@ -12,3 +15,48 @@ export const websiteUrlConstraints = {
   maxLength: 100,
   match: /^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/,
 };
+
+@Entity({ name: 'blogs' })
+@Check(
+  'CHK_name_length',
+  `char_length(name) >= ${nameConstraints.minLength} AND char_length(name) <= ${nameConstraints.maxLength}`,
+)
+@Check(
+  'CHK_description_length',
+  `char_length(description) >= ${descriptionConstraints.minLength} AND char_length(description) <= ${descriptionConstraints.maxLength}`,
+)
+@Check('CHK_websiteUrl_pattern', `"websiteUrl" ~ '${websiteUrlConstraints.match.source}'`)
+export class Blog extends BaseEntity {
+  @Column({
+    type: 'varchar',
+    length: nameConstraints.maxLength,
+    unique: true,
+    collation: 'C',
+  })
+  public name: string;
+
+  @Column({
+    type: 'varchar',
+    length: descriptionConstraints.maxLength,
+    collation: 'C',
+  })
+  description: string;
+
+  @Column({
+    type: 'varchar',
+    length: websiteUrlConstraints.maxLength,
+    unique: true,
+    collation: 'C',
+  })
+  websiteUrl: string;
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isMembership: boolean;
+
+  protected constructor() {
+    super();
+  }
+}
