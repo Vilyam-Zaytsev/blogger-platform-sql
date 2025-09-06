@@ -28,9 +28,11 @@ import { GetCommentQueryHandler } from './comments/application/queries/get-comme
 import { GetCommentsQueryHandler } from './comments/application/queries/get-comments.query-handler';
 import { UpdatePostReactionUseCase } from './posts/application/usecases/update-post-reaction.usecase';
 import { UpdateCommentReactionUseCase } from './comments/application/usecases/update-comment-reaction.usecase';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { Blog } from './blogs/domain/entities/blog.entity';
 
 @Module({
-  imports: [UserAccountsModule],
+  imports: [TypeOrmModule.forFeature([Blog]), UserAccountsModule],
   controllers: [BlogsAdminController, BlogsPublicController, PostsController, CommentsController],
   providers: [
     //🔸 Blogs:
