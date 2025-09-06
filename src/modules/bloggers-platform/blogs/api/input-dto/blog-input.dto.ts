@@ -1,15 +1,20 @@
 import { IsStringWithTrimDecorator } from '../../../../../core/decorators/validation/is-string-with-trim.decorator';
 import { IsUrl, Matches } from 'class-validator';
+import {
+  descriptionConstraints,
+  nameConstraints,
+  websiteUrlConstraints,
+} from '../../domain/entities/blog.entity';
 
 export class BlogInputDto {
-  @IsStringWithTrimDecorator(1, 15)
+  @IsStringWithTrimDecorator(nameConstraints.minLength, nameConstraints.maxLength)
   name: string;
 
-  @IsStringWithTrimDecorator(1, 500)
+  @IsStringWithTrimDecorator(descriptionConstraints.minLength, descriptionConstraints.maxLength)
   description: string;
 
-  @IsStringWithTrimDecorator(1, 100)
+  @IsStringWithTrimDecorator(1, websiteUrlConstraints.maxLength)
   @IsUrl()
-  @Matches(/^https:\/\/([a-zA-Z0-9_-]+\.)+[a-zA-Z0-9_-]+(\/[a-zA-Z0-9_-]+)*\/?$/)
+  @Matches(websiteUrlConstraints.match)
   websiteUrl: string;
 }
