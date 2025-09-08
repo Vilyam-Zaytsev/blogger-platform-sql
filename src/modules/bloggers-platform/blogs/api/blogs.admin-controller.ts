@@ -22,7 +22,7 @@ import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dt
 import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
-import { UpdateBlogDto } from '../dto/update-blog.dto';
+import { BlogUpdateDto } from '../dto/blog.update-dto';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
 import { PostInputDto } from '../../posts/api/input-dto/post-input.dto';
 import { PostViewDto } from '../../posts/api/view-dto/post-view.dto';
@@ -63,7 +63,7 @@ export class BlogsAdminController {
     @Param('id', ParseIntPipe) id: number,
     @Body() { name, description, websiteUrl }: BlogInputDto,
   ): Promise<void> {
-    const dto: UpdateBlogDto = {
+    const dto: BlogUpdateDto = {
       id,
       name,
       description,
