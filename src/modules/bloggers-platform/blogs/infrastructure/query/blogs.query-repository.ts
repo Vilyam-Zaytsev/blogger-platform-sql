@@ -1,7 +1,6 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { BlogViewDto } from '../../api/view-dto/blog-view.dto';
-import { Pool, QueryResult } from 'pg';
-import { PG_POOL } from '../../../../database/constants/database.constants';
+import { QueryResult } from 'pg';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import {
@@ -12,30 +11,25 @@ import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { SearchFilterBuilder } from '../../../../../core/utils/search-filter.builder';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
-import { BlogDb, BlogDbWithTotalCount } from '../../types/blog-db.type';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Blog } from '../../domain/entities/blog.entity';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class BlogsQueryRepository {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  constructor(@InjectRepository(Blog) private readonly repository: Repository<Blog>) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<BlogViewDto> {
-    const query = `
-      SELECT *
-      FROM "Blogs"
-      WHERE "id" = $1
-        AND "deletedAt" IS NULL
-    `;
+    const blog: Blog | null = await this.repository.findOneBy({ id });
 
-    const { rows }: QueryResult<BlogDb> = await this.pool.query(query, [id]);
-
-    if (rows.length === 0) {
+    if (!blog) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `The blog with ID (${id}) does not exist`,
       });
     }
 
-    return BlogViewDto.mapToView(rows[0]);
+    return BlogViewDto.mapToView(blog);
   }
 
   async getAll(queryParams: GetBlogsQueryParams): Promise<PaginatedViewDto<BlogViewDto>> {
