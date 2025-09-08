@@ -1,47 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
-import { DomainException } from '../../../../core/exceptions/domain-exceptions';
-import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../domain/entities/user.entity';
-import { Repository } from 'typeorm';
+import { DataSource } from 'typeorm';
+import { BaseRepository } from '../../../../core/repositories/base.repository';
 
 @Injectable()
-export class UsersRepository {
-  constructor(@InjectRepository(User) private readonly users: Repository<User>) {}
-
-  async save(user: User): Promise<number> {
-    const { id }: User = await this.users.save(user);
-
-    return id;
+export class UsersRepository extends BaseRepository<User> {
+  constructor(dataSource: DataSource) {
+    super(dataSource, User);
   }
-
-  async softDelete(id: number): Promise<void> {
-    await this.users.softDelete(id);
-  }
-
-  async getByIdOrNotFoundFail(id: number): Promise<User> {
-    const user: User | null = await this.users.findOneBy({ id });
-
-    if (!user) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: `The user with ID (${id}) does not exist`,
-      });
-    }
-
-    return user;
-  }
-
   async getByLogin(login: string): Promise<User | null> {
-    return await this.users.findOneBy({ login });
+    return await this.repository.findOneBy({ login });
   }
 
   async getByEmail(email: string): Promise<User | null> {
-    return await this.users.findOneBy({ email });
+    return await this.repository.findOneBy({ email });
   }
 
   async getByEmailWithEmailConfirmationCode(email: string): Promise<User | null> {
-    return await this.users.findOne({
+    return await this.repository.findOne({
       relations: {
         emailConfirmationCode: true,
       },
@@ -50,7 +26,7 @@ export class UsersRepository {
   }
 
   async getByEmailWithPasswordRecoveryCode(email: string): Promise<User | null> {
-    return await this.users.findOne({
+    return await this.repository.findOne({
       relations: {
         passwordRecoveryCode: true,
       },
@@ -59,7 +35,7 @@ export class UsersRepository {
   }
 
   async getByEmailConfirmationCode(confirmationCode: string): Promise<User | null> {
-    return await this.users.findOne({
+    return await this.repository.findOne({
       relations: {
         emailConfirmationCode: true,
       },
@@ -68,7 +44,7 @@ export class UsersRepository {
   }
 
   async getByPasswordRecoveryCode(recoveryCode: string): Promise<User | null> {
-    return await this.users.findOne({
+    return await this.repository.findOne({
       relations: {
         passwordRecoveryCode: true,
       },
