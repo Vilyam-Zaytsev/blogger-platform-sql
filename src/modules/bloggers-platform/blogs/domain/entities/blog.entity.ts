@@ -1,6 +1,7 @@
 import { Check, Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { BlogInputDto } from '../../api/input-dto/blog-input.dto';
+import { BlogUpdateDto } from '../../dto/blog.update-dto';
 
 export const nameConstraints = {
   minLength: 1,
@@ -70,5 +71,11 @@ export class Blog extends BaseEntity {
     blog.isMembership = false;
 
     return blog;
+  }
+
+  public update({ name, description, websiteUrl }: BlogUpdateDto) {
+    this.name = name;
+    this.description = description;
+    this.websiteUrl = websiteUrl;
   }
 }
