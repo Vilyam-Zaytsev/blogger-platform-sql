@@ -12,8 +12,6 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BlogInputDto } from './input-dto/blog-input.dto';
-import { BlogViewDto } from './view-dto/blog-view.dto';
 import { BasicAuthGuard } from '../../../user-accounts/auth/domain/guards/basic/basic-auth.guard';
 import { BlogsQueryRepository } from '../infrastructure/query/blogs.query-repository';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -37,6 +35,8 @@ import { GetPostsForBlogQuery } from '../../posts/application/queries/get-posts-
 import { UpdatePostDto } from '../../posts/dto/update-post.dto';
 import { UpdatePostCommand } from '../../posts/application/usecases/update-post.usecase';
 import { DeletePostCommand } from '../../posts/application/usecases/delete-post.usecase';
+import { BlogInputDto } from './input-dto/blog.input-dto';
+import { BlogViewDto } from './view-dto/blog.view-dto';
 
 @Controller('sa/blogs')
 @UseGuards(BasicAuthGuard)
