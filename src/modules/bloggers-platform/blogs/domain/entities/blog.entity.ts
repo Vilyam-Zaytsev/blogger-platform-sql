@@ -1,7 +1,7 @@
 import { Check, Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
-import { BlogInputDto } from '../../api/input-dto/blog-input.dto';
 import { BlogUpdateDto } from '../../dto/blog.update-dto';
+import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
 
 export const nameConstraints = {
   minLength: 1,

@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { BlogViewDto } from '../../api/view-dto/blog-view.dto';
 import { QueryResult } from 'pg';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
@@ -8,12 +7,12 @@ import {
   GetBlogsQueryParams,
 } from '../../api/input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
-import { SearchFilterBuilder } from '../../../../../core/utils/search-filter.builder';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from '../../domain/entities/blog.entity';
 import { Repository } from 'typeorm';
+import { BlogViewDto } from '../../api/view-dto/blog.view-dto';
 
 @Injectable()
 export class BlogsQueryRepository {
