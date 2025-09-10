@@ -12,6 +12,8 @@ import { BlogViewDto } from '../../api/view-dto/blog.view-dto';
 export class BlogsQueryRepository {
   constructor(@InjectRepository(Blog) private readonly repository: Repository<Blog>) {}
 
+  //TODO: нормально ли в одном репо использовать и репозиторий и qb
+
   async getByIdOrNotFoundFail(id: number): Promise<BlogViewDto> {
     const blog: Blog | null = await this.repository.findOneBy({ id });
 
