@@ -1,6 +1,7 @@
 import { Check, Column, Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { Blog } from '../../../blogs/domain/entities/blog.entity';
+import { CreatePostDto } from '../../dto/create-post.dto';
 
 export const titleConstraints = {
   minLength: 1,
@@ -54,6 +55,17 @@ export class Post extends BaseEntity {
 
   protected constructor() {
     super();
+  }
+
+  static create({ title, shortDescription, content, blogId }: CreatePostDto): Post {
+    const post = new this();
+
+    post.title = title;
+    post.shortDescription = shortDescription;
+    post.content = content;
+    post.blogId = blogId;
+
+    return post;
   }
 
   @ManyToOne(() => Blog, (blog: Blog): Post[] => blog.posts, {
