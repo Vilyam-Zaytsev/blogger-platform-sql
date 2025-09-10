@@ -1,7 +1,8 @@
-import { Check, Column, Entity } from 'typeorm';
+import { Check, Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { BlogUpdateDto } from '../../dto/blog.update-dto';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
+import { Post } from '../../../posts/domain/entities/post.entity';
 
 export const nameConstraints = {
   minLength: 1,
@@ -32,7 +33,6 @@ export class Blog extends BaseEntity {
   @Column({
     type: 'varchar',
     length: nameConstraints.maxLength,
-    unique: true,
     collation: 'C',
   })
   public name: string;
@@ -47,7 +47,6 @@ export class Blog extends BaseEntity {
   @Column({
     type: 'varchar',
     length: websiteUrlConstraints.maxLength,
-    unique: true,
     collation: 'C',
   })
   websiteUrl: string;
@@ -78,4 +77,7 @@ export class Blog extends BaseEntity {
     this.description = description;
     this.websiteUrl = websiteUrl;
   }
+
+  @OneToMany(() => Post, (post: Post) => post.blog)
+  posts: Post[];
 }
