@@ -11,7 +11,7 @@ import { BlogsTestManager } from '../managers/blogs.test-manager';
 import { PostsTestManager } from '../managers/posts.test-manager';
 import { AdminCredentials } from '../types';
 import { TestUtils } from '../helpers/test.utils';
-import { PostViewDto } from '../../src/modules/bloggers-platform/posts/api/view-dto/post-view.dto';
+import { PostViewDto } from '../../src/modules/bloggers-platform/posts/api/view-dto/post.view-dto';
 import { Filter } from '../helpers/filter';
 import { TestLoggers } from '../helpers/test.loggers';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';

@@ -1,11 +1,11 @@
 import { Server } from 'http';
-import { PostViewDto } from '../../src/modules/bloggers-platform/posts/api/view-dto/post-view.dto';
+import { PostViewDto } from '../../src/modules/bloggers-platform/posts/api/view-dto/post.view-dto';
 import request, { Response } from 'supertest';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import { HttpStatus } from '@nestjs/common';
 import { GetPostsQueryParams } from '../../src/modules/bloggers-platform/posts/api/input-dto/get-posts-query-params.input-dto';
 import { PaginatedViewDto } from '../../src/core/dto/paginated.view-dto';
-import { PostInputDto } from '../../src/modules/bloggers-platform/posts/api/input-dto/post-input.dto';
+import { PostInputDto } from '../../src/modules/bloggers-platform/posts/api/input-dto/post.input-dto';
 import { TestDtoFactory } from '../helpers/test.dto-factory';
 import { ReactionStatus } from '../../src/modules/bloggers-platform/reactions/types/reaction-db.type';
 

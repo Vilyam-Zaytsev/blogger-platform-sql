@@ -19,7 +19,7 @@ import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/auth/doma
 import { UserContextDto } from '../../../user-accounts/auth/domain/guards/dto/user-context.dto';
 import { GetPostsQueryParams } from './input-dto/get-posts-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
-import { PostViewDto } from './view-dto/post-view.dto';
+import { PostViewDto } from './view-dto/post.view-dto';
 import { GetPostsQuery } from '../application/queries/get-posts.query-handler';
 import { GetPostQuery } from '../application/queries/get-post.query-handler';
 import { JwtAuthGuard } from '../../../user-accounts/auth/domain/guards/bearer/jwt-auth.guard';

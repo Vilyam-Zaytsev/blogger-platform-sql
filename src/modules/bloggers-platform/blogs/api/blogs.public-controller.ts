@@ -8,7 +8,7 @@ import { OptionalJwtAuthGuard } from '../../../user-accounts/auth/domain/guards/
 import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/auth/domain/guards/decorators/extract-user-if-exists-from-request.decorator';
 import { UserContextDto } from '../../../user-accounts/auth/domain/guards/dto/user-context.dto';
 import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
-import { PostViewDto } from '../../posts/api/view-dto/post-view.dto';
+import { PostViewDto } from '../../posts/api/view-dto/post.view-dto';
 import { GetPostsForBlogQuery } from '../../posts/application/queries/get-posts-for-blog.query-handler';
 import { BlogViewDto } from './view-dto/blog.view-dto';
 

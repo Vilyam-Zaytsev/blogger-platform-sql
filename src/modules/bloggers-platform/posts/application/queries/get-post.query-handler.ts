@@ -1,5 +1,5 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
-import { PostViewDto } from '../../api/view-dto/post-view.dto';
+import { PostViewDto } from '../../api/view-dto/post.view-dto';
 import { PostsQueryRepository } from '../../infrastructure/query/posts.query-repository';
 import { UserContextDto } from '../../../../user-accounts/auth/domain/guards/dto/user-context.dto';
 

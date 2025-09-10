@@ -1,6 +1,6 @@
 import { UserInputDto } from '../../src/modules/user-accounts/users/api/input-dto/user.input-dto';
 import { BlogInputDto } from '../../src/modules/bloggers-platform/blogs/api/input-dto/blog-input.dto';
-import { PostInputDto } from '../../src/modules/bloggers-platform/posts/api/input-dto/post-input.dto';
+import { PostInputDto } from '../../src/modules/bloggers-platform/posts/api/input-dto/post.input-dto';
 import { CommentInputDto } from 'src/modules/bloggers-platform/comments/api/input-dto/comment-input.dto';
 
 export class TestDtoFactory {

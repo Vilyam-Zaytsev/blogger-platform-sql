@@ -1,5 +1,5 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { PostViewDto } from '../../api/view-dto/post-view.dto';
+import { PostViewDto } from '../../api/view-dto/post.view-dto';
 import { PG_POOL } from '../../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
 import { UserContextDto } from '../../../../user-accounts/auth/domain/guards/dto/user-context.dto';
