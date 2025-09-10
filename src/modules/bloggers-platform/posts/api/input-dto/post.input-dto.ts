@@ -1,12 +1,20 @@
 import { IsStringWithTrimDecorator } from '../../../../../core/decorators/validation/is-string-with-trim.decorator';
+import {
+  contentConstraints,
+  shortDirectionConstraints,
+  titleConstraints,
+} from '../../domain/entities/post.entity';
 
 export class PostInputDto {
-  @IsStringWithTrimDecorator(1, 30)
+  @IsStringWithTrimDecorator(titleConstraints.minLength, titleConstraints.maxLength)
   title: string;
 
-  @IsStringWithTrimDecorator(1, 100)
+  @IsStringWithTrimDecorator(
+    shortDirectionConstraints.minLength,
+    shortDirectionConstraints.maxLength,
+  )
   shortDescription: string;
 
-  @IsStringWithTrimDecorator(1, 1000)
+  @IsStringWithTrimDecorator(contentConstraints.minLength, contentConstraints.maxLength)
   content: string;
 }
