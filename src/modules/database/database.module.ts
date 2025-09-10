@@ -1,7 +1,5 @@
 import { Global, Module } from '@nestjs/common';
 import { DatabaseConfig } from './config/database.config';
-import { PgPoolProvider } from './providers/pg-pool.provider';
-import { PG_POOL } from './constants/database.constants';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { configModule } from '../../dynamic-config.module';
 import { ConfigService } from '@nestjs/config';
@@ -19,7 +17,7 @@ import { ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     }),
   ],
-  providers: [DatabaseConfig, PgPoolProvider],
-  exports: [PG_POOL, TypeOrmModule],
+  providers: [DatabaseConfig],
+  exports: [TypeOrmModule],
 })
 export class DatabaseModule {}

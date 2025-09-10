@@ -9,10 +9,10 @@ import { DomainExceptionCode } from '../../../../../core/exceptions/domain-excep
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(@InjectRepository(User) private readonly users: Repository<User>) {}
+  constructor(@InjectRepository(User) private readonly repository: Repository<User>) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<UserViewDto> {
-    const user: User | null = await this.users.findOneBy({ id });
+    const user: User | null = await this.repository.findOneBy({ id });
 
     if (!user) {
       throw new DomainException({
@@ -39,7 +39,7 @@ export class UsersQueryRepository {
     if (searchLoginTerm) whereOptions.push({ login: ILike(`%${searchLoginTerm}%`) });
     if (searchEmailTerm) whereOptions.push({ email: ILike(`%${searchEmailTerm}%`) });
 
-    const [users, totalCount]: [User[], number] = await this.users.findAndCount({
+    const [users, totalCount]: [User[], number] = await this.repository.findAndCount({
       select: ['id', 'login', 'email', 'createdAt'],
       where: whereOptions,
       order: {
