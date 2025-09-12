@@ -9,7 +9,7 @@ import {
 } from '../../../auth/domain/entities/email-confirmation-code.entity';
 import { PasswordRecoveryCode } from '../../../auth/domain/entities/password-recovery-code.entity';
 import { Session } from '../../../sessions/domain/entities/session.entity';
-import { DataSource } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { UserValidationService } from '../services/user-validation.service';
 import { UsersRepository } from '../../infrastructure/users.repository';
 import { UsersFactory } from '../factories/users.factory';
@@ -23,6 +23,7 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
   let module: TestingModule;
   let useCase: CreateUserByAdminUseCase;
   let dataSource: DataSource;
+  let repository: Repository<User>;
   let cryptoService: CryptoService;
   let spy: SpyInstance;
 
@@ -42,9 +43,10 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
       ],
     }).compile();
 
-    useCase = module.get(CreateUserByAdminUseCase);
+    useCase = module.get<CreateUserByAdminUseCase>(CreateUserByAdminUseCase);
     dataSource = module.get<DataSource>(DataSource);
     cryptoService = module.get<CryptoService>(CryptoService);
+    repository = dataSource.getRepository<User>(User);
     spy = jest.spyOn(cryptoService, 'createPasswordHash');
   });
 
@@ -74,7 +76,7 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
       expect(typeof userId).toBe('number');
       expect(userId).toBeGreaterThan(0);
 
-      const createdUser: User | null = await dataSource.getRepository<User>(User).findOne({
+      const createdUser: User | null = await repository.findOne({
         relations: {
           emailConfirmationCode: true,
         },
@@ -123,13 +125,13 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
       ]);
 
       const [createdUser_1, createdUser_2] = await Promise.all([
-        dataSource.getRepository<User>(User).findOne({
+        repository.findOne({
           relations: {
             emailConfirmationCode: true,
           },
           where: { id: userId_1 },
         }),
-        dataSource.getRepository<User>(User).findOne({
+        repository.findOne({
           relations: {
             emailConfirmationCode: true,
           },
@@ -171,7 +173,7 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
         expect(error.extensions[0].field).toBe('login');
       }
 
-      const usersCount: number = await dataSource.getRepository<User>(User).count();
+      const usersCount: number = await repository.count();
       expect(usersCount).toBe(1);
     });
 
@@ -198,7 +200,7 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
         expect(error.extensions[0].field).toBe('email');
       }
 
-      const usersCount: number = await dataSource.getRepository<User>(User).count();
+      const usersCount: number = await repository.count();
       expect(usersCount).toBe(1);
     });
 
@@ -225,7 +227,7 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
         expect(error.extensions[0].field).toBe('login');
       }
 
-      const usersCount: number = await dataSource.getRepository<User>(User).count();
+      const usersCount: number = await repository.count();
       expect(usersCount).toBe(1);
     });
   });
