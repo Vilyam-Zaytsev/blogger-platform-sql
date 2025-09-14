@@ -3,12 +3,11 @@ import { SessionContextDto } from '../../auth/domain/guards/dto/session-context.
 import { Session } from '../domain/entities/session.entity';
 import { DataSource, Not } from 'typeorm';
 import { BaseRepository } from '../../../../core/repositories/base.repository';
-import { User } from '../../users/domain/entities/user.entity';
 
 @Injectable()
 export class SessionsRepository extends BaseRepository<Session> {
   constructor(dataSource: DataSource) {
-    super(dataSource, User);
+    super(dataSource, Session);
   }
 
   async softDeleteCurrentSession(id: number): Promise<void> {
