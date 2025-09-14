@@ -20,7 +20,6 @@ export abstract class BaseRepository<Entity extends BaseEntity> {
     await this.repository.softDelete(id);
   }
 
-  //TODO: Если найду норм решение типизации параметров рассказать Алексею!
   async getById(id: number): Promise<Entity | null> {
     return await this.repository.findOneBy({ id } as FindOptionsWhere<Entity>);
   }
