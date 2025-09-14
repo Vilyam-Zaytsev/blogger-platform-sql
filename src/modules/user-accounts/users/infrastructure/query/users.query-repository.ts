@@ -24,6 +24,7 @@ export class UsersQueryRepository {
     return UserViewDto.mapToView(user);
   }
 
+  //TODO: переписать на queryBuilder
   async getAll(query: GetUsersQueryParams) {
     const {
       sortBy,
