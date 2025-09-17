@@ -1,5 +1,4 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { CreateSessionUseCase } from './create-session.usecase';
 import { DataSource, Repository } from 'typeorm';
 import { UsersFactory } from '../../../users/application/factories/users.factory';
 import { User } from '../../../users/domain/entities/user.entity';
