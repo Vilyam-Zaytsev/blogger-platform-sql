@@ -5,6 +5,7 @@ import { PostsRepository } from '../../infrastructure/posts.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { Blog } from '../../../blogs/domain/entities/blog.entity';
+import { Post } from '../../domain/entities/post.entity';
 
 export class CreatePostCommand {
   constructor(public readonly dto: CreatePostDto) {}
@@ -27,6 +28,8 @@ export class CreatePostUseCase implements ICommandHandler<CreatePostCommand> {
       });
     }
 
-    return await this.postsRepository.create(dto);
+    const post: Post = Post.create(dto);
+
+    return await this.postsRepository.save(post);
   }
 }

@@ -3,8 +3,8 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
-import { BlogDb } from '../../../blogs/types/blog-db.type';
-import { PostDb } from '../../types/post-db.type';
+import { Blog } from '../../../blogs/domain/entities/blog.entity';
+import { Post } from '../../domain/entities/post.entity';
 
 export class DeletePostCommand {
   constructor(
@@ -21,7 +21,7 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
   ) {}
 
   async execute({ blogId, postId }: DeletePostCommand) {
-    const blog: BlogDb | null = await this.blogsRepository.getById(blogId);
+    const blog: Blog | null = await this.blogsRepository.getById(blogId);
 
     if (!blog) {
       throw new DomainException({
@@ -30,7 +30,7 @@ export class DeletePostUseCase implements ICommandHandler<DeletePostCommand> {
       });
     }
 
-    const post: PostDb | null = await this.postsRepository.getById(postId);
+    const post: Post | null = await this.postsRepository.getById(postId);
 
     if (!post) {
       throw new DomainException({

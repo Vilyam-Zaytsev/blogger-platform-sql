@@ -7,7 +7,7 @@ import { PostsQueryRepository } from '../../infrastructure/query/posts.query-rep
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { BlogDb } from '../../../blogs/types/blog-db.type';
+import { Blog } from '../../../blogs/domain/entities/blog.entity';
 
 export class GetPostsForBlogQuery {
   constructor(
@@ -31,7 +31,7 @@ export class GetPostsForBlogQueryHandler
     user,
     blogId,
   }: GetPostsForBlogQuery): Promise<PaginatedViewDto<PostViewDto>> {
-    const blog: BlogDb | null = await this.blogsRepository.getById(blogId);
+    const blog: Blog | null = await this.blogsRepository.getById(blogId);
 
     if (!blog) {
       throw new DomainException({
