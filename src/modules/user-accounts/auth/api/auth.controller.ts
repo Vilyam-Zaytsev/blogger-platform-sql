@@ -4,7 +4,7 @@ import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UserInputDto } from '../../users/api/input-dto/user.input-dto';
 import { RegisterUserCommand } from '../aplication/usecases/register-user.useсase';
 import { RegistrationConfirmationCodeInputDto } from './input-dto/registration-confirmation-code.input-dto';
-import { ConfirmEmailCommand } from '../aplication/usecases/confirm-email-usecase';
+import { ConfirmEmailCommand } from '../aplication/usecases/confirm-email-use.case';
 import { RegistrationEmailResandingInputDto } from './input-dto/registration-email-resending.input-dto';
 import { ResendRegistrationEmailCommand } from '../aplication/usecases/resend-registration-email.usecase';
 import { LocalAuthGuard } from '../domain/guards/local/local-auth.guard';

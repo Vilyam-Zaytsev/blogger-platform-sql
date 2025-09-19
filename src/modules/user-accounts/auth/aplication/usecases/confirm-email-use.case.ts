@@ -30,7 +30,7 @@ export class ConfirmEmailUseCase implements ICommandHandler<ConfirmEmailCommand>
     if (!user) {
       throw new ValidationException([
         {
-          message: `Confirmation code (${code}) incorrect or the email address has already been confirmed`,
+          message: `Confirmation code (${code}) incorrect or the email address has already been confirmed.`,
           field: 'code',
         },
       ]);
@@ -44,7 +44,7 @@ export class ConfirmEmailUseCase implements ICommandHandler<ConfirmEmailCommand>
     ) {
       throw new ValidationException([
         {
-          message: `Email confirmation code has expired. Please request a new confirmation code.`,
+          message: 'Email confirmation code has expired. Please request a new confirmation code.',
           field: 'code',
         },
       ]);
@@ -53,7 +53,7 @@ export class ConfirmEmailUseCase implements ICommandHandler<ConfirmEmailCommand>
     if (emailConfirmationCode.confirmationStatus === ConfirmationStatus.Confirmed) {
       throw new ValidationException([
         {
-          message: `Email address has already been confirmed`,
+          message: 'Email address has already been confirmed.',
           field: 'code',
         },
       ]);
@@ -65,7 +65,7 @@ export class ConfirmEmailUseCase implements ICommandHandler<ConfirmEmailCommand>
     ) {
       throw new ValidationException([
         {
-          message: `No active confirmation code found. Please request a new confirmation code.`,
+          message: 'No active confirmation code found. Please request a new confirmation code.',
           field: 'code',
         },
       ]);

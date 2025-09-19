@@ -9,7 +9,7 @@ import { GetUsersQueryHandler } from './users/application/queries/get-users.quer
 import { DeleteUserUseCase } from './users/application/usecases/delete-user.usecase';
 import { AuthController } from './auth/api/auth.controller';
 import { RegisterUserUseCase } from './auth/aplication/usecases/register-user.useсase';
-import { ConfirmEmailUseCase } from './auth/aplication/usecases/confirm-email-usecase';
+import { ConfirmEmailUseCase } from './auth/aplication/usecases/confirm-email-use.case';
 import { NotificationsModule } from '../notifications/notifications.module';
 import { ResendRegistrationEmailUseCase } from './auth/aplication/usecases/resend-registration-email.usecase';
 import { BasicStrategy } from './auth/domain/guards/basic/basic.strategy';
@@ -40,6 +40,7 @@ import { EmailConfirmationCode } from './auth/domain/entities/email-confirmation
 import { PasswordRecoveryCode } from './auth/domain/entities/password-recovery-code.entity';
 import { UsersFactory } from './users/application/factories/users.factory';
 import { Session } from './sessions/domain/entities/session.entity';
+import { DateService } from './users/application/services/date.service';
 
 @Module({
   imports: [
@@ -84,6 +85,7 @@ import { Session } from './sessions/domain/entities/session.entity';
     //query-handlers
     GetUsersQueryHandler,
     //services
+    DateService,
     CryptoService,
     UserValidationService,
     //factories
