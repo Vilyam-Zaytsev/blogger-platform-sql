@@ -1,5 +1,4 @@
 import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
-import { add } from 'date-fns';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { RegistrationEmailResandingInputDto } from '../../api/input-dto/registration-email-resending.input-dto';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
@@ -9,6 +8,7 @@ import { DomainExceptionCode } from '../../../../../core/exceptions/domain-excep
 import { UserResendRegisteredEvent } from '../../domain/events/user-resend-registered.event';
 import { ConfirmationStatus } from '../../domain/entities/email-confirmation-code.entity';
 import { User } from '../../../users/domain/entities/user.entity';
+import { DateService } from '../../../users/application/services/date.service';
 
 export class ResendRegistrationEmailCommand {
   constructor(public readonly dto: RegistrationEmailResandingInputDto) {}
@@ -21,6 +21,7 @@ export class ResendRegistrationEmailUseCase
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly cryptoService: CryptoService,
+    private readonly dateService: DateService,
     private readonly eventBus: EventBus,
   ) {}
 
@@ -29,20 +30,30 @@ export class ResendRegistrationEmailUseCase
       dto.email,
     );
 
-    //TODO: нужно ли вынести эти проверки в отдельную функцию/метод?
+    this.validateResendPreconditions(user, dto.email);
+
+    const confirmationCode: string = this.cryptoService.generateUUID();
+    const expirationDate: Date = this.dateService.generateExpirationDate({ hours: 1 });
+
+    user.updateEmailConfirmationCode(confirmationCode, expirationDate);
+    await this.usersRepository.save(user);
+
+    this.eventBus.publish(new UserResendRegisteredEvent(user.email, confirmationCode));
+  }
+
+  private validateResendPreconditions(user: User | null, email: string): asserts user is User {
     if (!user) {
       throw new ValidationException([
         {
-          message: `The user with this email address (${dto.email}) was not found`,
+          message: `The user with this email address (${email}) was not found`,
           field: 'email',
         },
       ]);
     }
 
-    //TODO: объединить
     if (!user.emailConfirmationCode) {
       throw new DomainException({
-        code: DomainExceptionCode.NotFound,
+        code: DomainExceptionCode.InternalServerError,
         message: `Email confirmation request does not exist for user with id: ${user.id}`,
       });
     }
@@ -50,18 +61,10 @@ export class ResendRegistrationEmailUseCase
     if (user.emailConfirmationCode.confirmationStatus === ConfirmationStatus.Confirmed) {
       throw new ValidationException([
         {
-          message: `The email address (${dto.email}) has already been verified`,
+          message: `The email address (${email}) has already been verified`,
           field: 'email',
         },
       ]);
     }
-
-    const confirmationCode: string = this.cryptoService.generateUUID();
-    const expirationDate: Date = add(new Date(), { hours: 1, minutes: 1 });
-
-    user.updateEmailConfirmationCode(confirmationCode, expirationDate);
-    await this.usersRepository.save(user);
-
-    this.eventBus.publish(new UserResendRegisteredEvent(user.email, confirmationCode));
   }
 }
