@@ -245,6 +245,8 @@ describe('RegisterUserUseCase (Integration)', () => {
 
       try {
         await useCase.execute(new RegisterUserCommand(duplicateDto));
+
+        fail('Ожидали ValidationException');
       } catch (error) {
         expect(error).toBeInstanceOf(ValidationException);
         expect(error.code).toBe('ValidationError');
@@ -276,6 +278,8 @@ describe('RegisterUserUseCase (Integration)', () => {
 
       try {
         await useCase.execute(new RegisterUserCommand(fullDuplicateDto));
+
+        fail('Ожидали ValidationException');
       } catch (error) {
         expect(error).toBeInstanceOf(ValidationException);
         expect(error.code).toBe('ValidationError');

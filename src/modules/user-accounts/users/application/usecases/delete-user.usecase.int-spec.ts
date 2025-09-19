@@ -129,6 +129,8 @@ describe('DeleteUserUseCase (Integration)', () => {
 
       try {
         await useCase.execute(new DeleteUserCommand(nonExistentId));
+
+        fail('Ожидали DomainException');
         fail('Ожидалось выбрасывание DomainException');
       } catch (error) {
         expect(error).toBeInstanceOf(DomainException);

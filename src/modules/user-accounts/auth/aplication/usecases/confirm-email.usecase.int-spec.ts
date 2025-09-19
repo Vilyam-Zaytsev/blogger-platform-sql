@@ -117,6 +117,8 @@ describe('ConfirmEmailUseCase (Integration)', () => {
 
       try {
         await useCase.execute(new ConfirmEmailCommand(dto));
+
+        fail('Ожидали ValidationException');
       } catch (error) {
         expect(error).toBeInstanceOf(ValidationException);
         expect(error.code).toBe('ValidationError');
@@ -156,6 +158,8 @@ describe('ConfirmEmailUseCase (Integration)', () => {
 
       try {
         await useCase.execute(new ConfirmEmailCommand(dto));
+
+        fail('Ожидали ValidationException');
       } catch (error) {
         expect(error).toBeInstanceOf(ValidationException);
         expect(error.code).toBe('ValidationError');
@@ -182,6 +186,8 @@ describe('ConfirmEmailUseCase (Integration)', () => {
 
       try {
         await useCase.execute(new ConfirmEmailCommand(dto));
+
+        fail('Ожидали ValidationException');
       } catch (error) {
         expect(error).toBeInstanceOf(ValidationException);
         expect(error.code).toBe('ValidationError');
@@ -205,6 +211,8 @@ describe('ConfirmEmailUseCase (Integration)', () => {
 
       try {
         await useCase.execute(new ConfirmEmailCommand(dto));
+
+        fail('Ожидали ValidationException');
       } catch (error) {
         expect(error).toBeInstanceOf(ValidationException);
         expect(error.code).toBe('ValidationError');

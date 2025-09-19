@@ -167,6 +167,8 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
 
       try {
         await useCase.execute(new CreateUserCommand(duplicateLoginDto));
+
+        fail('Ожидали ValidationException');
       } catch (error) {
         expect(error).toBeInstanceOf(ValidationException);
         expect(error.code).toBe('ValidationError');
@@ -194,6 +196,8 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
 
       try {
         await useCase.execute(new CreateUserCommand(duplicateEmailDto));
+
+        fail('Ожидали ValidationException');
       } catch (error) {
         expect(error).toBeInstanceOf(ValidationException);
         expect(error.code).toBe('ValidationError');
@@ -221,6 +225,8 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
 
       try {
         await useCase.execute(new CreateUserCommand(duplicateEmailDto));
+
+        fail('Ожидали ValidationException');
       } catch (error) {
         expect(error).toBeInstanceOf(ValidationException);
         expect(error.code).toBe('ValidationError');
