@@ -1,6 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CommentViewDto } from '../../api/view-dto/comment-view.dto';
-import { PG_POOL } from '../../../../database/constants/database.constants';
 import { Pool, QueryResult } from 'pg';
 import { CommentsQueryDto } from '../../dto/comments-query.dto';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
@@ -17,7 +16,9 @@ import { ReactionStatus } from '../../../reactions/types/reaction-db.type';
 
 @Injectable()
 export class CommentsQueryRepository {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  pool: any = {};
+
+  constructor() {}
 
   async getByIdOrNotFoundFail(id: number, user?: number | null): Promise<CommentViewDto> {
     const {
@@ -157,24 +158,6 @@ export class CommentsQueryRepository {
 
     const totalCount: number = rows.length > 0 ? +rows[0].totalCount : 0;
 
-    return PaginatedViewDto.mapToView<CommentViewDto>({
-      totalCount,
-      page: pageNumber,
-      size: pageSize,
-      items: rows.map((row) => ({
-        id: row.id,
-        content: row.content,
-        commentatorInfo: {
-          userId: row.commentatorInfo.userId,
-          userLogin: row.commentatorInfo.userLogin,
-        },
-        likesInfo: {
-          likesCount: row.likesInfo.likesCount,
-          dislikesCount: row.likesInfo.dislikesCount,
-          myStatus: row.likesInfo.myStatus,
-        },
-        createdAt: new Date(row.createdAt).toISOString(),
-      })),
-    });
+    return {} as PaginatedViewDto<CommentViewDto>;
   }
 }

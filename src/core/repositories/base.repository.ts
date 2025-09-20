@@ -1,36 +1,26 @@
-import { Pool, QueryResult, QueryResultRow } from 'pg';
+import { DataSource, EntityTarget, FindOptionsWhere, Repository } from 'typeorm';
+import { BaseEntity } from '../entities/base.entity';
 
-export abstract class BaseRepository<TEntity extends QueryResultRow, TCreateDto, TUpdateDto> {
+export abstract class BaseRepository<Entity extends BaseEntity> {
+  protected readonly repository: Repository<Entity>;
+
   protected constructor(
-    protected readonly pool: Pool,
-    protected readonly tableName: string,
-  ) {}
+    protected readonly dataSource: DataSource,
+    protected readonly entity: EntityTarget<Entity>,
+  ) {
+    this.repository = this.dataSource.getRepository(entity);
+  }
+  async save(entity: Entity): Promise<number> {
+    const { id }: Entity = await this.repository.save(entity);
 
-  abstract create(dto: TCreateDto): Promise<number>;
-
-  abstract update(dto: TUpdateDto): Promise<void>;
-
-  async softDelete(id: number): Promise<void> {
-    const query = `
-      UPDATE "${this.tableName}"
-      SET "deletedAt" = NOW()
-      WHERE "id" = $1
-        AND "deletedAt" IS NULL
-    `;
-
-    await this.pool.query(query, [id]);
+    return id;
   }
 
-  async getById(id: number): Promise<TEntity | null> {
-    const query = `
-      SELECT *
-      FROM "${this.tableName}"
-      WHERE "id" = $1
-        AND "deletedAt" IS NULL
-    `;
+  async softDelete(id: number): Promise<void> {
+    await this.repository.softDelete(id);
+  }
 
-    const { rows }: QueryResult<TEntity> = await this.pool.query(query, [id]);
-
-    return rows[0] || null;
+  async getById(id: number): Promise<Entity | null> {
+    return await this.repository.findOneBy({ id } as FindOptionsWhere<Entity>);
   }
 }

@@ -8,7 +8,7 @@ import { AdminCredentials, TestResultLogin } from '../types';
 import { Server } from 'http';
 import { BlogsTestManager } from '../managers/blogs.test-manager';
 import { HttpStatus } from '@nestjs/common';
-import { PostViewDto } from '../../src/modules/bloggers-platform/posts/api/view-dto/post-view.dto';
+import { PostViewDto } from '../../src/modules/bloggers-platform/posts/api/view-dto/post.view-dto';
 import { PostsTestManager } from '../managers/posts.test-manager';
 import { UsersTestManager } from '../managers/users.test-manager';
 import { CommentInputDto } from '../../src/modules/bloggers-platform/comments/api/input-dto/comment-input.dto';

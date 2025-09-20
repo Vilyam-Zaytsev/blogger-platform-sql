@@ -4,9 +4,9 @@ import { CommentViewDto } from '../../api/view-dto/comment-view.dto';
 import { CommentsQueryRepository } from '../../infrastructure/query/comments.query-repository';
 import { PostsRepository } from '../../../posts/infrastructure/posts.repository';
 import { CommentsQueryDto } from '../../dto/comments-query.dto';
-import { PostDb } from '../../../posts/types/post-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { Post } from '../../../posts/domain/entities/post.entity';
 
 export class GetCommentsQuery {
   constructor(public readonly dto: CommentsQueryDto) {}
@@ -22,7 +22,7 @@ export class GetCommentsQueryHandler
   ) {}
 
   async execute({ dto }: GetCommentsQuery): Promise<PaginatedViewDto<CommentViewDto>> {
-    const post: PostDb | null = await this.postsRepository.getById(dto.postId);
+    const post: Post | null = await this.postsRepository.getById(dto.postId);
 
     if (!post) {
       throw new DomainException({

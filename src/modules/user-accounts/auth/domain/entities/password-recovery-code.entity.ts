@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, OneToOne, RelationId } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { User } from '../../../users/domain/entities/user.entity';
 
-@Entity()
+@Entity({ name: 'password_recovery_codes' })
 export class PasswordRecoveryCode extends BaseEntity {
   @Column({
     type: 'varchar',

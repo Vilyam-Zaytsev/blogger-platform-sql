@@ -1,6 +1,5 @@
-import { Inject, Injectable } from '@nestjs/common';
-import { PostViewDto } from '../../api/view-dto/post-view.dto';
-import { PG_POOL } from '../../../../database/constants/database.constants';
+import { Injectable } from '@nestjs/common';
+import { PostViewDto } from '../../api/view-dto/post.view-dto';
 import { Pool, QueryResult } from 'pg';
 import { UserContextDto } from '../../../../user-accounts/auth/domain/guards/dto/user-context.dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
@@ -16,7 +15,9 @@ import { PostRawRow } from '../../types/post-raw-row.type';
 
 @Injectable()
 export class PostsQueryRepository {
-  constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  pool: any = {};
+  constructor() {}
+  // constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
 
   async getByIdOrNotFoundFail(id: number, user: UserContextDto | null): Promise<PostViewDto> {
     const { rows }: QueryResult<PostViewDto> = await this.pool.query(

@@ -4,7 +4,6 @@ import { SessionsRepository } from '../../infrastructure/sessions.repository';
 import { parseUserAgent } from '../../../../../core/utils/user-agent.parser';
 import { SessionCreateDomainDto } from '../../domain/dto/session.create-domain.dto';
 import { Session } from '../../domain/entities/session.entity';
-import { UsersRepository } from '../../../users/infrastructure/users.repository';
 
 export class CreateSessionCommand {
   constructor(public readonly dto: CreateSessionDto) {}
@@ -12,10 +11,7 @@ export class CreateSessionCommand {
 
 @CommandHandler(CreateSessionCommand)
 export class CreateSessionUseCase implements ICommandHandler<CreateSessionCommand> {
-  constructor(
-    private readonly sessionsRepository: SessionsRepository,
-    private readonly usersRepository: UsersRepository,
-  ) {}
+  constructor(private readonly sessionsRepository: SessionsRepository) {}
 
   async execute({ dto }: CreateSessionCommand): Promise<void> {
     const deviceName: string = parseUserAgent(dto.userAgent);

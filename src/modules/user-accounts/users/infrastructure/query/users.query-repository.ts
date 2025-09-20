@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { UserViewDto } from '../../api/view-dto/user.view-dto';
 import { GetUsersQueryParams } from '../../api/input-dto/get-users-query-params.input-dto';
-import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '../../domain/entities/user.entity';
 import { FindOptionsWhere, ILike, Repository } from 'typeorm';
@@ -10,10 +9,10 @@ import { DomainExceptionCode } from '../../../../../core/exceptions/domain-excep
 
 @Injectable()
 export class UsersQueryRepository {
-  constructor(@InjectRepository(User) private readonly users: Repository<User>) {}
+  constructor(@InjectRepository(User) private readonly repository: Repository<User>) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<UserViewDto> {
-    const user: User | null = await this.users.findOneBy({ id });
+    const user: User | null = await this.repository.findOneBy({ id });
 
     if (!user) {
       throw new DomainException({
@@ -25,6 +24,7 @@ export class UsersQueryRepository {
     return UserViewDto.mapToView(user);
   }
 
+  //TODO: переписать на queryBuilder
   async getAll(query: GetUsersQueryParams) {
     const {
       sortBy,
@@ -40,7 +40,7 @@ export class UsersQueryRepository {
     if (searchLoginTerm) whereOptions.push({ login: ILike(`%${searchLoginTerm}%`) });
     if (searchEmailTerm) whereOptions.push({ email: ILike(`%${searchEmailTerm}%`) });
 
-    const [users, totalCount]: [User[], number] = await this.users.findAndCount({
+    const [users, totalCount]: [User[], number] = await this.repository.findAndCount({
       select: ['id', 'login', 'email', 'createdAt'],
       where: whereOptions,
       order: {
@@ -50,15 +50,14 @@ export class UsersQueryRepository {
       skip,
     });
 
-    const items: UserViewDto[] = users.map(
-      (user: User): UserViewDto => UserViewDto.mapToView(user),
-    );
+    const pagesCount = Math.ceil(totalCount / pageSize);
 
-    return PaginatedViewDto.mapToView<UserViewDto>({
-      items,
-      totalCount,
+    return {
+      pagesCount,
       page: pageNumber,
-      size: pageSize,
-    });
+      pageSize,
+      totalCount,
+      items: users.map((user: User): UserViewDto => UserViewDto.mapToView(user)),
+    };
   }
 }

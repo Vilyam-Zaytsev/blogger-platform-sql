@@ -5,5 +5,9 @@
   "testRegex": ".int-spec.ts$",
   "transform": {
     "^.+\\.(t|j)s$": "ts-jest"
+  },
+  "moduleNameMapper": {
+    "@/dbModule/(.*)$": "<rootDir>/modules/database/$1"
+
   }
 }

@@ -1,12 +1,12 @@
 import { BlogsRepository } from '../../infrastructure/blogs.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdateBlogDto } from '../../dto/update-blog.dto';
+import { BlogUpdateDto } from '../../dto/blog.update-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { BlogDb } from '../../types/blog-db.type';
+import { Blog } from '../../domain/entities/blog.entity';
 
 export class UpdateBlogCommand {
-  constructor(public readonly dto: UpdateBlogDto) {}
+  constructor(public readonly dto: BlogUpdateDto) {}
 }
 
 @CommandHandler(UpdateBlogCommand)
@@ -14,7 +14,7 @@ export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
   constructor(private readonly blogsRepository: BlogsRepository) {}
 
   async execute({ dto }: UpdateBlogCommand): Promise<void> {
-    const blog: BlogDb | null = await this.blogsRepository.getById(dto.id);
+    const blog: Blog | null = await this.blogsRepository.getById(dto.id);
 
     if (!blog) {
       throw new DomainException({
@@ -23,6 +23,7 @@ export class UpdateBlogUseCase implements ICommandHandler<UpdateBlogCommand> {
       });
     }
 
-    await this.blogsRepository.update(dto);
+    blog.update(dto);
+    await this.blogsRepository.save(blog);
   }
 }

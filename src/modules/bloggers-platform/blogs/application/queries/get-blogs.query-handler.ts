@@ -1,8 +1,8 @@
 import { GetBlogsQueryParams } from '../../api/input-dto/get-blogs-query-params.input-dto';
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
-import { BlogViewDto } from '../../api/view-dto/blog-view.dto';
 import { BlogsQueryRepository } from '../../infrastructure/query/blogs.query-repository';
+import { BlogViewDto } from '../../api/view-dto/blog.view-dto';
 
 export class GetBlogsQuery {
   constructor(public readonly queryParams: GetBlogsQueryParams) {}

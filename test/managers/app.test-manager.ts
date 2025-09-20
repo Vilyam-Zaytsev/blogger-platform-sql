@@ -5,13 +5,12 @@ import { Server } from 'http';
 import { CoreConfig } from '../../src/core/core.config';
 import { initAppModule } from '../../src/init-app-module';
 import { ThrottlerStorage } from '@nestjs/throttler';
-import { Pool } from 'pg';
-import { PG_POOL } from '../../src/modules/database/constants/database.constants';
 import { AdminCredentials, MemoryThrottlerStorageLike } from '../types';
+import { DataSource } from 'typeorm';
 
 export class AppTestManager {
   app: INestApplication;
-  pool: Pool;
+  dataSource: DataSource;
   coreConfig: CoreConfig;
 
   async init(addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void) {
@@ -30,7 +29,7 @@ export class AppTestManager {
     this.app = testingAppModule.createNestApplication();
 
     this.coreConfig = this.app.get<CoreConfig>(CoreConfig);
-    this.pool = this.app.get<Pool>(PG_POOL);
+    this.dataSource = this.app.get<DataSource>(DataSource);
 
     appSetup(this.app, this.coreConfig.isSwaggerEnabled);
 
@@ -38,16 +37,16 @@ export class AppTestManager {
   }
 
   async cleanupDb(excludedTables: string[]) {
-    const tables = await this.pool.query(
+    const tables: Array<{ table_name: string }> = await this.dataSource.query(
       "SELECT table_name FROM information_schema.tables WHERE table_schema='public'",
     );
 
     await Promise.all(
-      tables.rows
-        .map((row) => row.table_name)
+      tables
+        .map((row: { table_name: string }) => row.table_name)
         .filter((tableName) => !excludedTables.includes(tableName))
         .map(async (tableName) => {
-          await this.pool.query(`TRUNCATE TABLE "${tableName}" RESTART IDENTITY CASCADE`);
+          await this.dataSource.query(`TRUNCATE TABLE "${tableName}" RESTART IDENTITY CASCADE`);
         }),
     );
   }
@@ -63,7 +62,7 @@ export class AppTestManager {
   }
 
   async close() {
-    await this.pool.end();
+    await this.dataSource.destroy();
     await this.app.close();
   }
 

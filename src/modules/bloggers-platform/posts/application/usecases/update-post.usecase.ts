@@ -2,10 +2,10 @@ import { PostsRepository } from '../../infrastructure/posts.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdatePostDto } from '../../dto/update-post.dto';
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
-import { BlogDb } from '../../../blogs/types/blog-db.type';
-import { PostDb } from '../../types/post-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { Blog } from '../../../blogs/domain/entities/blog.entity';
+import { Post } from '../../domain/entities/post.entity';
 
 export class UpdatePostCommand {
   constructor(public readonly dto: UpdatePostDto) {}
@@ -19,7 +19,7 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
   ) {}
 
   async execute({ dto }: UpdatePostCommand): Promise<void> {
-    const blog: BlogDb | null = await this.blogsRepository.getById(dto.blogId);
+    const blog: Blog | null = await this.blogsRepository.getById(dto.blogId);
 
     if (!blog) {
       throw new DomainException({
@@ -28,7 +28,7 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
       });
     }
 
-    const post: PostDb | null = await this.postsRepository.getById(dto.postId);
+    const post: Post | null = await this.postsRepository.getById(dto.postId);
 
     if (!post) {
       throw new DomainException({

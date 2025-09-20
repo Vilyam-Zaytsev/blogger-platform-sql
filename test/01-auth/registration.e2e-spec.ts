@@ -54,7 +54,7 @@ describe('AuthController - registration() (POST: /auth/registration)', () => {
     await appTestManager.close();
   });
 
-  it('should be registered if the user has sent the correct data (login or email address and password).', async () => {
+  it.only('should be registered if the user has sent the correct data (login or email address and password).', async () => {
     // 🔻 Создаем тестовые данные для регистрации пользователя
     const [dto]: UserInputDto[] = TestDtoFactory.generateUserInputDto(1);
 

@@ -2,12 +2,12 @@ import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { GetPostsQueryParams } from '../../api/input-dto/get-posts-query-params.input-dto';
 import { UserContextDto } from '../../../../user-accounts/auth/domain/guards/dto/user-context.dto';
-import { PostViewDto } from '../../api/view-dto/post-view.dto';
+import { PostViewDto } from '../../api/view-dto/post.view-dto';
 import { PostsQueryRepository } from '../../infrastructure/query/posts.query-repository';
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { BlogDb } from '../../../blogs/types/blog-db.type';
+import { Blog } from '../../../blogs/domain/entities/blog.entity';
 
 export class GetPostsForBlogQuery {
   constructor(
@@ -31,7 +31,7 @@ export class GetPostsForBlogQueryHandler
     user,
     blogId,
   }: GetPostsForBlogQuery): Promise<PaginatedViewDto<PostViewDto>> {
-    const blog: BlogDb | null = await this.blogsRepository.getById(blogId);
+    const blog: Blog | null = await this.blogsRepository.getById(blogId);
 
     if (!blog) {
       throw new DomainException({

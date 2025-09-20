@@ -10,8 +10,8 @@ import { BlogViewDto } from 'src/modules/bloggers-platform/blogs/api/view-dto/bl
 import { HttpStatus } from '@nestjs/common';
 import { BlogsTestManager } from '../../managers/blogs.test-manager';
 import { PostsTestManager } from '../../managers/posts.test-manager';
-import { PostInputDto } from '../../../src/modules/bloggers-platform/posts/api/input-dto/post-input.dto';
-import { PostViewDto } from '../../../src/modules/bloggers-platform/posts/api/view-dto/post-view.dto';
+import { PostInputDto } from '../../../src/modules/bloggers-platform/posts/api/input-dto/post.input-dto';
+import { PostViewDto } from '../../../src/modules/bloggers-platform/posts/api/view-dto/post.view-dto';
 import { ReactionStatus } from '../../../src/modules/bloggers-platform/reactions/types/reaction-db.type';
 import { PaginatedViewDto } from '../../../src/core/dto/paginated.view-dto';
 

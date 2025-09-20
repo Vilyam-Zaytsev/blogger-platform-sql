@@ -8,7 +8,7 @@ import { Server } from 'http';
 import { BlogViewDto } from 'src/modules/bloggers-platform/blogs/api/view-dto/blog-view.dto';
 import { BlogsTestManager } from '../managers/blogs.test-manager';
 import { HttpStatus } from '@nestjs/common';
-import { PostViewDto } from '../../src/modules/bloggers-platform/posts/api/view-dto/post-view.dto';
+import { PostViewDto } from '../../src/modules/bloggers-platform/posts/api/view-dto/post.view-dto';
 import { PostsTestManager } from '../managers/posts.test-manager';
 import { GetBlogsQueryParams } from '../../src/modules/bloggers-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
 import { Filter } from '../helpers/filter';
