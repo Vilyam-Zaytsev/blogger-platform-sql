@@ -1,4 +1,5 @@
 import { Blog } from '../../domain/entities/blog.entity';
+import { RawBlog } from '../../infrastructure/dto/raw-blog.type';
 
 export class BlogViewDto {
   id: string;
@@ -8,7 +9,8 @@ export class BlogViewDto {
   createdAt: string;
   isMembership: boolean;
 
-  static mapToView(blog: Blog): BlogViewDto {
+  //TODO: нормально ли так расширять тип?
+  static mapToView(blog: Blog | RawBlog): BlogViewDto {
     const dto = new this();
 
     dto.id = blog.id.toString();
