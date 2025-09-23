@@ -7,12 +7,11 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from '../../domain/entities/blog.entity';
 import { Repository } from 'typeorm';
 import { BlogViewDto } from '../../api/view-dto/blog.view-dto';
+import { RawBlog } from '../dto/raw-blog.type';
 
 @Injectable()
 export class BlogsQueryRepository {
   constructor(@InjectRepository(Blog) private readonly repository: Repository<Blog>) {}
-
-  //TODO: нормально ли в одном репо использовать и репозиторий и qb
 
   async getByIdOrNotFoundFail(id: number): Promise<BlogViewDto> {
     const blog: Blog | null = await this.repository.findOneBy({ id });
@@ -32,7 +31,16 @@ export class BlogsQueryRepository {
       queryParams;
     const skip: number = queryParams.calculateSkip();
 
-    const qb = this.repository.createQueryBuilder('blog');
+    const qb = this.repository
+      .createQueryBuilder('blog')
+      .select([
+        'blog.id AS "id"',
+        'blog.name AS "name"',
+        'blog.description AS "description"',
+        'blog.websiteUrl AS "websiteUrl"',
+        'blog.createdAt AS "createdAt"',
+        'blog.isMembership AS "isMembership"',
+      ]);
 
     if (searchNameTerm) {
       qb.andWhere('blog.name ILIKE :name', { name: `%${searchNameTerm}%` });
@@ -41,15 +49,16 @@ export class BlogsQueryRepository {
     qb.orderBy(`blog.${sortBy}`, sortDirection.toUpperCase() as 'ASC' | 'DESC');
     qb.skip(skip).take(pageSize);
 
-    const [users, totalCount] = await qb.getManyAndCount();
-    const pagesCount = Math.ceil(totalCount / pageSize);
+    const rawBlogs: RawBlog[] = await qb.getRawMany();
+    const totalCount: number = await qb.getCount();
+    const pagesCount: number = Math.ceil(totalCount / pageSize);
 
     return {
       pagesCount,
       page: pageNumber,
       pageSize,
       totalCount,
-      items: users.map((blog) => BlogViewDto.mapToView(blog)),
+      items: rawBlogs.map((blog) => BlogViewDto.mapToView(blog)),
     };
   }
 }
