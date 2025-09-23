@@ -14,6 +14,7 @@ import { CreateUserDto } from '../../dto/create-user.dto';
 import { CryptoService } from '../services/crypto.service';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { DateService } from '../services/date.service';
 
 describe('DeleteUserUseCase (Integration)', () => {
   let module: TestingModule;
@@ -29,7 +30,7 @@ describe('DeleteUserUseCase (Integration)', () => {
         CoreModule,
         TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode, Session]),
       ],
-      providers: [DeleteUserUseCase, UsersRepository, UsersFactory, CryptoService],
+      providers: [DeleteUserUseCase, UsersRepository, UsersFactory, CryptoService, DateService],
     }).compile();
 
     useCase = module.get<DeleteUserUseCase>(DeleteUserUseCase);

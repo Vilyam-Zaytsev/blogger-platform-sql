@@ -16,6 +16,7 @@ import { CreateUserDto } from '../../../users/dto/create-user.dto';
 import { SessionContextDto } from '../../../auth/domain/guards/dto/session-context.dto';
 import { SessionViewDto } from '../../api/view-dto/session.view-dto';
 import { SessionsQueryRepository } from '../../infrastructure/query/sessions.query-repository';
+import { DateService } from '../../../users/application/services/date.service';
 
 describe('GetSessionsQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -39,6 +40,7 @@ describe('GetSessionsQueryHandler (Integration)', () => {
         UsersRepository,
         UsersFactory,
         CryptoService,
+        DateService,
       ],
     }).compile();
 

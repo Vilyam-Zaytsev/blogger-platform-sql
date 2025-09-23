@@ -14,6 +14,7 @@ import { UsersRepository } from '../../../users/infrastructure/users.repository'
 import { CryptoService } from '../../../users/application/services/crypto.service';
 import { CreateUserDto } from '../../../users/dto/create-user.dto';
 import { SessionContextDto } from '../../../auth/domain/guards/dto/session-context.dto';
+import { DateService } from '../../../users/application/services/date.service';
 
 describe('DeleteSessionsUseCase (Integration)', () => {
   let module: TestingModule;
@@ -36,6 +37,7 @@ describe('DeleteSessionsUseCase (Integration)', () => {
         UsersRepository,
         UsersFactory,
         CryptoService,
+        DateService,
       ],
     }).compile();
 

@@ -21,6 +21,7 @@ import { EventBus } from '@nestjs/cqrs';
 import { UserRegisteredEvent } from '../../domain/events/user-registered.event';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import SpyInstance = jest.SpyInstance;
+import { DateService } from '../../../users/application/services/date.service';
 
 describe('RegisterUserUseCase (Integration)', () => {
   let module: TestingModule;
@@ -44,6 +45,7 @@ describe('RegisterUserUseCase (Integration)', () => {
         UsersFactory,
         UsersRepository,
         CryptoService,
+        DateService,
       ],
     })
       .overrideProvider(EventBus)

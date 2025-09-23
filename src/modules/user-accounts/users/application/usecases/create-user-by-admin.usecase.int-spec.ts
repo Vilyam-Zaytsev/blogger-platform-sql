@@ -18,6 +18,7 @@ import { CreateUserDto } from '../../dto/create-user.dto';
 import { DatabaseModule } from '../../../../database/database.module';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import SpyInstance = jest.SpyInstance;
+import { DateService } from '../services/date.service';
 
 describe('CreateUserByAdminUseCase (Integration)', () => {
   let module: TestingModule;
@@ -40,6 +41,7 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
         UsersRepository,
         UsersFactory,
         CryptoService,
+        DateService,
       ],
     }).compile();
 
