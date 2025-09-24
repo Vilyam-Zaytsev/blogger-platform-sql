@@ -7,6 +7,7 @@ import {
 import { UserCreateDomainDto } from '../dto/user.create-domain-dto';
 import { PasswordRecoveryCode } from '../../../auth/domain/entities/password-recovery-code.entity';
 import { Session } from '../../../sessions/domain/entities/session.entity';
+import { Reaction } from '../../../../bloggers-platform/reactions/domain/entities/reaction.entity';
 
 export const loginConstraints = {
   minLength: 3,
@@ -112,4 +113,7 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Session, (session) => session.user)
   sessions: Session[];
+
+  @OneToMany(() => Reaction, (reaction) => reaction.user)
+  reactions: Reaction[];
 }

@@ -31,9 +31,11 @@ import { UpdateCommentReactionUseCase } from './comments/application/usecases/up
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Blog } from './blogs/domain/entities/blog.entity';
 import { Post } from './posts/domain/entities/post.entity';
+import { Reaction } from './reactions/domain/entities/reaction.entity';
+import { ReactionPost } from './reactions/domain/entities/reaction-post.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Blog, Post]), UserAccountsModule],
+  imports: [TypeOrmModule.forFeature([Blog, Post, Reaction, ReactionPost]), UserAccountsModule],
   controllers: [BlogsAdminController, BlogsPublicController, PostsController, CommentsController],
   providers: [
     //🔸 Blogs:
