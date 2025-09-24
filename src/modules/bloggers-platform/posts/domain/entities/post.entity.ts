@@ -1,7 +1,8 @@
-import { Check, Column, Entity, ManyToOne } from 'typeorm';
+import { Check, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { Blog } from '../../../blogs/domain/entities/blog.entity';
 import { CreatePostDto } from '../../application/dto/create-post.dto';
+import { ReactionPost } from '../../../reactions/domain/entities/reaction-post.entity';
 
 export const titleConstraints = {
   minLength: 1,
@@ -75,4 +76,7 @@ export class Post extends BaseEntity {
 
   @Column()
   public blogId: number;
+
+  @OneToMany(() => ReactionPost, (reaction) => reaction.post)
+  public reactions: ReactionPost[];
 }
