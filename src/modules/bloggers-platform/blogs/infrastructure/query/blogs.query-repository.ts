@@ -14,7 +14,19 @@ export class BlogsQueryRepository {
   constructor(@InjectRepository(Blog) private readonly repository: Repository<Blog>) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<BlogViewDto> {
-    const blog: Blog | null = await this.repository.findOneBy({ id });
+    const blog: RawBlog | null =
+      (await this.repository
+        .createQueryBuilder('blog')
+        .select([
+          'blog.id AS "id"',
+          'blog.name AS "name"',
+          'blog.description AS "description"',
+          'blog.websiteUrl AS "websiteUrl"',
+          'blog.createdAt AS "createdAt"',
+          'blog.isMembership AS "isMembership"',
+        ])
+        .where('blog.id = :id', { id })
+        .getRawOne()) ?? null;
 
     if (!blog) {
       throw new DomainException({
