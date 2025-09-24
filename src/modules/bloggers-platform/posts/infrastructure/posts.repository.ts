@@ -1,28 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { Pool, QueryResult } from 'pg';
+import { QueryResult } from 'pg';
 import { PostDb } from '../types/post-db.type';
 import { CreatePostDto } from '../application/dto/create-post.dto';
 import { UpdatePostDto } from '../application/dto/update-post.dto';
 import { ReactionDb, ReactionStatus } from '../../reactions/types/reaction-db.type';
 import { CreateReactionDto } from '../../reactions/dto/create-reaction.dto';
 import { Post } from '../domain/entities/post.entity';
+import { BaseRepository } from '../../../../core/repositories/base.repository';
+import { DataSource } from 'typeorm';
 
 @Injectable()
-export class PostsRepository {
+export class PostsRepository extends BaseRepository<Post> {
   pool: any = {};
-  constructor() {}
+  constructor(dataSource: DataSource) {
+    super(dataSource, Post);
+  }
 
   // 🔸 Posts:
-
-  async save(post: Post): Promise<number> {
-    return 1;
-  }
-
-  async softDelete(id: number): Promise<void> {}
-
-  async getById(id: number): Promise<Post | null> {
-    return id < 3 ? ({} as Post) : null;
-  }
 
   async create(dto: CreatePostDto): Promise<number> {
     const query = `
