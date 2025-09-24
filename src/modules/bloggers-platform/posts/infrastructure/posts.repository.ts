@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Pool, QueryResult } from 'pg';
 import { PostDb } from '../types/post-db.type';
-import { CreatePostDto } from '../dto/create-post.dto';
-import { UpdatePostDto } from '../dto/update-post.dto';
+import { CreatePostDto } from '../application/dto/create-post.dto';
+import { UpdatePostDto } from '../application/dto/update-post.dto';
 import { ReactionDb, ReactionStatus } from '../../reactions/types/reaction-db.type';
 import { CreateReactionDto } from '../../reactions/dto/create-reaction.dto';
 import { Post } from '../domain/entities/post.entity';

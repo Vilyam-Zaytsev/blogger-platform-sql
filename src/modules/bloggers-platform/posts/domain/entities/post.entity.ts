@@ -1,7 +1,7 @@
 import { Check, Column, Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { Blog } from '../../../blogs/domain/entities/blog.entity';
-import { CreatePostDto } from '../../dto/create-post.dto';
+import { CreatePostDto } from '../../application/dto/create-post.dto';
 
 export const titleConstraints = {
   minLength: 1,

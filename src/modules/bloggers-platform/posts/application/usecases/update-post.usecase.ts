@@ -1,6 +1,6 @@
 import { PostsRepository } from '../../infrastructure/posts.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdatePostDto } from '../../dto/update-post.dto';
+import { UpdatePostDto } from '../dto/update-post.dto';
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
