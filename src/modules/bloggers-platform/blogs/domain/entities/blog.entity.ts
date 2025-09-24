@@ -1,6 +1,6 @@
 import { Check, Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
-import { BlogUpdateDto } from '../../dto/blog.update-dto';
+import { BlogUpdateDto } from '../../application/dto/blog.update-dto';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
 import { Post } from '../../../posts/domain/entities/post.entity';
 
