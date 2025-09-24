@@ -15,6 +15,7 @@ import { UsersRepository } from '../../../users/infrastructure/users.repository'
 import { CryptoService } from '../../../users/application/services/crypto.service';
 import { CreateUserDto } from '../../../users/dto/create-user.dto';
 import { CreateSessionDto } from '../../dto/create-session.dto';
+import { DateService } from '../../../users/application/services/date.service';
 
 jest.mock('../../../../../core/utils/user-agent.parser');
 const mockParseUserAgent = parseUserAgent as jest.MockedFunction<typeof parseUserAgent>;
@@ -40,6 +41,7 @@ describe('CreateSessionUseCase (Integration)', () => {
         UsersRepository,
         UsersFactory,
         CryptoService,
+        DateService,
       ],
     }).compile();
 

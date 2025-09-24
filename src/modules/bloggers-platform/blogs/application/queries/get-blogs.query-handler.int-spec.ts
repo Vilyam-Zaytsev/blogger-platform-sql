@@ -220,22 +220,23 @@ describe('GetBlogsQueryHandler (Integration)', () => {
     });
 
     //TODO: баг с подсчетом totalCount
-    // it.only('должен возвращать пустой список для несуществующей страницы', async () => {
-    //   const queryParams: GetBlogsQueryParams = createQueryParams({
-    //     pageNumber: 10,
-    //     pageSize: 10,
-    //   });
-    //
-    //   const result: PaginatedViewDto<BlogViewDto> = await queryHandler.execute(
-    //     new GetBlogsQuery(queryParams),
-    //   );
-    //
-    //   expect(result.items).toHaveLength(0);
-    //   expect(result.totalCount).toBe(25);
-    //   expect(result.pagesCount).toBe(3);
-    //   expect(result.page).toBe(10);
-    //   expect(result.pageSize).toBe(10);
-    // });
+    it('должен возвращать пустой список для несуществующей страницы', async () => {
+      const queryParams: GetBlogsQueryParams = createQueryParams({
+        pageNumber: 10,
+        pageSize: 10,
+      });
+
+      const result: PaginatedViewDto<BlogViewDto> = await queryHandler.execute(
+        new GetBlogsQuery(queryParams),
+      );
+
+      console.log(result);
+      expect(result.items).toHaveLength(0);
+      expect(result.totalCount).toBe(25);
+      expect(result.pagesCount).toBe(3);
+      expect(result.page).toBe(10);
+      expect(result.pageSize).toBe(10);
+    });
   });
 
   describe('сортировка', () => {

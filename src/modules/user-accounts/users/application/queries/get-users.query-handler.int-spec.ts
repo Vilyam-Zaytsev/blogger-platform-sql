@@ -20,6 +20,7 @@ import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { UserViewDto } from '../../api/view-dto/user.view-dto';
 import { UsersQueryRepository } from '../../infrastructure/query/users.query-repository';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
+import { DateService } from '../services/date.service';
 
 describe('GetUsersQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -41,6 +42,7 @@ describe('GetUsersQueryHandler (Integration)', () => {
         UsersQueryRepository,
         UsersFactory,
         CryptoService,
+        DateService,
       ],
     }).compile();
 

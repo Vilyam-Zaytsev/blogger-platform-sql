@@ -16,6 +16,7 @@ import { CreateUserDto } from '../../../users/dto/create-user.dto';
 import { SessionContextDto } from '../../../auth/domain/guards/dto/session-context.dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { DateService } from '../../../users/application/services/date.service';
 
 describe('DeleteSessionUseCase (Integration)', () => {
   let module: TestingModule;
@@ -38,6 +39,7 @@ describe('DeleteSessionUseCase (Integration)', () => {
         UsersRepository,
         UsersFactory,
         CryptoService,
+        DateService,
       ],
     }).compile();
 

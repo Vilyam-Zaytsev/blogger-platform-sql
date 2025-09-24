@@ -8,7 +8,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Post } from '../../../posts/domain/entities/post.entity';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
 import { UpdateBlogCommand, UpdateBlogUseCase } from './update-blog.usecase';
-import { BlogUpdateDto } from '../../dto/blog.update-dto';
+import { BlogUpdateDto } from '../dto/blog.update-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 

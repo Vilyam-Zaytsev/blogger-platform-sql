@@ -1,12 +1,12 @@
 import { Server } from 'http';
-import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/api/view-dto/blog-view.dto';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import { HttpStatus } from '@nestjs/common';
 import request, { Response } from 'supertest';
 import { GetBlogsQueryParams } from '../../src/modules/bloggers-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
 import { PaginatedViewDto } from '../../src/core/dto/paginated.view-dto';
-import { BlogInputDto } from '../../src/modules/bloggers-platform/blogs/api/input-dto/blog-input.dto';
 import { TestDtoFactory } from '../helpers/test.dto-factory';
+import { BlogInputDto } from '../../src/modules/bloggers-platform/blogs/api/input-dto/blog.input-dto';
+import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/api/view-dto/blog.view-dto';
 
 export class BlogsTestManager {
   constructor(

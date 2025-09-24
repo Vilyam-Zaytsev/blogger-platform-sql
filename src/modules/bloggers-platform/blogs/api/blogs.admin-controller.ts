@@ -20,7 +20,7 @@ import { GetBlogsQueryParams } from './input-dto/get-blogs-query-params.input-dt
 import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetBlogsQuery } from '../application/queries/get-blogs.query-handler';
 import { UpdateBlogCommand } from '../application/usecases/update-blog.usecase';
-import { BlogUpdateDto } from '../dto/blog.update-dto';
+import { BlogUpdateDto } from '../application/dto/blog.update-dto';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
 import { PostInputDto } from '../../posts/api/input-dto/post.input-dto';
 import { PostViewDto } from '../../posts/api/view-dto/post.view-dto';
