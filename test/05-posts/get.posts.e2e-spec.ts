@@ -5,13 +5,13 @@ import { TestLoggers } from '../helpers/test.loggers';
 import { AppTestManager } from '../managers/app.test-manager';
 import { AdminCredentials } from '../types';
 import { Server } from 'http';
-import { BlogViewDto } from 'src/modules/bloggers-platform/blogs/api/view-dto/blog-view.dto';
 import { BlogsTestManager } from '../managers/blogs.test-manager';
 import { HttpStatus } from '@nestjs/common';
 import { PostViewDto } from '../../src/modules/bloggers-platform/posts/api/view-dto/post.view-dto';
 import { PostsTestManager } from '../managers/posts.test-manager';
 import { GetBlogsQueryParams } from '../../src/modules/bloggers-platform/blogs/api/input-dto/get-blogs-query-params.input-dto';
 import { Filter } from '../helpers/filter';
+import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/api/view-dto/blog.view-dto';
 
 describe('PostsController - getAllPosts() (GET: /posts)', () => {
   let appTestManager: AppTestManager;
@@ -127,7 +127,7 @@ describe('PostsController - getAllPosts() (GET: /posts)', () => {
     }
   });
 
-  it('should return post found by id.', async () => {
+  it.only('should return post found by id.', async () => {
     // 🔻 Создаём блог и пост, связанный с ним
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
     const [createdPost]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog.id);

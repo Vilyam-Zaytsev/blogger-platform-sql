@@ -5,12 +5,12 @@ import { TestLoggers } from '../../helpers/test.loggers';
 import { AppTestManager } from '../../managers/app.test-manager';
 import { AdminCredentials } from '../../types';
 import { Server } from 'http';
-import { BlogViewDto } from 'src/modules/bloggers-platform/blogs/api/view-dto/blog-view.dto';
 import { BlogsTestManager } from '../../managers/blogs.test-manager';
 import { HttpStatus } from '@nestjs/common';
 import { PostViewDto } from '../../../src/modules/bloggers-platform/posts/api/view-dto/post.view-dto';
 import { PostsTestManager } from '../../managers/posts.test-manager';
 import { PaginatedViewDto } from '../../../src/core/dto/paginated.view-dto';
+import { BlogViewDto } from '../../../src/modules/bloggers-platform/blogs/api/view-dto/blog.view-dto';
 
 describe('BlogsAdminController - deletePost() (DELETE: /sa/blogs/:blogId/posts/:postId)', () => {
   let appTestManager: AppTestManager;
