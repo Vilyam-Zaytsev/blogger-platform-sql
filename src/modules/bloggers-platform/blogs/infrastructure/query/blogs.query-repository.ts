@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Blog } from '../../domain/entities/blog.entity';
 import { Repository } from 'typeorm';
 import { BlogViewDto } from '../../api/view-dto/blog.view-dto';
-import { RawBlog } from '../dto/raw-blog.type';
+import { RawBlog } from '../types/raw-blog.type';
 
 @Injectable()
 export class BlogsQueryRepository {
