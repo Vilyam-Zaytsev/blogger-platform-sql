@@ -95,16 +95,16 @@ export class CommentsRepository {
 //
 //   // 🔸 Comments:
 //
-//   async create(dto: CreateCommentDomainDto): Promise<number> {
+//   async create(types: CreateCommentDomainDto): Promise<number> {
 //     const query = `
 //       INSERT INTO "Comments" ("postId", "commentatorId", "content")
 //       VALUES ($1, $2, $3) RETURNING "id";
 //     `;
 //
 //     const { rows }: QueryResult<{ id: number }> = await this.pool.query(query, [
-//       dto.postId,
-//       dto.commentatorId,
-//       dto.content,
+//       types.postId,
+//       types.commentatorId,
+//       types.content,
 //     ]);
 //
 //     return rows[0].id;
@@ -120,40 +120,40 @@ export class CommentsRepository {
 //
 //   // 🔸 Comments:
 //
-//   async create(dto: CreateCommentDomainDto): Promise<number> {
+//   async create(types: CreateCommentDomainDto): Promise<number> {
 //     const query = `
 //       INSERT INTO "Comments" ("postId", "commentatorId", "content")
 //       VALUES ($1, $2, $3) RETURNING "id";
 //     `;
 //
 //     const { rows }: QueryResult<{ id: number }> = await this.pool.query(query, [
-//       dto.postId,
-//       dto.commentatorId,
-//       dto.content,
+//       types.postId,
+//       types.commentatorId,
+//       types.content,
 //     ]);
 //
 //     return rows[0].id;
 //   }
 //
-//   async update(dto: UpdateCommentContentDto): Promise<void> {
+//   async update(types: UpdateCommentContentDto): Promise<void> {
 //     const query = `
 //       UPDATE "Comments"
 //       SET "content" = $1
 //       WHERE "id" = $2
 //     `;
 //
-//     await this.pool.query(query, [dto.content, dto.commentId]);
+//     await this.pool.query(query, [types.content, types.commentId]);
 //   }
 //
 //   // 🔸 Reactions:
 //
-//   async createReaction(dto: CreateReactionDto): Promise<void> {
+//   async createReaction(types: CreateReactionDto): Promise<void> {
 //     const query = `
 //       INSERT INTO "CommentsReactions" ("status", "userId", "commentId")
 //       VALUES ($1, $2, $3)
 //     `;
 //
-//     await this.pool.query(query, [dto.status, dto.userId, dto.parentId]);
+//     await this.pool.query(query, [types.status, types.userId, types.parentId]);
 //   }
 //
 //   async updateStatusPostReaction(reactionId: number, newStatus: ReactionStatus): Promise<void> {
@@ -181,25 +181,25 @@ export class CommentsRepository {
 //     return rows[0] || null;
 //   }
 
-//   async update(dto: UpdateCommentContentDto): Promise<void> {
+//   async update(types: UpdateCommentContentDto): Promise<void> {
 //     const query = `
 //       UPDATE "Comments"
 //       SET "content" = $1
 //       WHERE "id" = $2
 //     `;
 //
-//     await this.pool.query(query, [dto.content, dto.commentId]);
+//     await this.pool.query(query, [types.content, types.commentId]);
 //   }
 //
 //   // 🔸 Reactions:
 //
-//   async createReaction(dto: CreateReactionDto): Promise<void> {
+//   async createReaction(types: CreateReactionDto): Promise<void> {
 //     const query = `
 //       INSERT INTO "CommentsReactions" ("status", "userId", "commentId")
 //       VALUES ($1, $2, $3)
 //     `;
 //
-//     await this.pool.query(query, [dto.status, dto.userId, dto.parentId]);
+//     await this.pool.query(query, [types.status, types.userId, types.parentId]);
 //   }
 //
 //   async updateStatusPostReaction(reactionId: number, newStatus: ReactionStatus): Promise<void> {
