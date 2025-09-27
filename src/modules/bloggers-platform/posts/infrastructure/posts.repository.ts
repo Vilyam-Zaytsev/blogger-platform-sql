@@ -86,23 +86,23 @@ export class PostsRepository extends BaseRepository<Post> {
   //
   //   // 🔸 Posts:
   //
-  //   async create(dto: CreatePostDto): Promise<number> {
+  //   async create(types: CreatePostDto): Promise<number> {
   //     const query = `
   //       INSERT INTO "Posts" ("title", "shortDescription", "content", "blogId")
   //       VALUES ($1, $2, $3, $4) RETURNING "id"
   //     `;
   //
   //     const { rows }: QueryResult<PostDb> = await this.pool.query(query, [
-  //       dto.title,
-  //       dto.shortDescription,
-  //       dto.content,
-  //       dto.blogId,
+  //       types.title,
+  //       types.shortDescription,
+  //       types.content,
+  //       types.blogId,
   //     ]);
   //
   //     return rows[0].id;
   //   }
   //
-  //   async update(dto: UpdatePostDto): Promise<void> {
+  //   async update(types: UpdatePostDto): Promise<void> {
   //     const query = `
   //       UPDATE "Posts"
   //       SET "title"            = $1,
@@ -111,18 +111,18 @@ export class PostsRepository extends BaseRepository<Post> {
   //       WHERE "id" = $4
   //     `;
   //
-  //     await this.pool.query(query, [dto.title, dto.shortDescription, dto.content, dto.postId]);
+  //     await this.pool.query(query, [types.title, types.shortDescription, types.content, types.postId]);
   //   }
   //
   //   // 🔸 Reactions:
   //
-  //   async createReaction(dto: CreateReactionDto): Promise<void> {
+  //   async createReaction(types: CreateReactionDto): Promise<void> {
   //     const query = `
   //       INSERT INTO "PostsReactions" ("status", "userId", "postId")
   //       VALUES ($1, $2, $3)
   //     `;
   //
-  //     await this.pool.query(query, [dto.status, dto.userId, dto.parentId]);
+  //     await this.pool.query(query, [types.status, types.userId, types.parentId]);
   //   }
   //
   //   async updateStatusPostReaction(reactionId: number, newStatus: ReactionStatus): Promise<void> {
