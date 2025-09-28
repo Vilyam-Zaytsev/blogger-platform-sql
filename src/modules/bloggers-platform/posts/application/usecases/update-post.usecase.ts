@@ -44,6 +44,7 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
       });
     }
 
-    await this.postsRepository.update(dto);
+    post.update(dto);
+    await this.postsRepository.save(post);
   }
 }

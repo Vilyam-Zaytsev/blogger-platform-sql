@@ -3,6 +3,7 @@ import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { Blog } from '../../../blogs/domain/entities/blog.entity';
 import { PostCreateDto } from '../../application/dto/post.create-dto';
 import { ReactionPost } from '../../../reactions/domain/entities/reaction-post.entity';
+import { PostUpdateDto } from '../../application/dto/post.update-dto';
 
 export const titleConstraints = {
   minLength: 1,
@@ -67,6 +68,12 @@ export class Post extends BaseEntity {
     post.blogId = blogId;
 
     return post;
+  }
+
+  public update({ title, shortDescription, content }: PostUpdateDto) {
+    this.title = title;
+    this.shortDescription = shortDescription;
+    this.content = content;
   }
 
   @ManyToOne(() => Blog, (blog: Blog): Post[] => blog.posts, {
