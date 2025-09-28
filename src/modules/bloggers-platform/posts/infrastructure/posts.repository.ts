@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { QueryResult } from 'pg';
 import { PostDb } from '../types/post-db.type';
-import { CreatePostDto } from '../application/dto/create-post.dto';
-import { UpdatePostDto } from '../application/dto/update-post.dto';
+import { PostCreateDto } from '../application/dto/post.create-dto';
+import { PostUpdateDto } from '../application/dto/post.update-dto';
 import { ReactionDb, ReactionStatus } from '../../reactions/types/reaction-db.type';
 import { CreateReactionDto } from '../../reactions/dto/create-reaction.dto';
 import { Post } from '../domain/entities/post.entity';
@@ -18,7 +18,7 @@ export class PostsRepository extends BaseRepository<Post> {
 
   // 🔸 Posts:
 
-  async create(dto: CreatePostDto): Promise<number> {
+  async create(dto: PostCreateDto): Promise<number> {
     const query = `
       INSERT INTO "Posts" ("title", "shortDescription", "content", "blogId")
       VALUES ($1, $2, $3, $4) RETURNING "id"
@@ -34,7 +34,7 @@ export class PostsRepository extends BaseRepository<Post> {
     return rows[0].id;
   }
 
-  async update(dto: UpdatePostDto): Promise<void> {
+  async update(dto: PostUpdateDto): Promise<void> {
     const query = `
       UPDATE "Posts"
       SET "title"            = $1,

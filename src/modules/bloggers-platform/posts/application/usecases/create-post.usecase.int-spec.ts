@@ -7,7 +7,7 @@ import { DatabaseModule } from '../../../../database/database.module';
 import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogInputDto } from '../../../blogs/api/input-dto/blog.input-dto';
-import { CreatePostDto } from '../dto/create-post.dto';
+import { PostCreateDto } from '../dto/post.create-dto';
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
 import { PostsRepository } from '../../infrastructure/posts.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
@@ -62,7 +62,7 @@ describe('CreatePostUseCase (Integration)', () => {
     it('должен создать пост с валидными данными и вернуть ID', async () => {
       const { id: blogId }: Blog = await createTestBlog();
 
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Test Post',
         shortDescription: 'Short description for test post',
         content: 'This is the content of the test post with more details',
@@ -107,7 +107,7 @@ describe('CreatePostUseCase (Integration)', () => {
         description: 'Technology and programming articles',
       });
 
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'JavaScript Tips',
         shortDescription: 'Useful JavaScript programming tips',
         content: 'Here are some useful JavaScript programming tips for developers',
@@ -141,7 +141,7 @@ describe('CreatePostUseCase (Integration)', () => {
       const { id: blogId }: Blog = await createTestBlog();
 
       // Минимальные значения
-      const minDto: CreatePostDto = {
+      const minDto: PostCreateDto = {
         title: 'A',
         shortDescription: 'B',
         content: 'C',
@@ -154,7 +154,7 @@ describe('CreatePostUseCase (Integration)', () => {
       expect(minPostId).toBeGreaterThan(0);
 
       // Максимальные значения
-      const maxDto: CreatePostDto = {
+      const maxDto: PostCreateDto = {
         title: '1'.repeat(30),
         shortDescription: 'A'.repeat(100),
         content: 'B'.repeat(1000),
@@ -176,14 +176,14 @@ describe('CreatePostUseCase (Integration)', () => {
     it('должен создавать уникальные посты для каждого вызова', async () => {
       const { id: blogId }: Blog = await createTestBlog();
 
-      const dto1: CreatePostDto = {
+      const dto1: PostCreateDto = {
         title: 'First Post',
         shortDescription: 'Description for first post',
         content: 'Content of the first post',
         blogId,
       };
 
-      const dto2: CreatePostDto = {
+      const dto2: PostCreateDto = {
         title: 'Second Post',
         shortDescription: 'Description for second post',
         content: 'Content of the second post',
@@ -215,7 +215,7 @@ describe('CreatePostUseCase (Integration)', () => {
       const promises: Promise<number>[] = [];
 
       for (let i = 0; i < postCount; i++) {
-        const dto: CreatePostDto = {
+        const dto: PostCreateDto = {
           title: `Post ${i + 1}`,
           shortDescription: `Description ${i + 1}`,
           content: `Content for post number ${i + 1}`,
@@ -240,7 +240,7 @@ describe('CreatePostUseCase (Integration)', () => {
 
     it('должен корректно обрабатывать временные метки при создании', async () => {
       const { id: blogId }: Blog = await createTestBlog();
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Timestamp Test',
         shortDescription: 'Testing timestamp creation',
         content: 'This post is for testing timestamp functionality',
@@ -269,7 +269,7 @@ describe('CreatePostUseCase (Integration)', () => {
   describe('обработка ошибок', () => {
     it('должен выбрасывать DomainException при попытке создать пост для несуществующего блога', async () => {
       const nonExistentBlogId = 99999;
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Orphan Post',
         shortDescription: 'Post without parent blog',
         content: 'This post should not be created',
@@ -281,7 +281,7 @@ describe('CreatePostUseCase (Integration)', () => {
 
     it('должен выбрасывать DomainException с правильным кодом NotFound', async () => {
       const nonExistentBlogId = 88888;
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Test Post',
         shortDescription: 'Test description',
         content: 'Test content',
@@ -305,7 +305,7 @@ describe('CreatePostUseCase (Integration)', () => {
 
       await blogRepo.softDelete(blogId);
 
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Post for Deleted Blog',
         shortDescription: 'This should fail',
         content: 'Post for deleted blog should not be created',
@@ -317,7 +317,7 @@ describe('CreatePostUseCase (Integration)', () => {
 
     it('должен включать правильный blogId в сообщение об ошибке', async () => {
       const testBlogId = 12345;
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Error Test Post',
         shortDescription: 'Testing error message',
         content: 'This should generate proper error message',
@@ -343,7 +343,7 @@ describe('CreatePostUseCase (Integration)', () => {
     });
 
     it('должен отклонять создание поста с пустым title', async () => {
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: '',
         shortDescription: 'Valid description',
         content: 'Valid content',
@@ -354,7 +354,7 @@ describe('CreatePostUseCase (Integration)', () => {
     });
 
     it('должен отклонять создание поста со слишком длинным title', async () => {
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'A'.repeat(31),
         shortDescription: 'Valid description',
         content: 'Valid content',
@@ -365,7 +365,7 @@ describe('CreatePostUseCase (Integration)', () => {
     });
 
     it('должен отклонять создание поста с пустым shortDescription', async () => {
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Valid Title',
         shortDescription: '',
         content: 'Valid content',
@@ -376,7 +376,7 @@ describe('CreatePostUseCase (Integration)', () => {
     });
 
     it('должен отклонять создание поста со слишком длинным shortDescription', async () => {
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Valid Title',
         shortDescription: 'A'.repeat(101),
         content: 'Valid content',
@@ -387,7 +387,7 @@ describe('CreatePostUseCase (Integration)', () => {
     });
 
     it('должен отклонять создание поста с пустым content', async () => {
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Valid Title',
         shortDescription: 'Valid description',
         content: '',
@@ -398,7 +398,7 @@ describe('CreatePostUseCase (Integration)', () => {
     });
 
     it('должен отклонять создание поста со слишком длинным content', async () => {
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Valid Title',
         shortDescription: 'Valid description',
         content: 'A'.repeat(1001),
@@ -411,7 +411,7 @@ describe('CreatePostUseCase (Integration)', () => {
 
   describe('граничные случаи', () => {
     it('должен корректно обрабатывать blogId равный нулю', async () => {
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Test Post',
         shortDescription: 'Test description',
         content: 'Test content',
@@ -422,7 +422,7 @@ describe('CreatePostUseCase (Integration)', () => {
     });
 
     it('должен корректно обрабатывать отрицательный blogId', async () => {
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Test Post',
         shortDescription: 'Test description',
         content: 'Test content',
@@ -433,7 +433,7 @@ describe('CreatePostUseCase (Integration)', () => {
     });
 
     it('должен корректно обрабатывать очень большой blogId', async () => {
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Test Post',
         shortDescription: 'Test description',
         content: 'Test content',
@@ -444,7 +444,7 @@ describe('CreatePostUseCase (Integration)', () => {
     });
 
     it('должен корректно обрабатывать дробный blogId', async () => {
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Test Post',
         shortDescription: 'Test description',
         content: 'Test content',
@@ -464,7 +464,7 @@ describe('CreatePostUseCase (Integration)', () => {
       ]);
 
       const createPromises: Promise<number>[] = blogs.map((blog, index) => {
-        const dto: CreatePostDto = {
+        const dto: PostCreateDto = {
           title: `Concurrent Post ${index + 1}`,
           shortDescription: `Description ${index + 1}`,
           content: `Content for concurrent post ${index + 1}`,
@@ -499,7 +499,7 @@ describe('CreatePostUseCase (Integration)', () => {
       const promises: Promise<number>[] = [];
 
       for (let i = 0; i < postCount; i++) {
-        const dto: CreatePostDto = {
+        const dto: PostCreateDto = {
           title: `Bulk Post ${i + 1}`,
           shortDescription: `Bulk description ${i + 1}`,
           content: `Bulk content for post ${i + 1}`,
@@ -527,7 +527,7 @@ describe('CreatePostUseCase (Integration)', () => {
   describe('интеграция с репозиториями', () => {
     it('должен правильно вызывать методы репозиториев в нужном порядке', async () => {
       const { id: blogId }: Blog = await createTestBlog();
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Integration Test Post',
         shortDescription: 'Testing repository integration',
         content: 'This post tests repository method calls',
@@ -562,7 +562,7 @@ describe('CreatePostUseCase (Integration)', () => {
 
     it('не должен вызывать save если блог не найден', async () => {
       const nonExistentBlogId = 99999;
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Test Post',
         shortDescription: 'Test description',
         content: 'Test content',
@@ -580,7 +580,7 @@ describe('CreatePostUseCase (Integration)', () => {
 
     it('должен правильно создавать Post entity через статический метод create', async () => {
       const { id: blogId }: Blog = await createTestBlog();
-      const dto: CreatePostDto = {
+      const dto: PostCreateDto = {
         title: 'Entity Creation Test',
         shortDescription: 'Testing Post entity creation',
         content: 'This tests the Post.create static method',

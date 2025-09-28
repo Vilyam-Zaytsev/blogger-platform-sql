@@ -1,7 +1,7 @@
 import { Check, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { Blog } from '../../../blogs/domain/entities/blog.entity';
-import { CreatePostDto } from '../../application/dto/create-post.dto';
+import { PostCreateDto } from '../../application/dto/post.create-dto';
 import { ReactionPost } from '../../../reactions/domain/entities/reaction-post.entity';
 
 export const titleConstraints = {
@@ -58,7 +58,7 @@ export class Post extends BaseEntity {
     super();
   }
 
-  static create({ title, shortDescription, content, blogId }: CreatePostDto): Post {
+  static create({ title, shortDescription, content, blogId }: PostCreateDto): Post {
     const post = new this();
 
     post.title = title;

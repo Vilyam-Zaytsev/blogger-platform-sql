@@ -24,7 +24,7 @@ import { BlogUpdateDto } from '../application/dto/blog.update-dto';
 import { DeleteBlogCommand } from '../application/usecases/delete-blog.usecase';
 import { PostInputDto } from '../../posts/api/input-dto/post.input-dto';
 import { PostViewDto } from '../../posts/api/view-dto/post.view-dto';
-import { CreatePostDto } from '../../posts/application/dto/create-post.dto';
+import { PostCreateDto } from '../../posts/application/dto/post.create-dto';
 import { CreatePostCommand } from '../../posts/application/usecases/create-post.usecase';
 import { PostsQueryRepository } from '../../posts/infrastructure/query/posts.query-repository';
 import { OptionalJwtAuthGuard } from '../../../user-accounts/auth/domain/guards/bearer/optional-jwt-auth.guard';
@@ -32,7 +32,7 @@ import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/auth/doma
 import { UserContextDto } from '../../../user-accounts/auth/domain/guards/dto/user-context.dto';
 import { GetPostsQueryParams } from '../../posts/api/input-dto/get-posts-query-params.input-dto';
 import { GetPostsForBlogQuery } from '../../posts/application/queries/get-posts-for-blog.query-handler';
-import { UpdatePostDto } from '../../posts/application/dto/update-post.dto';
+import { PostUpdateDto } from '../../posts/application/dto/post.update-dto';
 import { UpdatePostCommand } from '../../posts/application/usecases/update-post.usecase';
 import { DeletePostCommand } from '../../posts/application/usecases/delete-post.usecase';
 import { BlogInputDto } from './input-dto/blog.input-dto';
@@ -91,7 +91,7 @@ export class BlogsAdminController {
     @Param('blogId', ParseIntPipe) blogId: number,
     @Body() { title, shortDescription, content }: PostInputDto,
   ): Promise<PostViewDto> {
-    const dto: CreatePostDto = {
+    const dto: PostCreateDto = {
       title,
       shortDescription,
       content,
@@ -110,7 +110,7 @@ export class BlogsAdminController {
     @Param('postId', ParseIntPipe) postId: number,
     @Body() { title, shortDescription, content }: PostInputDto,
   ): Promise<void> {
-    const dto: UpdatePostDto = { blogId, postId, title, shortDescription, content };
+    const dto: PostUpdateDto = { blogId, postId, title, shortDescription, content };
 
     await this.commandBus.execute(new UpdatePostCommand(dto));
   }
