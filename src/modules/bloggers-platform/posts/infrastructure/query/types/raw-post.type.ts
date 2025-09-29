@@ -14,3 +14,7 @@ export type RawPost = {
   newestLikes: NewestLikes[];
   myStatus: ReactionStatus;
 };
+
+export type RawPostWithCount = RawPost & {
+  totalCount: string;
+};
