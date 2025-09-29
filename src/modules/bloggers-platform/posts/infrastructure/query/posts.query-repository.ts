@@ -16,8 +16,6 @@ import { Post } from '../../domain/entities/post.entity';
 
 @Injectable()
 export class PostsQueryRepository {
-  pool: any = {};
-
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async getByIdOrNotFoundFail(id: number, user: UserContextDto | null): Promise<PostViewDto> {
