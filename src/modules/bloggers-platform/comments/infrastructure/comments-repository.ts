@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import { Pool, QueryResult } from 'pg';
 import { UpdateCommentContentDto } from './dto/update-comment-content.dto';
 import { CreateCommentDomainDto } from '../domain/dto/create-comment.domain-dto';
 import { ReactionDb, ReactionStatus } from '../../reactions/types/reaction-db.type';
@@ -8,8 +7,6 @@ import { CommentDb } from '../types/comment-db.type';
 
 @Injectable()
 export class CommentsRepository {
-  pool: any = {};
-
   constructor() {}
   async save(): Promise<number> {
     return 1;
@@ -23,64 +20,22 @@ export class CommentsRepository {
   // 🔸 Comments:
 
   async create(dto: CreateCommentDomainDto): Promise<number> {
-    const query = `
-      INSERT INTO "Comments" ("postId", "commentatorId", "content")
-      VALUES ($1, $2, $3) RETURNING "id";
-    `;
-
-    const { rows }: QueryResult<{ id: number }> = await this.pool.query(query, [
-      dto.postId,
-      dto.commentatorId,
-      dto.content,
-    ]);
-
-    return rows[0].id;
+    return 1;
   }
 
-  async update(dto: UpdateCommentContentDto): Promise<void> {
-    const query = `
-      UPDATE "Comments"
-      SET "content" = $1
-      WHERE "id" = $2
-    `;
-
-    await this.pool.query(query, [dto.content, dto.commentId]);
-  }
+  async update(dto: UpdateCommentContentDto): Promise<void> {}
 
   // 🔸 Reactions:
 
-  async createReaction(dto: CreateReactionDto): Promise<void> {
-    const query = `
-      INSERT INTO "CommentsReactions" ("status", "userId", "commentId")
-      VALUES ($1, $2, $3)
-    `;
+  async createReaction(dto: CreateReactionDto): Promise<void> {}
 
-    await this.pool.query(query, [dto.status, dto.userId, dto.parentId]);
-  }
-
-  async updateStatusPostReaction(reactionId: number, newStatus: ReactionStatus): Promise<void> {
-    const query = `
-      UPDATE "CommentsReactions"
-      SET "status" = $1
-      WHERE "id" = $2
-    `;
-
-    await this.pool.query(query, [newStatus, reactionId]);
-  }
+  async updateStatusPostReaction(reactionId: number, newStatus: ReactionStatus): Promise<void> {}
 
   async getReactionByUserIdAndCommentId(
     userId: number,
     commentId: number,
   ): Promise<ReactionDb | null> {
-    const query = `
-      SELECT *
-      FROM "CommentsReactions"
-      WHERE "userId" = $1
-        AND "commentId" = $2
-    `;
-    const { rows }: QueryResult<ReactionDb> = await this.pool.query(query, [userId, commentId]);
-
-    return rows[0] || null;
+    return {} as ReactionDb;
   }
 }
 
