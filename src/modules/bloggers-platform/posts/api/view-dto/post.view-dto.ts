@@ -1,6 +1,11 @@
 import { ReactionStatus } from '../../../reactions/types/reaction-db.type';
-import { NewestLikes } from '../../types/newest-likes.type';
 import { RawPost } from '../../infrastructure/query/types/raw-post.type';
+
+export type NewestLikes = {
+  addedAt: Date;
+  userId: number;
+  login: string;
+};
 
 export type ExtendedReactionsInfo = {
   likesCount: number;

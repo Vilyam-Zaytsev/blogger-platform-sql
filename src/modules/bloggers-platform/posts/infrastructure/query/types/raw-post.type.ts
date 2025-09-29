@@ -1,5 +1,5 @@
 import { ReactionStatus } from '../../../../reactions/types/reaction-db.type';
-import { NewestLikes } from '../../../types/newest-likes.type';
+import { NewestLikes } from '../../../api/view-dto/post.view-dto';
 
 export type RawPost = {
   id: number;
