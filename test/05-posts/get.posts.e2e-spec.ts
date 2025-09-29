@@ -127,7 +127,7 @@ describe('PostsController - getAllPosts() (GET: /posts)', () => {
     }
   });
 
-  it.only('should return post found by id.', async () => {
+  it('should return post found by id.', async () => {
     // 🔻 Создаём блог и пост, связанный с ним
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
     const [createdPost]: PostViewDto[] = await postsTestManager.createPost(1, createdBlog.id);

@@ -50,7 +50,7 @@ describe('BlogsAdminController - getPostsForBlog() (GET: /sa/blogs/{blogId}/post
     await appTestManager.close();
   });
 
-  it('should return all posts from a specific blog.', async () => {
+  it.only('should return all posts from a specific blog.', async () => {
     // 🔻 Создаем один тестовый блог, к которому будут относиться создаваемые посты
     const [blog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
