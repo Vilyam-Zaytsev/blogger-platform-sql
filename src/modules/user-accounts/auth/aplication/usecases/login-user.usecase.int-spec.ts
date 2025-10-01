@@ -6,8 +6,6 @@ import { Session } from '../../../sessions/domain/entities/session.entity';
 import { DatabaseModule } from '../../../../database/database.module';
 import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EmailConfirmationCode } from '../../domain/entities/email-confirmation-code.entity';
-import { PasswordRecoveryCode } from '../../domain/entities/password-recovery-code.entity';
 import { SessionsRepository } from '../../../sessions/infrastructure/sessions.repository';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
 import { CryptoService } from '../../../users/application/services/crypto.service';
@@ -26,8 +24,8 @@ import { DateService } from '../../../users/application/services/date.service';
 import { UserAccountsConfig } from '../../../config/user-accounts.config';
 import { AccessTokenProvider } from '../../providers/access-token.provider';
 import { RefreshTokenProvider } from '../../providers/refresh-token.provider';
-import { CqrsModule } from '@nestjs/cqrs';
 import { CreateSessionUseCase } from '../../../sessions/application/usecases/create-session.usecase';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 
 describe('LoginUserUseCase (Integration)', () => {
   let module: TestingModule;
@@ -41,11 +39,7 @@ describe('LoginUserUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        DatabaseModule,
-        CoreModule,
-        TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode, Session]),
-      ],
+      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
       providers: [
         UserAccountsConfig,
         CreateSessionUseCase,

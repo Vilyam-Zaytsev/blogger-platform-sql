@@ -5,12 +5,7 @@ import { User } from '../../../users/domain/entities/user.entity';
 import { DatabaseModule } from '../../../../database/database.module';
 import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {
-  ConfirmationStatus,
-  EmailConfirmationCode,
-} from '../../domain/entities/email-confirmation-code.entity';
-import { PasswordRecoveryCode } from '../../domain/entities/password-recovery-code.entity';
-import { Session } from '../../../sessions/domain/entities/session.entity';
+import { ConfirmationStatus } from '../../domain/entities/email-confirmation-code.entity';
 import { UserValidationService } from '../../../users/application/services/user-validation.service';
 import { UsersFactory } from '../../../users/application/factories/users.factory';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
@@ -20,6 +15,7 @@ import { DateService } from '../../../users/application/services/date.service';
 import { RegistrationConfirmationCodeInputDto } from '../../api/input-dto/registration-confirmation-code.input-dto';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { Duration } from 'date-fns';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 
 describe('ConfirmEmailUseCase (Integration)', () => {
   let module: TestingModule;
@@ -31,11 +27,7 @@ describe('ConfirmEmailUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        DatabaseModule,
-        CoreModule,
-        TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode, Session]),
-      ],
+      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
       providers: [
         ConfirmEmailUseCase,
         UserValidationService,

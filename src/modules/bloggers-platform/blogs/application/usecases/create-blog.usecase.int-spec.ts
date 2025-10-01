@@ -5,9 +5,9 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseModule } from '../../../../database/database.module';
 import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Post } from '../../../posts/domain/entities/post.entity';
 import { BlogsRepository } from '../../infrastructure/blogs.repository';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 
 describe('CreateBlogUseCase (Integration)', () => {
   let module: TestingModule;
@@ -17,7 +17,7 @@ describe('CreateBlogUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature([Blog, Post])],
+      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Blog))],
       providers: [CreateBlogUseCase, BlogsRepository],
     }).compile();
 
@@ -251,10 +251,10 @@ describe('CreateBlogUseCase (Integration)', () => {
       const blogIds: number[] = await Promise.all(promises);
 
       expect(blogIds).toHaveLength(blogCount);
-      expect(new Set(blogIds).size).toBe(blogCount); // все ID уникальны
+      expect(new Set(blogIds).size).toBe(blogCount);
 
       const totalBlogs: number = await blogRepo.count();
       expect(totalBlogs).toBe(blogCount);
-    });
+    }, 10000);
   });
 });

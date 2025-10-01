@@ -5,12 +5,12 @@ import { BlogsRepository } from '../../infrastructure/blogs.repository';
 import { DatabaseModule } from '../../../../database/database.module';
 import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Post } from '../../../posts/domain/entities/post.entity';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
 import { UpdateBlogCommand, UpdateBlogUseCase } from './update-blog.usecase';
 import { BlogUpdateDto } from '../dto/blog.update-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 
 describe('UpdateBlogUseCase (Integration)', () => {
   let module: TestingModule;
@@ -21,7 +21,7 @@ describe('UpdateBlogUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature([Blog, Post])],
+      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Blog))],
       providers: [UpdateBlogUseCase, BlogsRepository],
     }).compile();
 

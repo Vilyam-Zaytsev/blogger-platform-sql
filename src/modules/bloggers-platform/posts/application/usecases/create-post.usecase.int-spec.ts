@@ -12,12 +12,7 @@ import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository'
 import { PostsRepository } from '../../infrastructure/posts.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { Reaction } from '../../../reactions/domain/entities/reaction.entity';
-import { ReactionPost } from '../../../reactions/domain/entities/reaction-post.entity';
-import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
-import { EmailConfirmationCode } from '../../../../user-accounts/auth/domain/entities/email-confirmation-code.entity';
-import { PasswordRecoveryCode } from '../../../../user-accounts/auth/domain/entities/password-recovery-code.entity';
-import { Session } from '../../../../user-accounts/sessions/domain/entities/session.entity';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 
 describe('CreatePostUseCase (Integration)', () => {
   let module: TestingModule;
@@ -30,20 +25,7 @@ describe('CreatePostUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        DatabaseModule,
-        CoreModule,
-        TypeOrmModule.forFeature([
-          Blog,
-          Post,
-          Reaction,
-          ReactionPost,
-          User,
-          EmailConfirmationCode,
-          PasswordRecoveryCode,
-          Session,
-        ]),
-      ],
+      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Post))],
       providers: [CreatePostUseCase, PostsRepository, BlogsRepository],
     }).compile();
 
