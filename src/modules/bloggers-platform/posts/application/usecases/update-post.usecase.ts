@@ -33,7 +33,7 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
     if (!post) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: `The post with ID (${dto.blogId}) does not exist`,
+        message: `The post with ID (${dto.postId}) does not exist`,
       });
     }
 
