@@ -310,7 +310,7 @@ describe('CreatePostUseCase (Integration)', () => {
         title: 'Post for Deleted Blog',
         shortDescription: 'This should fail',
         content: 'Post for deleted blog should not be created',
-        blogId: blogId,
+        blogId,
       };
 
       await expect(useCase.execute(new CreatePostCommand(dto))).rejects.toThrow(DomainException);
