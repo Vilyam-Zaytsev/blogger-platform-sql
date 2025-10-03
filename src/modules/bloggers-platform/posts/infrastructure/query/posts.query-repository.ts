@@ -202,12 +202,11 @@ export class PostsQueryRepository {
 
     mainQueryBuilder
       .orderBy(orderByColumn, sortDirection.toUpperCase() as 'ASC' | 'DESC')
-      .skip(skip)
-      .take(pageSize);
+      .offset(skip)
+      .limit(pageSize);
 
     mainQueryBuilder
       .select([
-        'COUNT(*) OVER() AS "totalCount"',
         'post.id AS "id"',
         'post.title AS "title"',
         'post.shortDescription AS "shortDescription"',
@@ -220,13 +219,11 @@ export class PostsQueryRepository {
       .addSelect('COALESCE(dc."count", 0)', 'dislikesCount')
       .addSelect('COALESCE(nl."likes", \'[]\')', 'newestLikes')
       .addSelect(
-        user?.id
-          ? `COALESCE(user_r."status", '${ReactionStatus.None}')`
-          : `'${ReactionStatus.None}'`,
+        user?.id ? `COALESCE(rp2."status", '${ReactionStatus.None}')` : `'${ReactionStatus.None}'`,
         'myStatus',
       );
 
-    const rawPosts: RawPostWithCount[] = await mainQueryBuilder.getRawMany<RawPostWithCount>();
+    const rawPosts: RawPost[] = await mainQueryBuilder.getRawMany<RawPost>();
     const totalCount: number = await mainQueryBuilder.getCount();
     const pagesCount: number = Math.ceil(totalCount / pageSize);
 
