@@ -2,6 +2,7 @@ import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { Column, Entity, ManyToOne, OneToOne } from 'typeorm';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 import { ReactionPost } from './reaction-post.entity';
+import { CreateReactionDto } from '../../dto/create-reaction.dto';
 
 export enum ReactionStatus {
   None = 'None',
@@ -18,21 +19,6 @@ export class Reaction extends BaseEntity {
   })
   public status: ReactionStatus;
 
-  protected constructor() {
-    super();
-  }
-
-  static createForPost(userId: number, postId: number, status: ReactionStatus): Reaction {
-    const reaction = new this();
-    reaction.userId = userId;
-    reaction.status = status;
-
-    reaction.postLink = new ReactionPost();
-    reaction.postLink.postId = postId;
-
-    return reaction;
-  }
-
   @ManyToOne(() => User, (user) => user.reactions, {
     onDelete: 'CASCADE',
   })
@@ -41,6 +27,26 @@ export class Reaction extends BaseEntity {
   @Column()
   userId: number;
 
-  @OneToOne(() => ReactionPost, (postLink) => postLink.reaction, { cascade: true, eager: true })
-  postLink?: ReactionPost;
+  @OneToOne(() => ReactionPost, (reactionPost) => reactionPost.reaction, {
+    cascade: true,
+    eager: true,
+  })
+  reactionPost: ReactionPost;
+
+  protected constructor() {
+    super();
+  }
+
+  static createForPost({ userId, parentId: postId, status }: CreateReactionDto): Reaction {
+    const reaction = new this();
+    reaction.userId = userId;
+    reaction.status = status;
+    reaction.reactionPost = ReactionPost.create(postId);
+
+    return reaction;
+  }
+
+  public updateStatus(status: ReactionStatus) {
+    this.status = status;
+  }
 }
