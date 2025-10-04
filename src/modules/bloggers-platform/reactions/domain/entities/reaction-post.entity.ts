@@ -7,7 +7,7 @@ export class ReactionPost {
   @PrimaryColumn({ type: 'int' })
   reactionId: number;
 
-  @OneToOne(() => Reaction, (reaction) => reaction.postLink, {
+  @OneToOne(() => Reaction, (reaction) => reaction.reactionPost, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'reactionId' })
@@ -19,4 +19,11 @@ export class ReactionPost {
 
   @Column({ type: 'int' })
   postId: number;
+
+  static create(postId: number): ReactionPost {
+    const reactionPost = new this();
+    reactionPost.postId = postId;
+
+    return reactionPost;
+  }
 }
