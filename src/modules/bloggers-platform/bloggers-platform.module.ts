@@ -33,6 +33,7 @@ import { Blog } from './blogs/domain/entities/blog.entity';
 import { Post } from './posts/domain/entities/post.entity';
 import { Reaction } from './reactions/domain/entities/reaction.entity';
 import { ReactionPost } from './reactions/domain/entities/reaction-post.entity';
+import { ReactionsRepository } from './reactions/infrastructure/reactions.repository';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Blog, Post, Reaction, ReactionPost]), UserAccountsModule],
@@ -74,6 +75,9 @@ import { ReactionPost } from './reactions/domain/entities/reaction-post.entity';
     //query-handlers
     GetCommentQueryHandler,
     GetCommentsQueryHandler,
+    //🔸 Reactions:
+    //repo
+    ReactionsRepository,
   ],
   exports: [],
 })
