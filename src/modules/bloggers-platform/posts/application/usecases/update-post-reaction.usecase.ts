@@ -3,8 +3,9 @@ import { UpdateReactionDto } from '../../../reactions/dto/update-reaction.dto';
 import { PostsRepository } from '../../infrastructure/posts.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { ReactionDb } from '../../../reactions/types/reaction-db.type';
 import { Post } from '../../domain/entities/post.entity';
+import { Reaction } from '../../../reactions/domain/entities/reaction.entity';
+import { ReactionsRepository } from '../../../reactions/infrastructure/reactions.repository';
 
 export class UpdatePostReactionCommand {
   constructor(public readonly dto: UpdateReactionDto) {}
@@ -12,7 +13,10 @@ export class UpdatePostReactionCommand {
 
 @CommandHandler(UpdatePostReactionCommand)
 export class UpdatePostReactionUseCase implements ICommandHandler<UpdatePostReactionCommand> {
-  constructor(private readonly postsRepository: PostsRepository) {}
+  constructor(
+    private readonly postsRepository: PostsRepository,
+    private readonly reactionsRepository: ReactionsRepository,
+  ) {}
 
   async execute({ dto }: UpdatePostReactionCommand): Promise<void> {
     const post: Post | null = await this.postsRepository.getById(dto.parentId);
@@ -24,15 +28,19 @@ export class UpdatePostReactionUseCase implements ICommandHandler<UpdatePostReac
       });
     }
 
-    const reaction: ReactionDb | null = await this.postsRepository.getReactionByUserIdAndPostId(
+    const reaction: Reaction | null = await this.reactionsRepository.getReactionByUserIdAndPostId(
       dto.userId,
       dto.parentId,
     );
 
     if (!reaction) {
-      return await this.postsRepository.createReaction(dto);
+      const reaction: Reaction = Reaction.createForPost(dto);
+      await this.reactionsRepository.save(reaction);
+
+      return;
     }
 
-    await this.postsRepository.updateStatusPostReaction(reaction.id, dto.status);
+    reaction.updateStatus(dto.status);
+    await this.reactionsRepository.save(reaction);
   }
 }
