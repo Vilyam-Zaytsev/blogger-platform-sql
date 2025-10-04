@@ -33,7 +33,7 @@ import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comment
 import { GetCommentsQuery } from '../../comments/application/queries/get-comments.query-handler';
 import { ReactionInputDto } from '../../reactions/api/input-dto/reaction-input.dto';
 import { UpdateReactionDto } from '../../reactions/dto/update-reaction.dto';
-import { UpdatePostReactionCommand } from '../application/usecases/update-post-reaction.usecase';
+import { UpdatePostReactionCommand } from '../../reactions/application/usecases/update-post-reaction.usecase';
 
 @Controller('posts')
 export class PostsController {

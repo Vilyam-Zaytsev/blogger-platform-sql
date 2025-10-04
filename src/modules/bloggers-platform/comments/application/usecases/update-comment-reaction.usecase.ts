@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdatePostReactionCommand } from '../../../posts/application/usecases/update-post-reaction.usecase';
+import { UpdatePostReactionCommand } from '../../../reactions/application/usecases/update-post-reaction.usecase';
 import { CommentsRepository } from '../../infrastructure/comments-repository';
 import { UpdateReactionDto } from '../../../reactions/dto/update-reaction.dto';
 import { CommentDb } from '../../types/comment-db.type';
