@@ -1,14 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdateReactionDto } from '../../dto/update-reaction.dto';
 import { PostsRepository } from '../../../posts/infrastructure/posts.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { Post } from '../../../posts/domain/entities/post.entity';
 import { Reaction } from '../../domain/entities/reaction.entity';
 import { ReactionsRepository } from '../../infrastructure/reactions.repository';
+import { ReactionUpdateDto } from '../../dto/reaction.create-dto';
 
 export class UpdatePostReactionCommand {
-  constructor(public readonly dto: UpdateReactionDto) {}
+  constructor(public readonly dto: ReactionUpdateDto) {}
 }
 
 @CommandHandler(UpdatePostReactionCommand)
@@ -28,7 +28,7 @@ export class UpdatePostReactionUseCase implements ICommandHandler<UpdatePostReac
       });
     }
 
-    const reaction: Reaction | null = await this.reactionsRepository.getReactionByUserIdAndPostId(
+    const reaction: Reaction | null = await this.reactionsRepository.getByUserIdAndPostId(
       dto.userId,
       dto.parentId,
     );

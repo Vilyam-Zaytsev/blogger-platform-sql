@@ -9,7 +9,7 @@ export class ReactionsRepository extends BaseRepository<Reaction> {
     super(dataSource, Reaction);
   }
 
-  async getReactionByUserIdAndPostId(userId: number, postId: number): Promise<Reaction | null> {
+  async getByUserIdAndPostId(userId: number, postId: number): Promise<Reaction | null> {
     return this.dataSource.getRepository<Reaction>(Reaction).findOne({
       where: {
         userId,

@@ -2,7 +2,7 @@ import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { Column, Entity, ManyToOne, OneToOne } from 'typeorm';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 import { ReactionPost } from './reaction-post.entity';
-import { CreateReactionDto } from '../../dto/create-reaction.dto';
+import { ReactionCreateDto } from '../../dto/reaction.create-dto';
 
 export enum ReactionStatus {
   None = 'None',
@@ -37,10 +37,10 @@ export class Reaction extends BaseEntity {
     super();
   }
 
-  static createForPost({ userId, parentId: postId, status }: CreateReactionDto): Reaction {
+  static createForPost({ status, userId, parentId: postId }: ReactionCreateDto): Reaction {
     const reaction = new this();
-    reaction.userId = userId;
     reaction.status = status;
+    reaction.userId = userId;
     reaction.reactionPost = ReactionPost.create(postId);
 
     return reaction;

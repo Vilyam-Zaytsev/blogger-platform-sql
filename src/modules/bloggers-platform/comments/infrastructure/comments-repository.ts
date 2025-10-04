@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { UpdateCommentContentDto } from './dto/update-comment-content.dto';
 import { CreateCommentDomainDto } from '../domain/dto/create-comment.domain-dto';
 import { ReactionDb, ReactionStatus } from '../../reactions/types/reaction-db.type';
-import { CreateReactionDto } from '../../reactions/dto/create-reaction.dto';
+import { ReactionCreateDto } from '../../reactions/dto/reaction.create-dto';
 import { CommentDb } from '../types/comment-db.type';
 
 @Injectable()
@@ -27,7 +27,7 @@ export class CommentsRepository {
 
   // 🔸 Reactions:
 
-  async createReaction(dto: CreateReactionDto): Promise<void> {}
+  async createReaction(dto: ReactionCreateDto): Promise<void> {}
 
   async updateStatusPostReaction(reactionId: number, newStatus: ReactionStatus): Promise<void> {}
 

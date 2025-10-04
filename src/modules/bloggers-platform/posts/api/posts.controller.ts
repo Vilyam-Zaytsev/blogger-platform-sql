@@ -32,8 +32,8 @@ import { CommentsQueryRepository } from '../../comments/infrastructure/query/com
 import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comments-query-params.input-dto';
 import { GetCommentsQuery } from '../../comments/application/queries/get-comments.query-handler';
 import { ReactionInputDto } from '../../reactions/api/input-dto/reaction-input.dto';
-import { UpdateReactionDto } from '../../reactions/dto/update-reaction.dto';
 import { UpdatePostReactionCommand } from '../../reactions/application/usecases/update-post-reaction.usecase';
+import { ReactionUpdateDto } from '../../reactions/dto/reaction.create-dto';
 
 @Controller('posts')
 export class PostsController {
@@ -112,12 +112,12 @@ export class PostsController {
     @Param('postId', ParseIntPipe) postId: number,
     @Body() body: ReactionInputDto,
   ): Promise<void> {
-    const updateReactionDto: UpdateReactionDto = {
+    const reactionUpdateDto: ReactionUpdateDto = {
       status: body.likeStatus,
       userId: user.id,
       parentId: postId,
     };
 
-    await this.commandBus.execute(new UpdatePostReactionCommand(updateReactionDto));
+    await this.commandBus.execute(new UpdatePostReactionCommand(reactionUpdateDto));
   }
 }
