@@ -1,7 +1,9 @@
-import { Check, Column, Entity, ManyToOne } from 'typeorm';
+import { Check, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { Blog } from '../../../blogs/domain/entities/blog.entity';
-import { CreatePostDto } from '../../dto/create-post.dto';
+import { PostCreateDto } from '../../application/dto/post.create-dto';
+import { ReactionPost } from '../../../reactions/domain/entities/reaction-post.entity';
+import { PostUpdateDto } from '../../application/dto/post.update-dto';
 
 export const titleConstraints = {
   minLength: 1,
@@ -57,7 +59,7 @@ export class Post extends BaseEntity {
     super();
   }
 
-  static create({ title, shortDescription, content, blogId }: CreatePostDto): Post {
+  static create({ title, shortDescription, content, blogId }: PostCreateDto): Post {
     const post = new this();
 
     post.title = title;
@@ -68,6 +70,12 @@ export class Post extends BaseEntity {
     return post;
   }
 
+  public update({ title, shortDescription, content }: PostUpdateDto) {
+    this.title = title;
+    this.shortDescription = shortDescription;
+    this.content = content;
+  }
+
   @ManyToOne(() => Blog, (blog: Blog): Post[] => blog.posts, {
     onDelete: 'CASCADE',
   })
@@ -75,4 +83,7 @@ export class Post extends BaseEntity {
 
   @Column()
   public blogId: number;
+
+  @OneToMany(() => ReactionPost, (reaction) => reaction.post)
+  public reactions: ReactionPost[];
 }

@@ -5,7 +5,6 @@ import { TestLoggers } from '../helpers/test.loggers';
 import { AppTestManager } from '../managers/app.test-manager';
 import { AdminCredentials, TestResultLogin } from '../types';
 import { Server } from 'http';
-import { BlogViewDto } from 'src/modules/bloggers-platform/blogs/api/view-dto/blog-view.dto';
 import { BlogsTestManager } from '../managers/blogs.test-manager';
 import { HttpStatus } from '@nestjs/common';
 import { PostViewDto } from '../../src/modules/bloggers-platform/posts/api/view-dto/post.view-dto';
@@ -17,6 +16,7 @@ import { Filter } from '../helpers/filter';
 import { GetCommentsQueryParams } from '../../src/modules/bloggers-platform/comments/api/input-dto/get-comments-query-params.input-dto';
 import { UserViewDto } from '../../src/modules/user-accounts/users/api/view-dto/user.view-dto';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
+import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/api/view-dto/blog.view-dto';
 
 describe('PostsController - getComments() (GET: /posts/{postId}/comments)', () => {
   let appTestManager: AppTestManager;

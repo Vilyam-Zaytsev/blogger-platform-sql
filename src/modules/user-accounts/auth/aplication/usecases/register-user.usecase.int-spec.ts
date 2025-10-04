@@ -4,12 +4,7 @@ import { DataSource, Repository } from 'typeorm';
 import { User } from '../../../users/domain/entities/user.entity';
 import { UserInputDto } from '../../../users/api/input-dto/user.input-dto';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {
-  ConfirmationStatus,
-  EmailConfirmationCode,
-} from '../../domain/entities/email-confirmation-code.entity';
-import { PasswordRecoveryCode } from '../../domain/entities/password-recovery-code.entity';
-import { Session } from '../../../sessions/domain/entities/session.entity';
+import { ConfirmationStatus } from '../../domain/entities/email-confirmation-code.entity';
 import { UserValidationService } from '../../../users/application/services/user-validation.service';
 import { UsersFactory } from '../../../users/application/factories/users.factory';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
@@ -20,8 +15,9 @@ import { NotificationsModule } from '../../../../notifications/notifications.mod
 import { EventBus } from '@nestjs/cqrs';
 import { UserRegisteredEvent } from '../../domain/events/user-registered.event';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
-import SpyInstance = jest.SpyInstance;
 import { DateService } from '../../../users/application/services/date.service';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import SpyInstance = jest.SpyInstance;
 
 describe('RegisterUserUseCase (Integration)', () => {
   let module: TestingModule;
@@ -37,7 +33,7 @@ describe('RegisterUserUseCase (Integration)', () => {
         DatabaseModule,
         CoreModule,
         NotificationsModule,
-        TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode, Session]),
+        TypeOrmModule.forFeature(getRelatedEntities(User)),
       ],
       providers: [
         RegisterUserUseCase,

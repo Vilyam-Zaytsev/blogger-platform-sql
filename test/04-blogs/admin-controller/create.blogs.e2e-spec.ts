@@ -6,11 +6,11 @@ import { TestLoggers } from '../../helpers/test.loggers';
 import { AppTestManager } from '../../managers/app.test-manager';
 import { AdminCredentials } from '../../types';
 import { Server } from 'http';
-import { BlogInputDto } from '../../../src/modules/bloggers-platform/blogs/api/input-dto/blog-input.dto';
-import { BlogViewDto } from 'src/modules/bloggers-platform/blogs/api/view-dto/blog-view.dto';
 import { HttpStatus } from '@nestjs/common';
 import { BlogsTestManager } from '../../managers/blogs.test-manager';
 import { PaginatedViewDto } from '../../../src/core/dto/paginated.view-dto';
+import { BlogInputDto } from '../../../src/modules/bloggers-platform/blogs/api/input-dto/blog.input-dto';
+import { BlogViewDto } from '../../../src/modules/bloggers-platform/blogs/api/view-dto/blog.view-dto';
 
 describe('BlogsAdminController - createBlog() (POST: /sa/blogs)', () => {
   let appTestManager: AppTestManager;

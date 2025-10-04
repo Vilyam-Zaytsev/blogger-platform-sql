@@ -9,12 +9,7 @@ import { UsersFactory } from '../../../users/application/factories/users.factory
 import { DatabaseModule } from '../../../../database/database.module';
 import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import {
-  ConfirmationStatus,
-  EmailConfirmationCode,
-} from '../../domain/entities/email-confirmation-code.entity';
-import { PasswordRecoveryCode } from '../../domain/entities/password-recovery-code.entity';
-import { Session } from '../../../sessions/domain/entities/session.entity';
+import { ConfirmationStatus } from '../../domain/entities/email-confirmation-code.entity';
 import { UserValidationService } from '../../../users/application/services/user-validation.service';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
 import { CryptoService } from '../../../users/application/services/crypto.service';
@@ -23,8 +18,9 @@ import { CreateUserDto } from '../../../users/dto/create-user.dto';
 import { EventBus } from '@nestjs/cqrs';
 import { RegistrationEmailResandingInputDto } from '../../api/input-dto/registration-email-resending.input-dto';
 import { UserResendRegisteredEvent } from '../../domain/events/user-resend-registered.event';
-import SpyInstance = jest.SpyInstance;
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import SpyInstance = jest.SpyInstance;
 
 describe('ResendRegistrationEmailUseCase (Integration)', () => {
   let module: TestingModule;
@@ -37,11 +33,7 @@ describe('ResendRegistrationEmailUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        DatabaseModule,
-        CoreModule,
-        TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode, Session]),
-      ],
+      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
       providers: [
         ResendRegistrationEmailUseCase,
         UserValidationService,

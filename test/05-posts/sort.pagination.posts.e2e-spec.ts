@@ -1,7 +1,6 @@
 import request, { Response } from 'supertest';
 import { Server } from 'http';
 import { HttpStatus } from '@nestjs/common';
-import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/api/view-dto/blog-view.dto';
 import {
   GetPostsQueryParams,
   PostsSortBy,
@@ -16,6 +15,7 @@ import { Filter } from '../helpers/filter';
 import { TestLoggers } from '../helpers/test.loggers';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
+import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/api/view-dto/blog.view-dto';
 
 describe('PostsController - getPost() (GET: /posts (pagination, sort, search in term))', () => {
   let appTestManager: AppTestManager;
@@ -246,11 +246,11 @@ describe('PostsController - getPost() (GET: /posts (pagination, sort, search in 
   //
   //   for (let i = 0; i < blogs.length; i++) {
   //     for (let j = 0; j < 5; j++) {
-  //       const dto: PostInputDto = dtos[j];
+  //       const types: PostInputDto = dtos[j];
   //
   //       const response: Response = await request(server)
   //         .post(`/${GLOBAL_PREFIX}/sa/blogs/${blogs[i].id}/posts`)
-  //         .send(dto)
+  //         .send(types)
   //         .set('Authorization', adminCredentialsInBase64)
   //         .expect(HttpStatus.CREATED);
   //

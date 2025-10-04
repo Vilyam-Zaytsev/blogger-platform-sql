@@ -1,4 +1,4 @@
-export class UpdatePostDto {
+export class PostUpdateDto {
   blogId: number;
   postId: number;
   title: string;

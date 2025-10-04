@@ -5,7 +5,6 @@ import { TestLoggers } from '../helpers/test.loggers';
 import { AppTestManager } from '../managers/app.test-manager';
 import { AdminCredentials, TestResultLogin } from '../types';
 import { Server } from 'http';
-import { BlogViewDto } from 'src/modules/bloggers-platform/blogs/api/view-dto/blog-view.dto';
 import { BlogsTestManager } from '../managers/blogs.test-manager';
 import { PostViewDto } from '../../src/modules/bloggers-platform/posts/api/view-dto/post.view-dto';
 import { PostsTestManager } from '../managers/posts.test-manager';
@@ -22,6 +21,7 @@ import { PaginatedViewDto } from '../../src/core/dto/paginated.view-dto';
 import { GetPostsQueryParams } from '../../src/modules/bloggers-platform/posts/api/input-dto/get-posts-query-params.input-dto';
 import { CoreConfig } from '../../src/core/core.config';
 import { ConfigService } from '@nestjs/config';
+import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/api/view-dto/blog.view-dto';
 
 describe('PostsController - updateReaction() (PUT: /posts/:postId/like-status)', () => {
   let appTestManager: AppTestManager;

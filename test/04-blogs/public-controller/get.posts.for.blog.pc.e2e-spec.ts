@@ -4,7 +4,6 @@ import { TestLoggers } from '../../helpers/test.loggers';
 import { AppTestManager } from '../../managers/app.test-manager';
 import { AdminCredentials } from '../../types';
 import { Server } from 'http';
-import { BlogViewDto } from 'src/modules/bloggers-platform/blogs/api/view-dto/blog-view.dto';
 import { HttpStatus } from '@nestjs/common';
 import { Filter } from '../../helpers/filter';
 import { SortDirection } from '../../../src/core/dto/base.query-params.input-dto';
@@ -16,6 +15,7 @@ import {
   GetPostsQueryParams,
   PostsSortBy,
 } from '../../../src/modules/bloggers-platform/posts/api/input-dto/get-posts-query-params.input-dto';
+import { BlogViewDto } from '../../../src/modules/bloggers-platform/blogs/api/view-dto/blog.view-dto';
 
 describe('BlogsPublicController - getPostsForBlog() (GET: /blogs/{blogId}/posts)', () => {
   let appTestManager: AppTestManager;

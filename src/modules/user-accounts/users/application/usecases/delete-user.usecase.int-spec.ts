@@ -4,9 +4,6 @@ import { DataSource, Repository } from 'typeorm';
 import { DatabaseModule } from '../../../../database/database.module';
 import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EmailConfirmationCode } from '../../../auth/domain/entities/email-confirmation-code.entity';
-import { PasswordRecoveryCode } from '../../../auth/domain/entities/password-recovery-code.entity';
-import { Session } from '../../../sessions/domain/entities/session.entity';
 import { UsersRepository } from '../../infrastructure/users.repository';
 import { User } from '../../domain/entities/user.entity';
 import { UsersFactory } from '../factories/users.factory';
@@ -15,6 +12,7 @@ import { CryptoService } from '../services/crypto.service';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { DateService } from '../services/date.service';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 
 describe('DeleteUserUseCase (Integration)', () => {
   let module: TestingModule;
@@ -25,11 +23,7 @@ describe('DeleteUserUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        DatabaseModule,
-        CoreModule,
-        TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode, Session]),
-      ],
+      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
       providers: [DeleteUserUseCase, UsersRepository, UsersFactory, CryptoService, DateService],
     }).compile();
 

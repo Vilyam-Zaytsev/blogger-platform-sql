@@ -46,15 +46,6 @@ export class PostsController {
 
   // 🔸 Posts:
 
-  @Get()
-  @UseGuards(OptionalJwtAuthGuard)
-  async getAllPosts(
-    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-    @Query() query: GetPostsQueryParams,
-  ): Promise<PaginatedViewDto<PostViewDto>> {
-    return this.queryBus.execute(new GetPostsQuery(query, user));
-  }
-
   @Get(':id')
   @UseGuards(OptionalJwtAuthGuard)
   async getPostById(
@@ -62,6 +53,15 @@ export class PostsController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<PostViewDto> {
     return this.queryBus.execute(new GetPostQuery(id, user));
+  }
+
+  @Get()
+  @UseGuards(OptionalJwtAuthGuard)
+  async getAllPosts(
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    @Query() query: GetPostsQueryParams,
+  ): Promise<PaginatedViewDto<PostViewDto>> {
+    return this.queryBus.execute(new GetPostsQuery(query, user));
   }
 
   // 🔸 Comments:
