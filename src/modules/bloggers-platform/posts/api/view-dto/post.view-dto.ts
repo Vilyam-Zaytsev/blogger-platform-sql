@@ -2,8 +2,8 @@ import { ReactionStatus } from '../../../reactions/types/reaction-db.type';
 import { RawPost } from '../../infrastructure/query/types/raw-post.type';
 
 export type NewestLikes = {
-  addedAt: Date;
-  userId: number;
+  addedAt: string;
+  userId: string;
   login: string;
 };
 
@@ -26,7 +26,6 @@ export class PostViewDto {
 
   static mapRawPostToPostViewDto(post: RawPost): PostViewDto {
     const dto = new this();
-
     dto.id = post.id.toString();
     dto.title = post.title;
     dto.shortDescription = post.shortDescription;
@@ -37,7 +36,13 @@ export class PostViewDto {
       likesCount: +post.likesCount,
       dislikesCount: +post.dislikesCount,
       myStatus: post.myStatus,
-      newestLikes: post.newestLikes,
+      newestLikes: post.newestLikes.map((nl) => {
+        return {
+          addedAt: nl.addedAt,
+          userId: nl.userId.toString(),
+          login: nl.login,
+        };
+      }),
     };
     dto.createdAt = post.createdAt.toISOString();
 
