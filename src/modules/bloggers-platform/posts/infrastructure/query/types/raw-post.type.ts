@@ -1,5 +1,4 @@
 import { ReactionStatus } from '../../../../reactions/types/reaction-db.type';
-import { NewestLikes } from '../../../api/view-dto/post.view-dto';
 
 export type RawPost = {
   id: number;
@@ -11,10 +10,10 @@ export type RawPost = {
   blogName: string;
   likesCount: number;
   dislikesCount: number;
-  newestLikes: NewestLikes[];
+  newestLikes: {
+    addedAt: string;
+    userId: number;
+    login: string;
+  }[];
   myStatus: ReactionStatus;
-};
-
-export type RawPostWithCount = RawPost & {
-  totalCount: string;
 };
