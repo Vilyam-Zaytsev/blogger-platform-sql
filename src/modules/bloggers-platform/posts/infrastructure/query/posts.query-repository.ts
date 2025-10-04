@@ -8,7 +8,7 @@ import {
   PostsSortBy,
 } from '../../api/input-dto/get-posts-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
-import { RawPost, RawPostWithCount } from './types/raw-post.type';
+import { RawPost } from './types/raw-post.type';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { ReactionStatus } from '../../../reactions/domain/entities/reaction.entity';
