@@ -55,6 +55,17 @@ export class Post extends BaseEntity {
   })
   public content: string;
 
+  @ManyToOne(() => Blog, (blog: Blog): Post[] => blog.posts, {
+    onDelete: 'CASCADE',
+  })
+  blog: Blog;
+
+  @Column()
+  public blogId: number;
+
+  @OneToMany(() => ReactionPost, (reaction) => reaction.post)
+  public reactions: ReactionPost[];
+
   protected constructor() {
     super();
   }
@@ -75,15 +86,4 @@ export class Post extends BaseEntity {
     this.shortDescription = shortDescription;
     this.content = content;
   }
-
-  @ManyToOne(() => Blog, (blog: Blog): Post[] => blog.posts, {
-    onDelete: 'CASCADE',
-  })
-  blog: Blog;
-
-  @Column()
-  public blogId: number;
-
-  @OneToMany(() => ReactionPost, (reaction) => reaction.post)
-  public reactions: ReactionPost[];
 }
