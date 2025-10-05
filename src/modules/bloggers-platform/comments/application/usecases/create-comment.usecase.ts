@@ -1,14 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { PostsRepository } from '../../../posts/infrastructure/posts.repository';
 import { CommentsRepository } from '../../infrastructure/comments-repository';
-import { CreateCommentDto } from '../../dto/create-comment.dto';
+import { CommentCreateDto } from '../dto/comment.create-dto';
 import { CreateCommentDomainDto } from '../../domain/dto/create-comment.domain-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { Post } from '../../../posts/domain/entities/post.entity';
 
 export class CreateCommentCommand {
-  constructor(public readonly dto: CreateCommentDto) {}
+  constructor(public readonly dto: CommentCreateDto) {}
 }
 
 @CommandHandler(CreateCommentCommand)

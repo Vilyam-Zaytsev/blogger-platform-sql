@@ -26,7 +26,7 @@ import { JwtAuthGuard } from '../../../user-accounts/auth/domain/guards/bearer/j
 import { ExtractUserFromRequest } from '../../../user-accounts/auth/domain/guards/decorators/extract-user-from-request.decorator';
 import { CommentInputDto } from '../../comments/api/input-dto/comment-input.dto';
 import { CommentViewDto } from '../../comments/api/view-dto/comment-view.dto';
-import { CreateCommentDto } from '../../comments/dto/create-comment.dto';
+import { CommentCreateDto } from '../../comments/application/dto/comment.create-dto';
 import { CreateCommentCommand } from '../../comments/application/usecases/create-comment.usecase';
 import { CommentsQueryRepository } from '../../comments/infrastructure/query/comments.query-repository';
 import { GetCommentsQueryParams } from '../../comments/api/input-dto/get-comments-query-params.input-dto';
@@ -73,7 +73,7 @@ export class PostsController {
     @Param('postId', ParseIntPipe) postId: number,
     @Body() body: CommentInputDto,
   ): Promise<CommentViewDto> {
-    const createCommentDto: CreateCommentDto = {
+    const createCommentDto: CommentCreateDto = {
       postId,
       userId: user.id,
       content: body.content,
