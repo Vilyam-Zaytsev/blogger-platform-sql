@@ -21,47 +21,52 @@ export class PostsQueryRepository {
   async getByIdOrNotFoundFail(id: number, user: UserContextDto | null): Promise<PostViewDto> {
     const likesCountQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select(['rp."postId" AS "postId"', 'COUNT(*) AS "count"'])
+      .select('rp."postId"', 'postId')
+      .addSelect('COUNT(*)', 'count')
       .from('reactions_posts', 'rp')
-      .leftJoin('reactions', 'r', 'r."id" = rp."reactionId"')
-      .where('r.status = :likeStatus', { likeStatus: ReactionStatus.Like })
+      .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+      .where('r.status = :like', { like: ReactionStatus.Like })
       .groupBy('rp."postId"');
 
     const dislikesCountQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select(['rp."postId" AS "postId"', 'COUNT(*) AS "count"'])
+      .select('rp."postId"', 'postId')
+      .addSelect('COUNT(*)', 'count')
       .from('reactions_posts', 'rp')
-      .leftJoin('reactions', 'r', 'r."id" = rp."reactionId"')
-      .where('r.status = :dislikeStatus', { dislikeStatus: ReactionStatus.Dislike })
+      .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+      .where('r.status = :dislike', { dislike: ReactionStatus.Dislike })
       .groupBy('rp."postId"');
 
     const newestLikesQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select([
-        'r2."postId" AS "postId"',
+      .select('r2."postId"', 'postId')
+      .addSelect(
         `json_agg(
         json_build_object(
           'addedAt', r2."createdAt",
           'userId', r2."userId",
           'login', u.login
         ) ORDER BY r2."createdAt" DESC
-      ) AS "likes"`,
-      ])
-      .from((subQuery) => {
-        return subQuery
-          .select([
-            'rp."postId" AS "postId"',
-            'r."createdAt" AS "createdAt"',
-            'r."userId" AS "userId"',
-            'ROW_NUMBER() OVER (PARTITION BY rp."postId" ORDER BY r."createdAt" DESC) AS rn',
-          ])
-          .from('reactions_posts', 'rp')
-          .leftJoin('reactions', 'r', 'r."id" = rp."reactionId"')
-          .where('r.status = :newestLikesStatus', { newestLikesStatus: ReactionStatus.Like });
-      }, 'r2')
-      .leftJoin('users', 'u', 'u.id = r2."userId"')
+      )`,
+        'likes',
+      )
+      .from(
+        (qb) =>
+          qb
+            .select('rp."postId"', 'postId')
+            .addSelect('r."createdAt"', 'createdAt')
+            .addSelect('r."userId"', 'userId')
+            .addSelect(
+              'ROW_NUMBER() OVER (PARTITION BY rp."postId" ORDER BY r."createdAt" DESC)',
+              'rn',
+            )
+            .from('reactions_posts', 'rp')
+            .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+            .where('r.status = :like', { like: ReactionStatus.Like }),
+        'r2',
+      )
+      .innerJoin('users', 'u', 'u.id = r2."userId"')
       .where('r2.rn <= 3')
-      //TODO: зачем groupBy
       .groupBy('r2."postId"');
 
     const mainQueryBuilder = this.dataSource
@@ -70,42 +75,48 @@ export class PostsQueryRepository {
       .addCommonTableExpression(likesCountQueryBuilder, 'likes_count')
       .addCommonTableExpression(dislikesCountQueryBuilder, 'dislikes_count')
       .addCommonTableExpression(newestLikesQueryBuilder, 'newest_likes')
-      .leftJoinAndSelect('post.blog', 'blog')
+      .leftJoin('post.blog', 'blog')
       .leftJoin('likes_count', 'lc', 'lc."postId" = post.id')
       .leftJoin('dislikes_count', 'dc', 'dc."postId" = post.id')
       .leftJoin('newest_likes', 'nl', 'nl."postId" = post.id')
       .where('post.id = :id', { id });
 
-    if (user?.id) {
-      mainQueryBuilder
-        .leftJoin('reactions_posts', 'user_rp', 'user_rp."postId" = post.id')
-        .leftJoin(
-          'reactions',
-          'user_r',
-          'user_r."id" = user_rp."reactionId" AND user_r."userId" = :currentUserId',
-          { currentUserId: user.id },
-        );
-    }
-
     mainQueryBuilder
       .select([
-        'post.id AS "id"',
-        'post.title AS "title"',
-        'post."shortDescription" AS "shortDescription"',
-        'post.content AS "content"',
-        'post."createdAt" AS "createdAt"',
+        'post.id AS id',
+        'post.title AS title',
+        'post.shortDescription AS "shortDescription"',
+        'post.content AS content',
+        'post.createdAt AS "createdAt"',
         'blog.id AS "blogId"',
         'blog.name AS "blogName"',
       ])
-      .addSelect('COALESCE(lc."count", 0)', 'likesCount')
-      .addSelect('COALESCE(dc."count", 0)', 'dislikesCount')
-      .addSelect('COALESCE(nl."likes", \'[]\')', 'newestLikes')
-      .addSelect(
-        user?.id
-          ? `COALESCE(user_r."status", '${ReactionStatus.None}' )`
-          : `'${ReactionStatus.None}'`,
+      .addSelect('COALESCE(lc.count, 0)', 'likesCount')
+      .addSelect('COALESCE(dc.count, 0)', 'dislikesCount')
+      .addSelect("COALESCE(nl.likes, '[]')", 'newestLikes');
+
+    if (user?.id) {
+      mainQueryBuilder.addSelect(
+        (subQb) =>
+          subQb
+            .select('r.status')
+            .from('reactions_posts', 'rp')
+            .innerJoin(
+              'reactions',
+              'r',
+              `
+          r.id = rp."reactionId"
+         AND r.userId = :uid
+         `,
+              { uid: user.id },
+            )
+            .where('rp."postId" = post.id')
+            .limit(1),
         'myStatus',
       );
+    } else {
+      mainQueryBuilder.addSelect(`'${ReactionStatus.None}'`, 'myStatus');
+    }
 
     const rawPost: RawPost | null = (await mainQueryBuilder.getRawOne()) ?? null;
 
@@ -129,50 +140,56 @@ export class PostsQueryRepository {
 
     const likesCountQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select(['rp."postId" AS "postId"', 'COUNT(*) AS "count"'])
+      .select('rp."postId"', 'postId')
+      .addSelect('COUNT(*)', 'count')
       .from('reactions_posts', 'rp')
-      .leftJoin('reactions', 'r', 'r."id" = rp."reactionId"')
-      .where('r."status" = :likeStatus', { likeStatus: ReactionStatus.Like })
+      .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+      .where('r.status = :like', { like: ReactionStatus.Like })
       .groupBy('rp."postId"');
 
     const dislikesCountQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select(['rp."postId" AS "postId"', 'COUNT(*) AS "count"'])
+      .select('rp."postId"', 'postId')
+      .addSelect('COUNT(*)', 'count')
       .from('reactions_posts', 'rp')
-      .leftJoin('reactions', 'r', 'r."id" = rp."reactionId"')
-      .where('r."status" = :dislikeStatus', { dislikeStatus: ReactionStatus.Dislike })
+      .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+      .where('r.status = :dislike', { dislike: ReactionStatus.Dislike })
       .groupBy('rp."postId"');
 
     const newestLikesQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select([
-        'r2."postId" AS "postId"',
+      .select('r2."postId"', 'postId')
+      .addSelect(
         `json_agg(
-          json_build_object(
-            'addedAt', r2."createdAt",
-            'userId', r2."userId",
-            'login', u."login"
-          ) ORDER BY r2."createdAt" DESC
-        ) AS likes`,
-      ])
-      .from((subQuery) => {
-        return subQuery
-          .select([
-            'rp."postId" AS "postId"',
-            'r."createdAt" AS "createdAt"',
-            'r."userId" AS "userId"',
-            'ROW_NUMBER() OVER (PARTITION BY rp."postId" ORDER BY r."createdAt" DESC) AS rn',
-          ])
-          .from('reactions_posts', 'rp')
-          .leftJoin('reactions', 'r', 'r."id" = rp."reactionId"')
-          .where('r."status" = :newestLikesStatus', { newestLikesStatus: ReactionStatus.Like });
-      }, 'r2')
-      .leftJoin('users', 'u', 'u."id" = r2."userId"')
+         json_build_object(
+           'addedAt', r2."createdAt",
+           'userId', r2."userId",
+           'login', u.login
+         ) ORDER BY r2."createdAt" DESC
+       )`,
+        'likes',
+      )
+      .from(
+        (qb) =>
+          qb
+            .select('rp."postId"', 'postId')
+            .addSelect('r."createdAt"', 'createdAt')
+            .addSelect('r."userId"', 'userId')
+            .addSelect(
+              'ROW_NUMBER() OVER (PARTITION BY rp."postId" ORDER BY r."createdAt" DESC)',
+              'rn',
+            )
+            .from('reactions_posts', 'rp')
+            .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+            .where('r.status = :like', { like: ReactionStatus.Like }),
+        'r2',
+      )
+      .innerJoin('users', 'u', 'u.id = r2."userId"')
       .where('r2.rn <= 3')
       .groupBy('r2."postId"');
 
     const mainQueryBuilder = this.dataSource
-      .getRepository<Post>(Post)
+      .getRepository(Post)
       .createQueryBuilder('post')
       .addCommonTableExpression(likesCountQueryBuilder, 'likes_count')
       .addCommonTableExpression(dislikesCountQueryBuilder, 'dislikes_count')
@@ -181,21 +198,44 @@ export class PostsQueryRepository {
       .leftJoin('likes_count', 'lc', 'lc."postId" = post.id')
       .leftJoin('dislikes_count', 'dc', 'dc."postId" = post.id')
       .leftJoin('newest_likes', 'nl', 'nl."postId" = post.id')
-      .leftJoin(
-        (subQuery) =>
-          subQuery
-            .from('reactions_posts', 'user_rp')
-            .leftJoin(
+      .where(blogId ? 'post.blogId = :blogId' : '1=1', { blogId });
+
+    mainQueryBuilder
+      .select([
+        'post.id AS id',
+        'post.title AS title',
+        'post.shortDescription AS "shortDescription"',
+        'post.content AS content',
+        'post.createdAt AS "createdAt"',
+        'blog.id AS "blogId"',
+        'blog.name AS "blogName"',
+      ])
+      .addSelect('COALESCE(lc.count, 0)', 'likesCount')
+      .addSelect('COALESCE(dc.count, 0)', 'dislikesCount')
+      .addSelect("COALESCE(nl.likes, '[]')", 'newestLikes');
+
+    if (user?.id) {
+      mainQueryBuilder.addSelect(
+        (subQb) =>
+          subQb
+            .select('r.status')
+            .from('reactions_posts', 'rp')
+            .innerJoin(
               'reactions',
-              'user_r',
-              'user_r."id" = user_rp."reactionId" AND user_r."userId" = :currentUserId',
-            ),
-        'rp2',
-        'rp2."postId" = post.id',
-        { currentUserId: user?.id ?? null },
-      )
-      //TODO: оптимизировать это условие
-      .where(blogId ? 'post."blogId" = :blogId' : '1=1', { blogId: blogId ?? undefined });
+              'r',
+              `
+          r.id = rp."reactionId"
+         AND r.userId = :uid
+         `,
+              { uid: user.id },
+            )
+            .where('rp."postId" = post.id')
+            .limit(1),
+        'myStatus',
+      );
+    } else {
+      mainQueryBuilder.addSelect(`'${ReactionStatus.None}'`, 'myStatus');
+    }
 
     const orderByColumn: string =
       sortBy !== PostsSortBy.BlogName ? `post."${sortBy}"` : 'blog."name"';
@@ -204,24 +244,6 @@ export class PostsQueryRepository {
       .orderBy(orderByColumn, sortDirection.toUpperCase() as 'ASC' | 'DESC')
       .offset(skip)
       .limit(pageSize);
-
-    mainQueryBuilder
-      .select([
-        'post.id AS "id"',
-        'post.title AS "title"',
-        'post.shortDescription AS "shortDescription"',
-        'post.content AS "content"',
-        'blog.id AS "blogId"',
-        'blog.name AS "blogName"',
-        'post.createdAt AS "createdAt"',
-      ])
-      .addSelect('COALESCE(lc."count", 0)', 'likesCount')
-      .addSelect('COALESCE(dc."count", 0)', 'dislikesCount')
-      .addSelect('COALESCE(nl."likes", \'[]\')', 'newestLikes')
-      .addSelect(
-        user?.id ? `COALESCE(rp2."status", '${ReactionStatus.None}')` : `'${ReactionStatus.None}'`,
-        'myStatus',
-      );
 
     const rawPosts: RawPost[] = await mainQueryBuilder.getRawMany<RawPost>();
     const totalCount: number = await mainQueryBuilder.getCount();
