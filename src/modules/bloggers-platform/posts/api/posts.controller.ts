@@ -79,11 +79,11 @@ export class PostsController {
       content: body.content,
     };
 
-    const commentId: number = await this.commandBus.execute(
+    const idCreatedComment: number = await this.commandBus.execute(
       new CreateCommentCommand(createCommentDto),
     );
 
-    return this.commentsQueryRepository.getByIdOrNotFoundFail(commentId, null);
+    return this.commentsQueryRepository.getByIdOrNotFoundFail(idCreatedComment, null);
   }
 
   @Get(':postId/comments')
