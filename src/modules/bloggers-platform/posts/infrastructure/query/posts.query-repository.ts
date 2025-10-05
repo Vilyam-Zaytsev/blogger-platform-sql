@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { PostViewDto } from '../../api/view-dto/post.view-dto';
-import { Pool, QueryResult } from 'pg';
 import { UserContextDto } from '../../../../user-accounts/auth/domain/guards/dto/user-context.dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
@@ -9,73 +8,126 @@ import {
   PostsSortBy,
 } from '../../api/input-dto/get-posts-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
-import { ValidationException } from '../../../../../core/exceptions/validation-exception';
-import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
-import { PostRawRow } from '../../types/post-raw-row.type';
+import { RawPost } from './types/raw-post.type';
+import { InjectDataSource } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
+import { ReactionStatus } from '../../../reactions/domain/entities/reaction.entity';
+import { Post } from '../../domain/entities/post.entity';
 
 @Injectable()
 export class PostsQueryRepository {
-  pool: any = {};
-  constructor() {}
-  // constructor(@Inject(PG_POOL) private readonly pool: Pool) {}
+  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
   async getByIdOrNotFoundFail(id: number, user: UserContextDto | null): Promise<PostViewDto> {
-    const { rows }: QueryResult<PostViewDto> = await this.pool.query(
-      `
-        WITH "LikesCount" AS (SELECT "postId", COUNT(*) AS "count"
-                              FROM "PostsReactions"
-                              WHERE "status" = 'Like'
-                              GROUP BY "postId"),
-             "DislikesCount" AS (SELECT "postId", COUNT(*) AS "count"
-                                 FROM "PostsReactions"
-                                 WHERE "status" = 'Dislike'
-                                 GROUP BY "postId"),
-             "NewestLikes" AS (SELECT pr2."postId",
-                                      json_agg(
-                                        json_build_object(
-                                          'addedAt', pr2."createdAt",
-                                          'userId', pr2."userId"::text,
-                                          'login', u."login"
-                                        ) ORDER BY pr2."createdAt" DESC
-                                      ) AS "likes"
-                               FROM (SELECT pr.*,
-                                            ROW_NUMBER() OVER (PARTITION BY pr."postId" ORDER BY pr."createdAt" DESC) AS rn
-                                     FROM "PostsReactions" pr
-                                     WHERE pr."status" = 'Like') pr2
-                                      JOIN "Users" u ON u."id" = pr2."userId"
-                               WHERE pr2.rn <= 3
-                               GROUP BY pr2."postId")
-        SELECT p."id"::text, p."title",
-               p."shortDescription",
-               p."content",
-               b."id"::text AS "blogId", b."name" AS "blogName",
-               p."createdAt",
-               json_build_object(
-                 'likesCount', COALESCE(lc.count, 0),
-                 'dislikesCount', COALESCE(dc.count, 0),
-                 'myStatus', COALESCE(pr."status", 'None'),
-                 'newestLikes', COALESCE(nl.likes, '[]')
-               ) AS "extendedLikesInfo"
-        FROM "Posts" p
-               JOIN "Blogs" b ON b."id" = p."blogId"
-               LEFT JOIN "LikesCount" lc ON lc."postId" = p."id"
-               LEFT JOIN "DislikesCount" dc ON dc."postId" = p."id"
-               LEFT JOIN "PostsReactions" pr ON pr."postId" = p."id" AND pr."userId" = $2
-               LEFT JOIN "NewestLikes" nl ON nl."postId" = p."id"
-        WHERE p."id" = $1
-          AND p."deletedAt" IS NULL;
-      `,
-      [id, user?.id ?? null],
-    );
+    const likesCountQueryBuilder = this.dataSource
+      .createQueryBuilder()
+      .select('rp."postId"', 'postId')
+      .addSelect('COUNT(*)', 'count')
+      .from('reactions_posts', 'rp')
+      .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+      .where('r.status = :like', { like: ReactionStatus.Like })
+      .groupBy('rp."postId"');
 
-    if (rows.length === 0) {
+    const dislikesCountQueryBuilder = this.dataSource
+      .createQueryBuilder()
+      .select('rp."postId"', 'postId')
+      .addSelect('COUNT(*)', 'count')
+      .from('reactions_posts', 'rp')
+      .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+      .where('r.status = :dislike', { dislike: ReactionStatus.Dislike })
+      .groupBy('rp."postId"');
+
+    const newestLikesQueryBuilder = this.dataSource
+      .createQueryBuilder()
+      .select('r2."postId"', 'postId')
+      .addSelect(
+        `json_agg(
+        json_build_object(
+          'addedAt', r2."createdAt",
+          'userId', r2."userId",
+          'login', u.login
+        ) ORDER BY r2."createdAt" DESC
+      )`,
+        'likes',
+      )
+      .from(
+        (qb) =>
+          qb
+            .select('rp."postId"', 'postId')
+            .addSelect('r."createdAt"', 'createdAt')
+            .addSelect('r."userId"', 'userId')
+            .addSelect(
+              'ROW_NUMBER() OVER (PARTITION BY rp."postId" ORDER BY r."createdAt" DESC)',
+              'rn',
+            )
+            .from('reactions_posts', 'rp')
+            .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+            .where('r.status = :like', { like: ReactionStatus.Like }),
+        'r2',
+      )
+      .innerJoin('users', 'u', 'u.id = r2."userId"')
+      .where('r2.rn <= 3')
+      .groupBy('r2."postId"');
+
+    const mainQueryBuilder = this.dataSource
+      .getRepository<Post>(Post)
+      .createQueryBuilder('post')
+      .addCommonTableExpression(likesCountQueryBuilder, 'likes_count')
+      .addCommonTableExpression(dislikesCountQueryBuilder, 'dislikes_count')
+      .addCommonTableExpression(newestLikesQueryBuilder, 'newest_likes')
+      .leftJoin('post.blog', 'blog')
+      .leftJoin('likes_count', 'lc', 'lc."postId" = post.id')
+      .leftJoin('dislikes_count', 'dc', 'dc."postId" = post.id')
+      .leftJoin('newest_likes', 'nl', 'nl."postId" = post.id')
+      .where('post.id = :id', { id });
+
+    mainQueryBuilder
+      .select([
+        'post.id AS id',
+        'post.title AS title',
+        'post.shortDescription AS "shortDescription"',
+        'post.content AS content',
+        'post.createdAt AS "createdAt"',
+        'blog.id AS "blogId"',
+        'blog.name AS "blogName"',
+      ])
+      .addSelect('COALESCE(lc.count, 0)', 'likesCount')
+      .addSelect('COALESCE(dc.count, 0)', 'dislikesCount')
+      .addSelect("COALESCE(nl.likes, '[]')", 'newestLikes');
+
+    if (user?.id) {
+      mainQueryBuilder.addSelect(
+        (subQb) =>
+          subQb
+            .select('r.status')
+            .from('reactions_posts', 'rp')
+            .innerJoin(
+              'reactions',
+              'r',
+              `
+          r.id = rp."reactionId"
+         AND r.userId = :uid
+         `,
+              { uid: user.id },
+            )
+            .where('rp."postId" = post.id')
+            .limit(1),
+        'myStatus',
+      );
+    } else {
+      mainQueryBuilder.addSelect(`'${ReactionStatus.None}'`, 'myStatus');
+    }
+
+    const rawPost: RawPost | null = (await mainQueryBuilder.getRawOne()) ?? null;
+
+    if (!rawPost) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `The post with ID (${id}) does not exist`,
       });
     }
 
-    return rows[0];
+    return PostViewDto.mapRawPostToPostViewDto(rawPost);
   }
 
   async getAll(
@@ -84,83 +136,117 @@ export class PostsQueryRepository {
     blogId?: number,
   ): Promise<PaginatedViewDto<PostViewDto>> {
     const { sortBy, sortDirection, pageSize, pageNumber }: GetPostsQueryParams = query;
+    const skip: number = query.calculateSkip();
 
-    if (!Object.values(PostsSortBy).includes(sortBy)) {
-      throw new ValidationException([
-        {
-          message: `Invalid sortBy: ${sortBy}`,
-          field: 'sortBy',
-        },
-      ]);
+    const likesCountQueryBuilder = this.dataSource
+      .createQueryBuilder()
+      .select('rp."postId"', 'postId')
+      .addSelect('COUNT(*)', 'count')
+      .from('reactions_posts', 'rp')
+      .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+      .where('r.status = :like', { like: ReactionStatus.Like })
+      .groupBy('rp."postId"');
+
+    const dislikesCountQueryBuilder = this.dataSource
+      .createQueryBuilder()
+      .select('rp."postId"', 'postId')
+      .addSelect('COUNT(*)', 'count')
+      .from('reactions_posts', 'rp')
+      .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+      .where('r.status = :dislike', { dislike: ReactionStatus.Dislike })
+      .groupBy('rp."postId"');
+
+    const newestLikesQueryBuilder = this.dataSource
+      .createQueryBuilder()
+      .select('r2."postId"', 'postId')
+      .addSelect(
+        `json_agg(
+         json_build_object(
+           'addedAt', r2."createdAt",
+           'userId', r2."userId",
+           'login', u.login
+         ) ORDER BY r2."createdAt" DESC
+       )`,
+        'likes',
+      )
+      .from(
+        (qb) =>
+          qb
+            .select('rp."postId"', 'postId')
+            .addSelect('r."createdAt"', 'createdAt')
+            .addSelect('r."userId"', 'userId')
+            .addSelect(
+              'ROW_NUMBER() OVER (PARTITION BY rp."postId" ORDER BY r."createdAt" DESC)',
+              'rn',
+            )
+            .from('reactions_posts', 'rp')
+            .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+            .where('r.status = :like', { like: ReactionStatus.Like }),
+        'r2',
+      )
+      .innerJoin('users', 'u', 'u.id = r2."userId"')
+      .where('r2.rn <= 3')
+      .groupBy('r2."postId"');
+
+    const mainQueryBuilder = this.dataSource
+      .getRepository(Post)
+      .createQueryBuilder('post')
+      .addCommonTableExpression(likesCountQueryBuilder, 'likes_count')
+      .addCommonTableExpression(dislikesCountQueryBuilder, 'dislikes_count')
+      .addCommonTableExpression(newestLikesQueryBuilder, 'newest_likes')
+      .leftJoin('post.blog', 'blog')
+      .leftJoin('likes_count', 'lc', 'lc."postId" = post.id')
+      .leftJoin('dislikes_count', 'dc', 'dc."postId" = post.id')
+      .leftJoin('newest_likes', 'nl', 'nl."postId" = post.id')
+      .where(blogId ? 'post.blogId = :blogId' : '1=1', { blogId });
+
+    mainQueryBuilder
+      .select([
+        'post.id AS id',
+        'post.title AS title',
+        'post.shortDescription AS "shortDescription"',
+        'post.content AS content',
+        'post.createdAt AS "createdAt"',
+        'blog.id AS "blogId"',
+        'blog.name AS "blogName"',
+      ])
+      .addSelect('COALESCE(lc.count, 0)', 'likesCount')
+      .addSelect('COALESCE(dc.count, 0)', 'dislikesCount')
+      .addSelect("COALESCE(nl.likes, '[]')", 'newestLikes');
+
+    if (user?.id) {
+      mainQueryBuilder.addSelect(
+        (subQb) =>
+          subQb
+            .select('r.status')
+            .from('reactions_posts', 'rp')
+            .innerJoin(
+              'reactions',
+              'r',
+              `
+          r.id = rp."reactionId"
+         AND r.userId = :uid
+         `,
+              { uid: user.id },
+            )
+            .where('rp."postId" = post.id')
+            .limit(1),
+        'myStatus',
+      );
+    } else {
+      mainQueryBuilder.addSelect(`'${ReactionStatus.None}'`, 'myStatus');
     }
 
-    if (!Object.values(SortDirection).includes(sortDirection)) {
-      throw new ValidationException([
-        {
-          message: `Invalid sortDirection: ${sortDirection}`,
-          field: 'sortDirection',
-        },
-      ]);
-    }
+    const orderByColumn: string =
+      sortBy !== PostsSortBy.BlogName ? `post."${sortBy}"` : 'blog."name"';
 
-    const orderByColumn: string = sortBy !== PostsSortBy.BlogName ? `p."${sortBy}"` : 'b."name"';
+    mainQueryBuilder
+      .orderBy(orderByColumn, sortDirection.toUpperCase() as 'ASC' | 'DESC')
+      .offset(skip)
+      .limit(pageSize);
 
-    const offset: number = query.calculateSkip();
-
-    const { rows }: QueryResult<PostRawRow> = await this.pool.query(
-      `
-        WITH "LikesCount" AS (SELECT "postId", COUNT(*) AS "count"
-                              FROM "PostsReactions"
-                              WHERE "status" = 'Like'
-                              GROUP BY "postId"),
-
-             "DislikesCount" AS (SELECT "postId", COUNT(*) AS "count"
-                                 FROM "PostsReactions"
-                                 WHERE "status" = 'Dislike'
-                                 GROUP BY "postId"),
-
-             "NewestLikes" AS (SELECT pr2."postId",
-                                      json_agg(
-                                        json_build_object(
-                                          'addedAt', pr2."createdAt",
-                                          'userId', pr2."userId"::text,
-                                          'login', u."login"
-                                        ) ORDER BY pr2."createdAt" DESC
-                                      ) AS "likes"
-                               FROM (SELECT pr.*,
-                                            ROW_NUMBER() OVER (PARTITION BY pr."postId" ORDER BY pr."createdAt" DESC) AS rn
-                                     FROM "PostsReactions" pr
-                                     WHERE pr."status" = 'Like') pr2
-                                      JOIN "Users" u ON u."id" = pr2."userId"
-                               WHERE pr2.rn <= 3
-                               GROUP BY pr2."postId")
-
-        SELECT COUNT(*) OVER() AS "totalCount", p."id"::text, p."title",
-               p."shortDescription",
-               p."content",
-               b."id"::text AS "blogId", b."name" AS "blogName",
-               p."createdAt",
-               json_build_object(
-                 'likesCount', COALESCE(lc."count", 0),
-                 'dislikesCount', COALESCE(dc."count", 0),
-                 'myStatus', COALESCE(pr."status", 'None'),
-                 'newestLikes', COALESCE(nl."likes", '[]')
-               ) AS     "extendedLikesInfo"
-        FROM "Posts" p
-               JOIN "Blogs" b ON b."id" = p."blogId"
-               LEFT JOIN "LikesCount" lc ON lc."postId" = p."id"
-               LEFT JOIN "DislikesCount" dc ON dc."postId" = p."id"
-               LEFT JOIN "PostsReactions" pr ON pr."postId" = p."id" AND pr."userId" = $3
-               LEFT JOIN "NewestLikes" nl ON nl."postId" = p."id"
-        WHERE p."deletedAt" IS NULL
-          AND ($4::int IS NULL OR p."blogId" = $4)
-        ORDER BY ${orderByColumn} ${sortDirection.toUpperCase()}
-        OFFSET $1 LIMIT $2
-      `,
-      [offset, pageSize, user?.id ?? null, blogId ?? null],
-    );
-
-    const totalCount: number = rows.length > 0 ? +rows[0].totalCount : 0;
+    const rawPosts: RawPost[] = await mainQueryBuilder.getRawMany<RawPost>();
+    const totalCount: number = await mainQueryBuilder.getCount();
     const pagesCount: number = Math.ceil(totalCount / pageSize);
 
     return {
@@ -168,18 +254,7 @@ export class PostsQueryRepository {
       page: pageNumber,
       pageSize,
       totalCount,
-      items: rows.map(
-        (row): PostViewDto => ({
-          id: row.id,
-          title: row.title,
-          shortDescription: row.shortDescription,
-          content: row.content,
-          blogId: row.blogId,
-          blogName: row.blogName,
-          createdAt: row.createdAt,
-          extendedLikesInfo: row.extendedLikesInfo,
-        }),
-      ),
+      items: rawPosts.map((post) => PostViewDto.mapRawPostToPostViewDto(post)),
     };
   }
 }

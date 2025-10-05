@@ -1,14 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdatePostReactionCommand } from '../../../posts/application/usecases/update-post-reaction.usecase';
+import { UpdatePostReactionCommand } from '../../../reactions/application/usecases/update-post-reaction.usecase';
 import { CommentsRepository } from '../../infrastructure/comments-repository';
-import { UpdateReactionDto } from '../../../reactions/dto/update-reaction.dto';
 import { CommentDb } from '../../types/comment-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { ReactionDb } from '../../../reactions/types/reaction-db.type';
+import { ReactionUpdateDto } from '../../../reactions/dto/reaction.create-dto';
 
 export class UpdateCommentReactionCommand {
-  constructor(public readonly dto: UpdateReactionDto) {}
+  constructor(public readonly dto: ReactionUpdateDto) {}
 }
 
 @CommandHandler(UpdateCommentReactionCommand)

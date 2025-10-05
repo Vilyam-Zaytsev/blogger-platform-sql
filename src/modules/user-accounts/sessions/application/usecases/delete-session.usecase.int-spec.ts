@@ -7,8 +7,6 @@ import { DeleteSessionCommand, DeleteSessionUseCase } from './delete-session.use
 import { DatabaseModule } from '../../../../database/database.module';
 import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { EmailConfirmationCode } from '../../../auth/domain/entities/email-confirmation-code.entity';
-import { PasswordRecoveryCode } from '../../../auth/domain/entities/password-recovery-code.entity';
 import { SessionsRepository } from '../../infrastructure/sessions.repository';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
 import { CryptoService } from '../../../users/application/services/crypto.service';
@@ -17,6 +15,7 @@ import { SessionContextDto } from '../../../auth/domain/guards/dto/session-conte
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { DateService } from '../../../users/application/services/date.service';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 
 describe('DeleteSessionUseCase (Integration)', () => {
   let module: TestingModule;
@@ -28,11 +27,7 @@ describe('DeleteSessionUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        DatabaseModule,
-        CoreModule,
-        TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode, Session]),
-      ],
+      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Session))],
       providers: [
         DeleteSessionUseCase,
         SessionsRepository,

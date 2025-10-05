@@ -26,14 +26,17 @@ import { CreateCommentUseCase } from './comments/application/usecases/create-com
 import { CommentsQueryRepository } from './comments/infrastructure/query/comments.query-repository';
 import { GetCommentQueryHandler } from './comments/application/queries/get-comment.query-handler';
 import { GetCommentsQueryHandler } from './comments/application/queries/get-comments.query-handler';
-import { UpdatePostReactionUseCase } from './posts/application/usecases/update-post-reaction.usecase';
+import { UpdatePostReactionUseCase } from './reactions/application/usecases/update-post-reaction.usecase';
 import { UpdateCommentReactionUseCase } from './comments/application/usecases/update-comment-reaction.usecase';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Blog } from './blogs/domain/entities/blog.entity';
 import { Post } from './posts/domain/entities/post.entity';
+import { Reaction } from './reactions/domain/entities/reaction.entity';
+import { ReactionPost } from './reactions/domain/entities/reaction-post.entity';
+import { ReactionsRepository } from './reactions/infrastructure/reactions.repository';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Blog, Post]), UserAccountsModule],
+  imports: [TypeOrmModule.forFeature([Blog, Post, Reaction, ReactionPost]), UserAccountsModule],
   controllers: [BlogsAdminController, BlogsPublicController, PostsController, CommentsController],
   providers: [
     //🔸 Blogs:
@@ -72,6 +75,9 @@ import { Post } from './posts/domain/entities/post.entity';
     //query-handlers
     GetCommentQueryHandler,
     GetCommentsQueryHandler,
+    //🔸 Reactions:
+    //repo
+    ReactionsRepository,
   ],
   exports: [],
 })

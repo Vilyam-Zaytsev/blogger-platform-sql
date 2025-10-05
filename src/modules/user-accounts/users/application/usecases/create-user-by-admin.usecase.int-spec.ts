@@ -3,12 +3,7 @@ import { CreateUserByAdminUseCase, CreateUserCommand } from './create-user-by-ad
 import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../../domain/entities/user.entity';
-import {
-  ConfirmationStatus,
-  EmailConfirmationCode,
-} from '../../../auth/domain/entities/email-confirmation-code.entity';
-import { PasswordRecoveryCode } from '../../../auth/domain/entities/password-recovery-code.entity';
-import { Session } from '../../../sessions/domain/entities/session.entity';
+import { ConfirmationStatus } from '../../../auth/domain/entities/email-confirmation-code.entity';
 import { DataSource, Repository } from 'typeorm';
 import { UserValidationService } from '../services/user-validation.service';
 import { UsersRepository } from '../../infrastructure/users.repository';
@@ -17,8 +12,9 @@ import { CryptoService } from '../services/crypto.service';
 import { CreateUserDto } from '../../dto/create-user.dto';
 import { DatabaseModule } from '../../../../database/database.module';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
-import SpyInstance = jest.SpyInstance;
 import { DateService } from '../services/date.service';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import SpyInstance = jest.SpyInstance;
 
 describe('CreateUserByAdminUseCase (Integration)', () => {
   let module: TestingModule;
@@ -30,11 +26,7 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        DatabaseModule,
-        CoreModule,
-        TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode, Session]),
-      ],
+      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
       providers: [
         CreateUserByAdminUseCase,
         UserValidationService,

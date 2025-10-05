@@ -1,6 +1,6 @@
 import { PostsRepository } from '../../infrastructure/posts.repository';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdatePostDto } from '../../dto/update-post.dto';
+import { PostUpdateDto } from '../dto/post.update-dto';
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
@@ -8,7 +8,7 @@ import { Blog } from '../../../blogs/domain/entities/blog.entity';
 import { Post } from '../../domain/entities/post.entity';
 
 export class UpdatePostCommand {
-  constructor(public readonly dto: UpdatePostDto) {}
+  constructor(public readonly dto: PostUpdateDto) {}
 }
 
 @CommandHandler(UpdatePostCommand)
@@ -33,7 +33,7 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
     if (!post) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: `The post with ID (${dto.blogId}) does not exist`,
+        message: `The post with ID (${dto.postId}) does not exist`,
       });
     }
 
@@ -44,6 +44,7 @@ export class UpdatePostUseCase implements ICommandHandler<UpdatePostCommand> {
       });
     }
 
-    await this.postsRepository.update(dto);
+    post.update(dto);
+    await this.postsRepository.save(post);
   }
 }

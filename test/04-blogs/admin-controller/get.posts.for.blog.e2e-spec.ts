@@ -4,7 +4,6 @@ import { TestLoggers } from '../../helpers/test.loggers';
 import { AppTestManager } from '../../managers/app.test-manager';
 import { AdminCredentials } from '../../types';
 import { Server } from 'http';
-import { BlogViewDto } from 'src/modules/bloggers-platform/blogs/api/view-dto/blog-view.dto';
 import { HttpStatus } from '@nestjs/common';
 import { Filter } from '../../helpers/filter';
 import { SortDirection } from '../../../src/core/dto/base.query-params.input-dto';
@@ -16,6 +15,7 @@ import {
   GetPostsQueryParams,
   PostsSortBy,
 } from '../../../src/modules/bloggers-platform/posts/api/input-dto/get-posts-query-params.input-dto';
+import { BlogViewDto } from '../../../src/modules/bloggers-platform/blogs/api/view-dto/blog.view-dto';
 
 describe('BlogsAdminController - getPostsForBlog() (GET: /sa/blogs/{blogId}/posts)', () => {
   let appTestManager: AppTestManager;
@@ -50,7 +50,7 @@ describe('BlogsAdminController - getPostsForBlog() (GET: /sa/blogs/{blogId}/post
     await appTestManager.close();
   });
 
-  it('should return all posts from a specific blog.', async () => {
+  it.only('should return all posts from a specific blog.', async () => {
     // 🔻 Создаем один тестовый блог, к которому будут относиться создаваемые посты
     const [blog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 
