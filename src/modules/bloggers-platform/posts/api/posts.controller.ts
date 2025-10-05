@@ -83,7 +83,7 @@ export class PostsController {
       new CreateCommentCommand(createCommentDto),
     );
 
-    return this.commentsQueryRepository.getByIdOrNotFoundFail(commentId);
+    return this.commentsQueryRepository.getByIdOrNotFoundFail(commentId, null);
   }
 
   @Get(':postId/comments')

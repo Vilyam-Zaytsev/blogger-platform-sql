@@ -2,12 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { CommentViewDto } from '../../api/view-dto/comment-view.dto';
 import { CommentsQueryDto } from '../../dto/comments-query.dto';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
+import { UserContextDto } from '../../../../user-accounts/auth/domain/guards/dto/user-context.dto';
 
 @Injectable()
 export class CommentsQueryRepository {
   constructor() {}
 
-  async getByIdOrNotFoundFail(id: number, user?: number | null): Promise<CommentViewDto> {
+  async getByIdOrNotFoundFail(id: number, user: UserContextDto | null): Promise<CommentViewDto> {
     return {} as CommentViewDto;
     // const {
     //   rows,

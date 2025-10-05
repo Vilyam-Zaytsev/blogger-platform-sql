@@ -33,6 +33,15 @@ export class CommentsController {
     private readonly commandBus: CommandBus,
   ) {}
 
+  @Get(':id')
+  @UseGuards(OptionalJwtAuthGuard)
+  async getById(
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<CommentViewDto> {
+    return await this.queryBus.execute(new GetCommentQuery(id, user));
+  }
+
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
@@ -57,20 +66,6 @@ export class CommentsController {
       new DeleteCommentCommand({
         commentId: id,
         userId: user.id,
-      }),
-    );
-  }
-
-  @Get(':id')
-  @UseGuards(OptionalJwtAuthGuard)
-  async getById(
-    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<CommentViewDto> {
-    return await this.queryBus.execute(
-      new GetCommentQuery({
-        commentId: id,
-        userId: user ? user.id : null,
       }),
     );
   }
