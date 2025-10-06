@@ -8,6 +8,8 @@ import { DataSource } from 'typeorm';
 import { ReactionStatus } from '../../../reactions/domain/entities/reaction.entity';
 import { Comment } from '../../domain/entities/comment.entity';
 import { RawComment } from './types/raw-comment.type';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
 @Injectable()
 export class CommentsQueryRepository {
@@ -78,9 +80,14 @@ export class CommentsQueryRepository {
 
     const rawComment: RawComment | null = (await mainQueryBuilder.getRawOne()) ?? null;
 
-    console.log(rawComment);
+    if (!rawComment) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `The comment with ID (${id}) does not exist`,
+      });
+    }
 
-    return {} as CommentViewDto;
+    return CommentViewDto.mapRawCommentToCommentViewDto(rawComment);
   }
 
   async getAll(dto: CommentsQueryDto): Promise<PaginatedViewDto<CommentViewDto>> {
