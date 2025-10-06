@@ -93,13 +93,7 @@ export class PostsController {
     @Param('postId', ParseIntPipe) postId: number,
     @Query() query: GetCommentsQueryParams,
   ): Promise<PaginatedViewDto<CommentViewDto>> {
-    return this.queryBus.execute(
-      new GetCommentsQuery({
-        query,
-        postId,
-        userId: user ? user.id : null,
-      }),
-    );
+    return this.queryBus.execute(new GetCommentsQuery(query, postId, user));
   }
 
   // 🔸 Reactions:
