@@ -30,7 +30,7 @@ export class CommentsQueryRepository {
       .select('rc."commentId"', 'commentId')
       .addSelect('COUNT(*)', 'count')
       .from('reactions_comments', 'rc')
-      .innerJoin('reactions', 'r', 'r.id = rc."commentId"')
+      .innerJoin('reactions', 'r', 'r.id = rc."reactionId"')
       .where('r.status = :dislike', { dislike: ReactionStatus.Dislike })
       .groupBy('rc."commentId"');
 
