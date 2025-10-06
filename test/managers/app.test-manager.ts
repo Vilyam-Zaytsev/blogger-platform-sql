@@ -36,19 +36,25 @@ export class AppTestManager {
     await this.app.init();
   }
 
-  async cleanupDb(excludedTables: string[]) {
-    const tables: Array<{ table_name: string }> = await this.dataSource.query(
-      "SELECT table_name FROM information_schema.tables WHERE table_schema='public'",
-    );
+  async cleanupDb(excludedTables: string[] = ['schema_migrations']): Promise<void> {
+    const tables: { table_name: string }[] = await this.dataSource.query(`
+      SELECT table_name
+      FROM information_schema.tables
+      WHERE table_schema = 'public'
+        AND table_type = 'BASE TABLE';
+    `);
 
-    await Promise.all(
-      tables
-        .map((row: { table_name: string }) => row.table_name)
-        .filter((tableName) => !excludedTables.includes(tableName))
-        .map(async (tableName) => {
-          await this.dataSource.query(`TRUNCATE TABLE "${tableName}" RESTART IDENTITY CASCADE`);
-        }),
-    );
+    for (const { table_name } of tables) {
+      if (excludedTables.includes(table_name)) {
+        continue;
+      }
+
+      await this.dataSource.query(`
+        TRUNCATE TABLE "public"."${table_name}"
+        RESTART IDENTITY
+        CASCADE;
+      `);
+    }
   }
 
   clearThrottlerStorage() {
