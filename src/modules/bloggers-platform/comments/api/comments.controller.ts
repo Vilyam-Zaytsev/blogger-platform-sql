@@ -62,16 +62,11 @@ export class CommentsController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
-  async deletePost(
-    @ExtractUserFromRequest() user: UserContextDto,
-    @Param('id', ParseIntPipe) id: number,
+  async deleteComment(
+    @ExtractUserFromRequest() { id: userId }: UserContextDto,
+    @Param('id', ParseIntPipe) commentId: number,
   ): Promise<void> {
-    await this.commandBus.execute(
-      new DeleteCommentCommand({
-        commentId: id,
-        userId: user.id,
-      }),
-    );
+    await this.commandBus.execute(new DeleteCommentCommand(commentId, userId));
   }
 
   @Put(':commentId/like-status')
