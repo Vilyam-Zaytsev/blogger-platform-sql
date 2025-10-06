@@ -15,5 +15,5 @@ export type RawPost = {
     userId: number;
     login: string;
   }[];
-  myStatus: ReactionStatus | null;
+  myStatus: ReactionStatus;
 };

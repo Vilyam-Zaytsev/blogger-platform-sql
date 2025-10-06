@@ -14,7 +14,6 @@ import { UserAccountsConfig } from '../../src/modules/user-accounts/config/user-
 import { JwtService } from '@nestjs/jwt';
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/modules/user-accounts/auth/constants/auth-tokens.inject-constants';
 import { UserViewDto } from '../../src/modules/user-accounts/users/api/view-dto/user.view-dto';
-import { ReactionStatus } from '../../src/modules/bloggers-platform/reactions/types/reaction-db.type';
 import { Filter } from '../helpers/filter';
 import { SortDirection } from '../../src/core/dto/base.query-params.input-dto';
 import { PaginatedViewDto } from '../../src/core/dto/paginated.view-dto';
@@ -22,6 +21,7 @@ import { GetPostsQueryParams } from '../../src/modules/bloggers-platform/posts/a
 import { CoreConfig } from '../../src/core/core.config';
 import { ConfigService } from '@nestjs/config';
 import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/api/view-dto/blog.view-dto';
+import { ReactionStatus } from '../../src/modules/bloggers-platform/reactions/domain/entities/reaction.entity';
 
 describe('PostsController - updateReaction() (PUT: /posts/:postId/like-status)', () => {
   let appTestManager: AppTestManager;

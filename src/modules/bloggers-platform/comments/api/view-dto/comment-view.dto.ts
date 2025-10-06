@@ -31,7 +31,7 @@ export class CommentViewDto {
     dto.likesInfo = {
       likesCount: +comment.likesCount,
       dislikesCount: +comment.dislikesCount,
-      myStatus: comment.myStatus ?? ReactionStatus.None,
+      myStatus: comment.myStatus,
     };
     dto.createdAt = comment.createdAt.toISOString();
 
