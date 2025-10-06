@@ -10,7 +10,6 @@ import { RawComment } from './types/raw-comment.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { GetCommentsQueryParams } from '../../api/input-dto/get-comments-query-params.input-dto';
-import { PostsSortBy } from '../../../posts/api/input-dto/get-posts-query-params.input-dto';
 
 @Injectable()
 export class CommentsQueryRepository {
