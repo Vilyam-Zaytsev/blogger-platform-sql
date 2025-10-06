@@ -1,12 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdateCommentDto } from '../../dto/update-comment.dto';
+import { CommentUpdateDto } from '../dto/comment.update-dto';
 import { CommentsRepository } from '../../infrastructure/comments-repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { Comment } from '../../domain/entities/comment.entity';
 
 export class UpdateCommentCommand {
-  constructor(public readonly dto: UpdateCommentDto) {}
+  constructor(public readonly dto: CommentUpdateDto) {}
 }
 
 @CommandHandler(UpdateCommentCommand)
@@ -30,9 +30,7 @@ export class UpdateCommentUseCase implements ICommandHandler<UpdateCommentComman
       });
     }
 
-    await this.commentsRepository.update({
-      commentId: dto.commentId,
-      content: dto.content,
-    });
+    comment.updateContent(dto.content);
+    await this.commentsRepository.save(comment);
   }
 }
