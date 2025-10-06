@@ -4,6 +4,7 @@ import { Blog } from '../../../blogs/domain/entities/blog.entity';
 import { PostCreateDto } from '../../application/dto/post.create-dto';
 import { ReactionPost } from '../../../reactions/domain/entities/reaction-post.entity';
 import { PostUpdateDto } from '../../application/dto/post.update-dto';
+import { Comment } from '../../../comments/domain/entities/comment.entity';
 
 export const titleConstraints = {
   minLength: 1,
@@ -58,13 +59,16 @@ export class Post extends BaseEntity {
   @ManyToOne(() => Blog, (blog: Blog): Post[] => blog.posts, {
     onDelete: 'CASCADE',
   })
-  blog: Blog;
+  public blog: Blog;
 
   @Column()
   public blogId: number;
 
-  @OneToMany(() => ReactionPost, (reaction) => reaction.post)
+  @OneToMany(() => ReactionPost, (reaction: ReactionPost) => reaction.post)
   public reactions: ReactionPost[];
+
+  @OneToMany(() => Comment, (comment: Comment) => comment.post)
+  public comments: Comment[];
 
   protected constructor() {
     super();

@@ -35,10 +35,11 @@ import { Reaction } from './reactions/domain/entities/reaction.entity';
 import { ReactionPost } from './reactions/domain/entities/reaction-post.entity';
 import { ReactionsRepository } from './reactions/infrastructure/reactions.repository';
 import { Comment } from './comments/domain/entities/comment.entity';
+import { ReactionComment } from './reactions/domain/entities/reaction-comment.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Blog, Post, Reaction, ReactionPost, Comment]),
+    TypeOrmModule.forFeature([Blog, Post, Comment, Reaction, ReactionPost, ReactionComment]),
     UserAccountsModule,
   ],
   controllers: [BlogsAdminController, BlogsPublicController, PostsController, CommentsController],

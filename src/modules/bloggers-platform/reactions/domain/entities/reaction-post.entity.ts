@@ -5,20 +5,20 @@ import { Post } from '../../../posts/domain/entities/post.entity';
 @Entity({ name: 'reactions_posts' })
 export class ReactionPost {
   @PrimaryColumn({ type: 'int' })
-  reactionId: number;
+  public reactionId: number;
 
-  @OneToOne(() => Reaction, (reaction) => reaction.reactionPost, {
+  @OneToOne(() => Reaction, (reaction: Reaction) => reaction.reactionPost, {
     onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'reactionId' })
-  reaction: Reaction;
+  public reaction: Reaction;
 
-  @ManyToOne(() => Post, (post) => post.reactions)
+  @ManyToOne(() => Post, (post: Post) => post.reactions)
   @JoinColumn({ name: 'postId' })
-  post: Post;
+  public post: Post;
 
   @Column({ type: 'int' })
-  postId: number;
+  public postId: number;
 
   static create(postId: number): ReactionPost {
     const reactionPost = new this();

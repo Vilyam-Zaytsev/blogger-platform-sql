@@ -1,6 +1,8 @@
-import { Check, Column, Entity, ManyToOne } from 'typeorm';
+import { Check, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
+import { Post } from '../../../posts/domain/entities/post.entity';
+import { ReactionComment } from '../../../reactions/domain/entities/reaction-comment.entity';
 
 export const contentConstraints = {
   minLength: 20,
@@ -27,8 +29,19 @@ export class Comment extends BaseEntity {
   @ManyToOne(() => User, (user: User) => user.comments, {
     onDelete: 'CASCADE',
   })
-  user: User;
+  public user: User;
 
   @Column()
-  userId: number;
+  public userId: number;
+
+  @ManyToOne(() => Post, (post: Post) => post.comments, {
+    onDelete: 'CASCADE',
+  })
+  public post: Post;
+
+  @Column()
+  public postId: number;
+
+  @OneToMany(() => ReactionComment, (reaction: ReactionComment) => reaction.comment)
+  public reactions: ReactionComment[];
 }
