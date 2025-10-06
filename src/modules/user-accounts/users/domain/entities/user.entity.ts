@@ -8,6 +8,7 @@ import { UserCreateDomainDto } from '../dto/user.create-domain-dto';
 import { PasswordRecoveryCode } from '../../../auth/domain/entities/password-recovery-code.entity';
 import { Session } from '../../../sessions/domain/entities/session.entity';
 import { Reaction } from '../../../../bloggers-platform/reactions/domain/entities/reaction.entity';
+import { Comment } from '../../../../bloggers-platform/comments/domain/entities/comment.entity';
 
 export const loginConstraints = {
   minLength: 3,
@@ -51,21 +52,32 @@ export class User extends BaseEntity {
   @Column({ length: 255 })
   public passwordHash: string;
 
-  @OneToOne(() => EmailConfirmationCode, (emailConfirmationCode) => emailConfirmationCode.user, {
-    cascade: true,
-  })
+  @OneToOne(
+    () => EmailConfirmationCode,
+    (emailConfirmationCode: EmailConfirmationCode) => emailConfirmationCode.user,
+    {
+      cascade: true,
+    },
+  )
   emailConfirmationCode: EmailConfirmationCode;
 
-  @OneToOne(() => PasswordRecoveryCode, (passwordRecoveryCode) => passwordRecoveryCode.user, {
-    cascade: true,
-  })
+  @OneToOne(
+    () => PasswordRecoveryCode,
+    (passwordRecoveryCode: PasswordRecoveryCode) => passwordRecoveryCode.user,
+    {
+      cascade: true,
+    },
+  )
   passwordRecoveryCode: PasswordRecoveryCode;
 
-  @OneToMany(() => Session, (session) => session.user)
+  @OneToMany(() => Session, (session: Session) => session.user)
   sessions: Session[];
 
-  @OneToMany(() => Reaction, (reaction) => reaction.user)
+  @OneToMany(() => Reaction, (reaction: Reaction) => reaction.user)
   reactions: Reaction[];
+
+  @OneToMany(() => Comment, (comment: Comment) => comment.user)
+  comments: Comment[];
 
   protected constructor() {
     super();
