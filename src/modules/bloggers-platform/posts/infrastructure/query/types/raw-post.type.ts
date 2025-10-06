@@ -1,4 +1,4 @@
-import { ReactionStatus } from '../../../../reactions/types/reaction-db.type';
+import { ReactionStatus } from '../../../../reactions/domain/entities/reaction.entity';
 
 export type RawPost = {
   id: number;

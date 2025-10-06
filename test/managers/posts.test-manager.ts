@@ -7,7 +7,7 @@ import { GetPostsQueryParams } from '../../src/modules/bloggers-platform/posts/a
 import { PaginatedViewDto } from '../../src/core/dto/paginated.view-dto';
 import { PostInputDto } from '../../src/modules/bloggers-platform/posts/api/input-dto/post.input-dto';
 import { TestDtoFactory } from '../helpers/test.dto-factory';
-import { ReactionStatus } from '../../src/modules/bloggers-platform/reactions/types/reaction-db.type';
+import { ReactionStatus } from '../../src/modules/bloggers-platform/reactions/domain/entities/reaction.entity';
 
 export class PostsTestManager {
   constructor(

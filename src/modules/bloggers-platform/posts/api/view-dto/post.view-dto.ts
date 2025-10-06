@@ -1,5 +1,5 @@
-import { ReactionStatus } from '../../../reactions/types/reaction-db.type';
 import { RawPost } from '../../infrastructure/query/types/raw-post.type';
+import { ReactionStatus } from '../../../reactions/domain/entities/reaction.entity';
 
 export type NewestLikes = {
   addedAt: string;

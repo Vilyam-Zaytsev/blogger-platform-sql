@@ -7,7 +7,7 @@ import { CommentViewDto } from '../../src/modules/bloggers-platform/comments/api
 import { CommentInputDto } from '../../src/modules/bloggers-platform/comments/api/input-dto/comment-input.dto';
 import { GetPostsQueryParams } from '../../src/modules/bloggers-platform/posts/api/input-dto/get-posts-query-params.input-dto';
 import { PaginatedViewDto } from '../../src/core/dto/paginated.view-dto';
-import { ReactionStatus } from '../../src/modules/bloggers-platform/reactions/types/reaction-db.type';
+import { ReactionStatus } from '../../src/modules/bloggers-platform/reactions/domain/entities/reaction.entity';
 
 export class CommentsTestManager {
   constructor(private readonly server: Server) {}

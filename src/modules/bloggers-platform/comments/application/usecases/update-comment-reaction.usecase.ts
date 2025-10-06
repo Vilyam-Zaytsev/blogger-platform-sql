@@ -3,9 +3,9 @@ import { UpdatePostReactionCommand } from '../../../reactions/application/usecas
 import { CommentsRepository } from '../../infrastructure/comments-repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { ReactionDb } from '../../../reactions/types/reaction-db.type';
 import { ReactionUpdateDto } from '../../../reactions/dto/reaction.create-dto';
 import { Comment } from '../../domain/entities/comment.entity';
+import { Reaction } from '../../../reactions/domain/entities/reaction.entity';
 
 export class UpdateCommentReactionCommand {
   constructor(public readonly dto: ReactionUpdateDto) {}
@@ -25,8 +25,10 @@ export class UpdateCommentReactionUseCase implements ICommandHandler<UpdateComme
       });
     }
 
-    const reaction: ReactionDb | null =
-      await this.commentsRepository.getReactionByUserIdAndCommentId(dto.userId, dto.parentId);
+    const reaction: Reaction | null = await this.commentsRepository.getReactionByUserIdAndCommentId(
+      dto.userId,
+      dto.parentId,
+    );
 
     if (!reaction) {
       return await this.commentsRepository.createReaction(dto);
