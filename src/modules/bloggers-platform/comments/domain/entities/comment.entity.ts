@@ -54,4 +54,8 @@ export class Comment extends BaseEntity {
 
     return comment;
   }
+
+  public updateContent(content: string) {
+    this.content = content;
+  }
 }
