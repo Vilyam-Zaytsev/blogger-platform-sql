@@ -196,7 +196,7 @@ describe('AuthController - registrationConfirmation() (POST: /auth/registration-
     expect(resRegistrationConfirmation.body).toEqual({
       errorsMessages: [
         {
-          message: `Confirmation code (${incorrectCode}) incorrect or the email address has already been confirmed`,
+          message: `Confirmation code (${incorrectCode}) incorrect or the email address has already been confirmed.`,
           field: 'code',
         },
       ],
