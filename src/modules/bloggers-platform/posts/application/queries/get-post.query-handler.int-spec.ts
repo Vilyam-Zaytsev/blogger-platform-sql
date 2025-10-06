@@ -12,7 +12,6 @@ import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { ReactionStatus } from '../../../reactions/types/reaction-db.type';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { CreateUserDto } from '../../../../user-accounts/users/dto/create-user.dto';
 import { UsersFactory } from '../../../../user-accounts/users/application/factories/users.factory';
@@ -21,6 +20,7 @@ import { PostInputDto } from '../../api/input-dto/post.input-dto';
 import { PostCreateDto } from '../dto/post.create-dto';
 import { CryptoService } from '../../../../user-accounts/users/application/services/crypto.service';
 import { DateService } from '../../../../user-accounts/users/application/services/date.service';
+import { ReactionStatus } from '../../../reactions/domain/entities/reaction.entity';
 
 describe('GetPostQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -382,6 +382,7 @@ describe('GetPostQueryHandler (Integration)', () => {
       const { id: userId }: User = await createTestUser();
       const userContext: UserContextDto = createUserContext(userId);
 
+      //TODO: skip тут
       //итересная конструкция
       const promises: Promise<PostViewDto>[] = posts.flatMap((post) =>
         Array(3)
