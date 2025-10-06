@@ -51,6 +51,22 @@ export class User extends BaseEntity {
   @Column({ length: 255 })
   public passwordHash: string;
 
+  @OneToOne(() => EmailConfirmationCode, (emailConfirmationCode) => emailConfirmationCode.user, {
+    cascade: true,
+  })
+  emailConfirmationCode: EmailConfirmationCode;
+
+  @OneToOne(() => PasswordRecoveryCode, (passwordRecoveryCode) => passwordRecoveryCode.user, {
+    cascade: true,
+  })
+  passwordRecoveryCode: PasswordRecoveryCode;
+
+  @OneToMany(() => Session, (session) => session.user)
+  sessions: Session[];
+
+  @OneToMany(() => Reaction, (reaction) => reaction.user)
+  reactions: Reaction[];
+
   protected constructor() {
     super();
   }
@@ -100,20 +116,4 @@ export class User extends BaseEntity {
     this.passwordRecoveryCode.recoveryCode = null;
     this.passwordRecoveryCode.expirationDate = null;
   }
-
-  @OneToOne(() => EmailConfirmationCode, (emailConfirmationCode) => emailConfirmationCode.user, {
-    cascade: true,
-  })
-  emailConfirmationCode: EmailConfirmationCode;
-
-  @OneToOne(() => PasswordRecoveryCode, (passwordRecoveryCode) => passwordRecoveryCode.user, {
-    cascade: true,
-  })
-  passwordRecoveryCode: PasswordRecoveryCode;
-
-  @OneToMany(() => Session, (session) => session.user)
-  sessions: Session[];
-
-  @OneToMany(() => Reaction, (reaction) => reaction.user)
-  reactions: Reaction[];
 }
