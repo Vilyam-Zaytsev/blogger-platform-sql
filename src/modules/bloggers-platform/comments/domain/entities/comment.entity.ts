@@ -3,6 +3,7 @@ import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 import { Post } from '../../../posts/domain/entities/post.entity';
 import { ReactionComment } from '../../../reactions/domain/entities/reaction-comment.entity';
+import { CommentCreateDto } from '../../application/dto/comment.create-dto';
 
 export const contentConstraints = {
   minLength: 20,
@@ -22,10 +23,6 @@ export class Comment extends BaseEntity {
   })
   public content: string;
 
-  protected constructor() {
-    super();
-  }
-
   @ManyToOne(() => User, (user: User) => user.comments, {
     onDelete: 'CASCADE',
   })
@@ -44,4 +41,17 @@ export class Comment extends BaseEntity {
 
   @OneToMany(() => ReactionComment, (reaction: ReactionComment) => reaction.comment)
   public reactions: ReactionComment[];
+
+  protected constructor() {
+    super();
+  }
+
+  static create({ userId, postId, content }: CommentCreateDto): Comment {
+    const comment = new this();
+    comment.content = content;
+    comment.userId = userId;
+    comment.postId = postId;
+
+    return comment;
+  }
 }
