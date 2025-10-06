@@ -18,4 +18,14 @@ export class ReactionsRepository extends BaseRepository<Reaction> {
       relations: ['reactionPost'],
     });
   }
+
+  async getByUserIdAndCommentId(userId: number, commentId: number): Promise<Reaction | null> {
+    return this.dataSource.getRepository<Reaction>(Reaction).findOne({
+      where: {
+        userId,
+        reactionComment: { commentId },
+      },
+      relations: ['reactionComment'],
+    });
+  }
 }
