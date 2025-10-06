@@ -15,7 +15,7 @@ import { CommentInputDto } from './input-dto/comment-input.dto';
 import { JwtAuthGuard } from '../../../user-accounts/auth/domain/guards/bearer/jwt-auth.guard';
 import { ExtractUserFromRequest } from '../../../user-accounts/auth/domain/guards/decorators/extract-user-from-request.decorator';
 import { UserContextDto } from '../../../user-accounts/auth/domain/guards/dto/user-context.dto';
-import { UpdateCommentDto } from '../dto/update-comment.dto';
+import { CommentUpdateDto } from '../application/dto/comment.update-dto';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
 import { DeleteCommentCommand } from '../application/usecases/delete-comment.usecase';
 import { OptionalJwtAuthGuard } from '../../../user-accounts/auth/domain/guards/bearer/optional-jwt-auth.guard';
@@ -46,11 +46,15 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
   async updateComment(
-    @ExtractUserFromRequest() user: UserContextDto,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: CommentInputDto,
+    @ExtractUserFromRequest() { id: userId }: UserContextDto,
+    @Param('id', ParseIntPipe) commentId: number,
+    @Body() { content }: CommentInputDto,
   ): Promise<void> {
-    const dto: UpdateCommentDto = new UpdateCommentDto(id, user.id, body.content);
+    const dto: CommentUpdateDto = {
+      commentId,
+      userId,
+      content,
+    };
 
     await this.commandBus.execute(new UpdateCommentCommand(dto));
   }
