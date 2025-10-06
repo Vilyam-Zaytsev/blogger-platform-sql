@@ -219,7 +219,6 @@ describe('GetBlogsQueryHandler (Integration)', () => {
       expect(result.pageSize).toBe(7);
     });
 
-    //TODO: баг с подсчетом totalCount
     it('должен возвращать пустой список для несуществующей страницы', async () => {
       const queryParams: GetBlogsQueryParams = createQueryParams({
         pageNumber: 10,
@@ -230,7 +229,6 @@ describe('GetBlogsQueryHandler (Integration)', () => {
         new GetBlogsQuery(queryParams),
       );
 
-      console.log(result);
       expect(result.items).toHaveLength(0);
       expect(result.totalCount).toBe(25);
       expect(result.pagesCount).toBe(3);

@@ -1,19 +1,12 @@
 import { ReactionStatus } from '../../../../reactions/domain/entities/reaction.entity';
 
-export type RawPost = {
+export type RawComment = {
   id: number;
-  title: string;
-  shortDescription: string;
   content: string;
   createdAt: Date;
-  blogId: string;
-  blogName: string;
+  userId: number;
+  userLogin: string;
   likesCount: number;
   dislikesCount: number;
-  newestLikes: {
-    addedAt: string;
-    userId: number;
-    login: string;
-  }[];
   myStatus: ReactionStatus | null;
 };

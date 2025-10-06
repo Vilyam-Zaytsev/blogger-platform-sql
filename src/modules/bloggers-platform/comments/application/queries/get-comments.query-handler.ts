@@ -3,13 +3,18 @@ import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { CommentViewDto } from '../../api/view-dto/comment-view.dto';
 import { CommentsQueryRepository } from '../../infrastructure/query/comments.query-repository';
 import { PostsRepository } from '../../../posts/infrastructure/posts.repository';
-import { CommentsQueryDto } from '../../dto/comments-query.dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { Post } from '../../../posts/domain/entities/post.entity';
+import { GetCommentsQueryParams } from '../../api/input-dto/get-comments-query-params.input-dto';
+import { UserContextDto } from '../../../../user-accounts/auth/domain/guards/dto/user-context.dto';
 
 export class GetCommentsQuery {
-  constructor(public readonly dto: CommentsQueryDto) {}
+  constructor(
+    public readonly query: GetCommentsQueryParams,
+    public readonly postId: number,
+    public readonly user: UserContextDto | null,
+  ) {}
 }
 
 @QueryHandler(GetCommentsQuery)
@@ -21,16 +26,20 @@ export class GetCommentsQueryHandler
     private readonly postsRepository: PostsRepository,
   ) {}
 
-  async execute({ dto }: GetCommentsQuery): Promise<PaginatedViewDto<CommentViewDto>> {
-    const post: Post | null = await this.postsRepository.getById(dto.postId);
+  async execute({
+    query,
+    postId,
+    user,
+  }: GetCommentsQuery): Promise<PaginatedViewDto<CommentViewDto>> {
+    const post: Post | null = await this.postsRepository.getById(postId);
 
     if (!post) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: `The post with ID (${dto.postId}) does not exist`,
+        message: `The post with ID (${postId}) does not exist`,
       });
     }
 
-    return this.commentsQueryRepository.getAll(dto);
+    return this.commentsQueryRepository.getAll(query, postId, user);
   }
 }

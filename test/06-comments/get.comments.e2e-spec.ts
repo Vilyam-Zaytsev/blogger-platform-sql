@@ -15,8 +15,8 @@ import { CommentViewDto } from '../../src/modules/bloggers-platform/comments/api
 import { Filter } from '../helpers/filter';
 import { GetCommentsQueryParams } from '../../src/modules/bloggers-platform/comments/api/input-dto/get-comments-query-params.input-dto';
 import { UserViewDto } from '../../src/modules/user-accounts/users/api/view-dto/user.view-dto';
-import { ReactionStatus } from '../../src/modules/bloggers-platform/reactions/types/reaction-db.type';
 import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/api/view-dto/blog.view-dto';
+import { ReactionStatus } from '../../src/modules/bloggers-platform/reactions/domain/entities/reaction.entity';
 
 describe('PostsController - getComments() (GET: /posts/{postId}/comments)', () => {
   let appTestManager: AppTestManager;

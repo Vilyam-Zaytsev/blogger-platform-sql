@@ -18,9 +18,9 @@ import { JwtService } from '@nestjs/jwt';
 import { CommentsTestManager } from '../managers/comments.test-manager';
 import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../src/modules/user-accounts/auth/constants/auth-tokens.inject-constants';
 import { UserViewDto } from '../../src/modules/user-accounts/users/api/view-dto/user.view-dto';
-import { ReactionStatus } from '../../src/modules/bloggers-platform/reactions/types/reaction-db.type';
 import { PaginatedViewDto } from '../../src/core/dto/paginated.view-dto';
 import { BlogViewDto } from '../../src/modules/bloggers-platform/blogs/api/view-dto/blog.view-dto';
+import { ReactionStatus } from '../../src/modules/bloggers-platform/reactions/domain/entities/reaction.entity';
 
 describe('PostsController - createComment() (POST: /posts/{postId}/comments)', () => {
   let appTestManager: AppTestManager;
@@ -71,7 +71,7 @@ describe('PostsController - createComment() (POST: /posts/{postId}/comments)', (
     await appTestManager.close();
   });
 
-  it('should not create a new comment if the user is not logged in.', async () => {
+  it('should create a new comment if the user is logged in.', async () => {
     // 🔻 Создаём блог
     const [createdBlog]: BlogViewDto[] = await blogsTestManager.createBlog(1);
 

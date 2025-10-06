@@ -14,7 +14,7 @@ export class GetBlogsQueryParams extends BaseQueryParams<BlogsSortBy> {
   @IsEnum(BlogsSortBy)
   sortBy: BlogsSortBy = BlogsSortBy.CreatedAt;
 
-  @IsStringWithTrimDecorator(1, nameConstraints.maxLength)
+  @IsStringWithTrimDecorator(0, nameConstraints.maxLength)
   @IsOptional()
   searchNameTerm: string | null = null;
 }

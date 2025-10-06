@@ -10,8 +10,8 @@ import { HttpStatus } from '@nestjs/common';
 import { PostViewDto } from '../../../src/modules/bloggers-platform/posts/api/view-dto/post.view-dto';
 import { PostsTestManager } from '../../managers/posts.test-manager';
 import { PostInputDto } from '../../../src/modules/bloggers-platform/posts/api/input-dto/post.input-dto';
-import { ReactionStatus } from '../../../src/modules/bloggers-platform/reactions/types/reaction-db.type';
 import { BlogViewDto } from '../../../src/modules/bloggers-platform/blogs/api/view-dto/blog.view-dto';
+import { ReactionStatus } from '../../../src/modules/bloggers-platform/reactions/domain/entities/reaction.entity';
 
 describe('BlogsAdminController - updatePost() (PUT: /sa/blogs/:blogId/posts/:postId)', () => {
   let appTestManager: AppTestManager;

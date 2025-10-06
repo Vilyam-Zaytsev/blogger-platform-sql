@@ -27,16 +27,21 @@ import { CommentsQueryRepository } from './comments/infrastructure/query/comment
 import { GetCommentQueryHandler } from './comments/application/queries/get-comment.query-handler';
 import { GetCommentsQueryHandler } from './comments/application/queries/get-comments.query-handler';
 import { UpdatePostReactionUseCase } from './reactions/application/usecases/update-post-reaction.usecase';
-import { UpdateCommentReactionUseCase } from './comments/application/usecases/update-comment-reaction.usecase';
+import { UpdateCommentReactionUseCase } from './reactions/application/usecases/update-comment-reaction.usecase';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Blog } from './blogs/domain/entities/blog.entity';
 import { Post } from './posts/domain/entities/post.entity';
 import { Reaction } from './reactions/domain/entities/reaction.entity';
 import { ReactionPost } from './reactions/domain/entities/reaction-post.entity';
 import { ReactionsRepository } from './reactions/infrastructure/reactions.repository';
+import { Comment } from './comments/domain/entities/comment.entity';
+import { ReactionComment } from './reactions/domain/entities/reaction-comment.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Blog, Post, Reaction, ReactionPost]), UserAccountsModule],
+  imports: [
+    TypeOrmModule.forFeature([Blog, Post, Comment, Reaction, ReactionPost, ReactionComment]),
+    UserAccountsModule,
+  ],
   controllers: [BlogsAdminController, BlogsPublicController, PostsController, CommentsController],
   providers: [
     //🔸 Blogs:

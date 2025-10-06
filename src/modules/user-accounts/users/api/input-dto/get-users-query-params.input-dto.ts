@@ -15,11 +15,11 @@ export class GetUsersQueryParams extends BaseQueryParams<UsersSortBy> {
   @IsEnum(UsersSortBy)
   sortBy: UsersSortBy = UsersSortBy.CreatedAt;
 
-  @IsStringWithTrimDecorator(1, loginConstraints.maxLength)
+  @IsStringWithTrimDecorator(0, loginConstraints.maxLength)
   @IsOptional()
   searchLoginTerm: string | null = null;
 
-  @IsStringWithTrimDecorator(1, 255)
+  @IsStringWithTrimDecorator(0, 255)
   @IsOptional()
   searchEmailTerm: string | null = null;
 }

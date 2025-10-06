@@ -16,7 +16,6 @@ import { DataSource, Repository } from 'typeorm';
 import { DatabaseModule } from '../../../../database/database.module';
 import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ReactionStatus } from '../../../reactions/types/reaction-db.type';
 import { UsersFactory } from '../../../../user-accounts/users/application/factories/users.factory';
 import { CryptoService } from '../../../../user-accounts/users/application/services/crypto.service';
 import { DateService } from '../../../../user-accounts/users/application/services/date.service';
@@ -25,6 +24,7 @@ import { BlogInputDto } from '../../../blogs/api/input-dto/blog.input-dto';
 import { PostInputDto } from '../../api/input-dto/post.input-dto';
 import { PostCreateDto } from '../dto/post.create-dto';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { ReactionStatus } from '../../../reactions/domain/entities/reaction.entity';
 
 describe('GetPostsQueryHandler (Integration)', () => {
   let module: TestingModule;

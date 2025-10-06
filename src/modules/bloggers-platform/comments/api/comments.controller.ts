@@ -15,7 +15,7 @@ import { CommentInputDto } from './input-dto/comment-input.dto';
 import { JwtAuthGuard } from '../../../user-accounts/auth/domain/guards/bearer/jwt-auth.guard';
 import { ExtractUserFromRequest } from '../../../user-accounts/auth/domain/guards/decorators/extract-user-from-request.decorator';
 import { UserContextDto } from '../../../user-accounts/auth/domain/guards/dto/user-context.dto';
-import { UpdateCommentDto } from '../dto/update-comment.dto';
+import { CommentUpdateDto } from '../application/dto/comment.update-dto';
 import { UpdateCommentCommand } from '../application/usecases/update-comment.usecase';
 import { DeleteCommentCommand } from '../application/usecases/delete-comment.usecase';
 import { OptionalJwtAuthGuard } from '../../../user-accounts/auth/domain/guards/bearer/optional-jwt-auth.guard';
@@ -23,7 +23,7 @@ import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/auth/doma
 import { CommentViewDto } from './view-dto/comment-view.dto';
 import { GetCommentQuery } from '../application/queries/get-comment.query-handler';
 import { ReactionInputDto } from '../../reactions/api/input-dto/reaction-input.dto';
-import { UpdateCommentReactionCommand } from '../application/usecases/update-comment-reaction.usecase';
+import { UpdateCommentReactionCommand } from '../../reactions/application/usecases/update-comment-reaction.usecase';
 import { ReactionUpdateDto } from '../../reactions/dto/reaction.create-dto';
 
 @Controller('comments')
@@ -33,15 +33,28 @@ export class CommentsController {
     private readonly commandBus: CommandBus,
   ) {}
 
+  @Get(':id')
+  @UseGuards(OptionalJwtAuthGuard)
+  async getById(
+    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<CommentViewDto> {
+    return await this.queryBus.execute(new GetCommentQuery(id, user));
+  }
+
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
   async updateComment(
-    @ExtractUserFromRequest() user: UserContextDto,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() body: CommentInputDto,
+    @ExtractUserFromRequest() { id: userId }: UserContextDto,
+    @Param('id', ParseIntPipe) commentId: number,
+    @Body() { content }: CommentInputDto,
   ): Promise<void> {
-    const dto: UpdateCommentDto = new UpdateCommentDto(id, user.id, body.content);
+    const dto: CommentUpdateDto = {
+      commentId,
+      userId,
+      content,
+    };
 
     await this.commandBus.execute(new UpdateCommentCommand(dto));
   }
@@ -49,46 +62,27 @@ export class CommentsController {
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
-  async deletePost(
-    @ExtractUserFromRequest() user: UserContextDto,
-    @Param('id', ParseIntPipe) id: number,
+  async deleteComment(
+    @ExtractUserFromRequest() { id: userId }: UserContextDto,
+    @Param('id', ParseIntPipe) commentId: number,
   ): Promise<void> {
-    await this.commandBus.execute(
-      new DeleteCommentCommand({
-        commentId: id,
-        userId: user.id,
-      }),
-    );
-  }
-
-  @Get(':id')
-  @UseGuards(OptionalJwtAuthGuard)
-  async getById(
-    @ExtractUserIfExistsFromRequest() user: UserContextDto | null,
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<CommentViewDto> {
-    return await this.queryBus.execute(
-      new GetCommentQuery({
-        commentId: id,
-        userId: user ? user.id : null,
-      }),
-    );
+    await this.commandBus.execute(new DeleteCommentCommand(commentId, userId));
   }
 
   @Put(':commentId/like-status')
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
   async updateReaction(
-    @ExtractUserFromRequest() user: UserContextDto,
+    @ExtractUserFromRequest() { id: userId }: UserContextDto,
     @Param('commentId', ParseIntPipe) commentId: number,
-    @Body() body: ReactionInputDto,
+    @Body() { likeStatus }: ReactionInputDto,
   ): Promise<void> {
-    const reactionUpdateDto: ReactionUpdateDto = {
-      status: body.likeStatus,
-      userId: user.id,
+    const dto: ReactionUpdateDto = {
+      status: likeStatus,
+      userId,
       parentId: commentId,
     };
 
-    await this.commandBus.execute(new UpdateCommentReactionCommand(reactionUpdateDto));
+    await this.commandBus.execute(new UpdateCommentReactionCommand(dto));
   }
 }

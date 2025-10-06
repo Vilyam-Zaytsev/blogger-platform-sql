@@ -1,12 +1,12 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { UpdateCommentDto } from '../../dto/update-comment.dto';
+import { CommentUpdateDto } from '../dto/comment.update-dto';
 import { CommentsRepository } from '../../infrastructure/comments-repository';
-import { CommentDb } from '../../types/comment-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { Comment } from '../../domain/entities/comment.entity';
 
 export class UpdateCommentCommand {
-  constructor(public readonly dto: UpdateCommentDto) {}
+  constructor(public readonly dto: CommentUpdateDto) {}
 }
 
 @CommandHandler(UpdateCommentCommand)
@@ -14,7 +14,7 @@ export class UpdateCommentUseCase implements ICommandHandler<UpdateCommentComman
   constructor(private readonly commentsRepository: CommentsRepository) {}
 
   async execute({ dto }: UpdateCommentCommand): Promise<void> {
-    const comment: CommentDb | null = await this.commentsRepository.getById(dto.commentId);
+    const comment: Comment | null = await this.commentsRepository.getById(dto.commentId);
 
     if (!comment) {
       throw new DomainException({
@@ -23,16 +23,14 @@ export class UpdateCommentUseCase implements ICommandHandler<UpdateCommentComman
       });
     }
 
-    if (comment.commentatorId !== dto.userId) {
+    if (comment.userId !== dto.userId) {
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
         message: `The user with the ID (${dto.userId}) is not the owner of this comment`,
       });
     }
 
-    await this.commentsRepository.update({
-      commentId: dto.commentId,
-      content: dto.content,
-    });
+    comment.updateContent(dto.content);
+    await this.commentsRepository.save(comment);
   }
 }

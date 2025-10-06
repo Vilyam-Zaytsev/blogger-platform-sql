@@ -30,7 +30,7 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
           factory: (userAccountsConfig: UserAccountsConfig) => {
             return new JwtService({
               secret: userAccountsConfig.refreshTokenSecret,
-              signOptions: { expiresIn: '20s' },
+              signOptions: { expiresIn: '30s' },
             });
           },
           inject: [UserAccountsConfig],
@@ -69,7 +69,7 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
     await appTestManager.close();
   });
 
-  it.skip('should update the lastActiveDate only for the session where the refresh token was used (other sessions remain unchanged)', async () => {
+  it('should update the lastActiveDate only for the session where the refresh token was used (other sessions remain unchanged)', async () => {
     // 🔻 Создаём двух пользователей
     const createdUsers: UserViewDto[] = await usersTestManager.createUser(2);
 
@@ -125,6 +125,10 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
       .set('Cookie', [`refreshToken=${refreshToken_user1_session1}`])
       .expect(HttpStatus.OK);
 
+    //позиция девайса с обновленным полем lastActiveDate в resGetSessions.body после обновления
+    //так как при выборке из бд элементы фильтруются по убыванию
+    let position: number = resGetSessions_user1.body.length - 1;
+
     // 🔻 Поочерёдно обновляем refreshToken в каждой сессии и проверяем, что
     // изменился только lastActiveDate этой сессии
     for (let i = 0; i < resLogins.resLogins_user1.length; i++) {
@@ -148,63 +152,70 @@ describe('SessionsController - deleteSession() (DELETE: /security/devices/{devic
         ])
         .expect(HttpStatus.OK);
 
-      //TODO: необходимо переписать тест(проблема в сортировке при выборке)
-
       // 🔸 Проверяем, что lastActiveDate изменился только у текущей сессии
       expect(resGetSessions_user1.body[i].lastActiveDate).not.toEqual(
-        resGetSessions.body[i].lastActiveDate,
+        resGetSessions.body[position].lastActiveDate,
       );
+
+      position = resGetSessions_user1.body.length - 1 - i;
+
       // 🔸 Все остальные сессии остались без изменений
-      for (let j = i + 1; j < resGetSessions_user1.body.length; j++) {
+      for (let j = 0; j < position; j++) {
         expect(resGetSessions.body[j].lastActiveDate).toEqual(
-          resGetSessions_user1.body[j].lastActiveDate,
+          resGetSessions_user1.body[j + 1 + i].lastActiveDate,
         );
       }
+    }
 
-      // 🔻 2. Тест для второго пользователя
-      const refreshToken_user2_session1: string = resLogins.resLogins_user2[0].headers[
-        'set-cookie'
-      ][0]
+    // 🔻 2. Тест для второго пользователя
+    const refreshToken_user2_session1: string = resLogins.resLogins_user2[0].headers[
+      'set-cookie'
+    ][0]
+      .split(';')[0]
+      .split('=')[1];
+
+    // 🔻 Получаем все сессии второго пользователя до обновления
+    const resGetSessions_user2: Response = await request(server)
+      .get(`/${GLOBAL_PREFIX}/security/devices`)
+      .set('Cookie', [`refreshToken=${refreshToken_user2_session1}`])
+      .expect(HttpStatus.OK);
+
+    //позиция девайса с обновленным полем lastActiveDate в resGetSessions.body после обновления
+    //так как при выборке из бд элементы фильтруются по убыванию
+    position = resGetSessions_user2.body.length - 1;
+
+    // 🔻 Аналогично обновляем токены и проверяем только свою сессию
+    for (let i = 0; i < resLogins.resLogins_user2.length; i++) {
+      await TestUtils.delay(1000);
+
+      const refreshToken: string = resLogins.resLogins_user2[i].headers['set-cookie'][0]
         .split(';')[0]
         .split('=')[1];
 
-      // 🔻 Получаем все сессии второго пользователя до обновления
-      const resGetDevices_user2: Response = await request(server)
-        .get(`/${GLOBAL_PREFIX}/security/devices`)
-        .set('Cookie', [`refreshToken=${refreshToken_user2_session1}`])
+      const resRefreshToken: Response = await request(server)
+        .post(`/${GLOBAL_PREFIX}/auth/refresh-token`)
+        .set('Cookie', [`refreshToken=${refreshToken}`])
         .expect(HttpStatus.OK);
 
-      // 🔻 Аналогично обновляем токены и проверяем только свою сессию
-      for (let i = 0; i < resLogins.resLogins_user2.length; i++) {
-        await TestUtils.delay(1000);
+      const resGetSessions: Response = await request(server)
+        .get(`/${GLOBAL_PREFIX}/security/devices`)
+        .set('Cookie', [
+          `refreshToken=${resRefreshToken.headers['set-cookie'][0].split(';')[0].split('=')[1]}`,
+        ])
+        .expect(HttpStatus.OK);
 
-        const refreshToken: string = resLogins.resLogins_user2[i].headers['set-cookie'][0]
-          .split(';')[0]
-          .split('=')[1];
+      // 🔸 Проверяем, что изменилась только текущая сессия
+      expect(resGetSessions_user2.body[i].lastActiveDate).not.toEqual(
+        resGetSessions.body[position].lastActiveDate,
+      );
 
-        const resRefreshToken: Response = await request(server)
-          .post(`/${GLOBAL_PREFIX}/auth/refresh-token`)
-          .set('Cookie', [`refreshToken=${refreshToken}`])
-          .expect(HttpStatus.OK);
+      position = resGetSessions_user1.body.length - 1 - i;
 
-        const resGetSessions: Response = await request(server)
-          .get(`/${GLOBAL_PREFIX}/security/devices`)
-          .set('Cookie', [
-            `refreshToken=${resRefreshToken.headers['set-cookie'][0].split(';')[0].split('=')[1]}`,
-          ])
-          .expect(HttpStatus.OK);
-
-        // 🔸 Проверяем, что изменилась только текущая сессия
-        expect(resGetSessions.body[i].lastActiveDate).not.toEqual(
-          resGetDevices_user2.body[i].lastActiveDate,
+      // 🔸 Остальные не изменились
+      for (let j = 0; j < position; j++) {
+        expect(resGetSessions.body[j].lastActiveDate).toEqual(
+          resGetSessions_user2.body[j + 1 + i].lastActiveDate,
         );
-
-        // 🔸 Остальные не изменились
-        for (let j = i + 1; j < resGetDevices_user2.body.length; j++) {
-          expect(resGetSessions.body[j].lastActiveDate).toEqual(
-            resGetDevices_user2.body[j].lastActiveDate,
-          );
-        }
       }
     }
   }, 50000);

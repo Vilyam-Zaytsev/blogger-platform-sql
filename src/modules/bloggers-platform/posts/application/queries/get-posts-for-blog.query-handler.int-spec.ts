@@ -22,7 +22,6 @@ import { DatabaseModule } from '../../../../database/database.module';
 import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
-import { ReactionStatus } from '../../../reactions/types/reaction-db.type';
 import { CreateUserDto } from '../../../../user-accounts/users/dto/create-user.dto';
 import { BlogInputDto } from '../../../blogs/api/input-dto/blog.input-dto';
 import { PostInputDto } from '../../api/input-dto/post.input-dto';
@@ -33,6 +32,7 @@ import { DateService } from '../../../../user-accounts/users/application/service
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { instanceToInstance } from 'class-transformer';
 import { isInstance } from 'class-validator';
+import { ReactionStatus } from '../../../reactions/domain/entities/reaction.entity';
 
 describe('GetPostsForBlogQueryHandler (Integration)', () => {
   let module: TestingModule;
