@@ -69,14 +69,14 @@ export class PostsController {
   @Post(':postId/comments')
   @UseGuards(JwtAuthGuard)
   async createComment(
-    @ExtractUserFromRequest() user: UserContextDto,
+    @ExtractUserFromRequest() { id: userId }: UserContextDto,
     @Param('postId', ParseIntPipe) postId: number,
-    @Body() body: CommentInputDto,
+    @Body() { content }: CommentInputDto,
   ): Promise<CommentViewDto> {
     const createCommentDto: CommentCreateDto = {
       postId,
-      userId: user.id,
-      content: body.content,
+      userId,
+      content,
     };
 
     const idCreatedComment: number = await this.commandBus.execute(
