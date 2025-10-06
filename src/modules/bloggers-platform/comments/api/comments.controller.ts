@@ -23,7 +23,7 @@ import { ExtractUserIfExistsFromRequest } from '../../../user-accounts/auth/doma
 import { CommentViewDto } from './view-dto/comment-view.dto';
 import { GetCommentQuery } from '../application/queries/get-comment.query-handler';
 import { ReactionInputDto } from '../../reactions/api/input-dto/reaction-input.dto';
-import { UpdateCommentReactionCommand } from '../application/usecases/update-comment-reaction.usecase';
+import { UpdateCommentReactionCommand } from '../../reactions/application/usecases/update-comment-reaction.usecase';
 import { ReactionUpdateDto } from '../../reactions/dto/reaction.create-dto';
 
 @Controller('comments')

@@ -27,7 +27,7 @@ import { CommentsQueryRepository } from './comments/infrastructure/query/comment
 import { GetCommentQueryHandler } from './comments/application/queries/get-comment.query-handler';
 import { GetCommentsQueryHandler } from './comments/application/queries/get-comments.query-handler';
 import { UpdatePostReactionUseCase } from './reactions/application/usecases/update-post-reaction.usecase';
-import { UpdateCommentReactionUseCase } from './comments/application/usecases/update-comment-reaction.usecase';
+import { UpdateCommentReactionUseCase } from './reactions/application/usecases/update-comment-reaction.usecase';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Blog } from './blogs/domain/entities/blog.entity';
 import { Post } from './posts/domain/entities/post.entity';
