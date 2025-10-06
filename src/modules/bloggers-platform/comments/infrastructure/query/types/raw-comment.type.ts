@@ -8,5 +8,5 @@ export type RawComment = {
   userLogin: string;
   likesCount: number;
   dislikesCount: number;
-  myStatus: ReactionStatus;
+  myStatus: ReactionStatus | null;
 };
