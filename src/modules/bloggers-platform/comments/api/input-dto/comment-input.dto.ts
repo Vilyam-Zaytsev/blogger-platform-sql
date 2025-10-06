@@ -1,9 +1,5 @@
 import { IsStringWithTrimDecorator } from '../../../../../core/decorators/validation/is-string-with-trim.decorator';
-
-export const contentConstraints = {
-  minLength: 20,
-  maxLength: 300,
-};
+import { contentConstraints } from '../../domain/entities/comment.entity';
 
 export class CommentInputDto {
   @IsStringWithTrimDecorator(contentConstraints.minLength, contentConstraints.maxLength)
