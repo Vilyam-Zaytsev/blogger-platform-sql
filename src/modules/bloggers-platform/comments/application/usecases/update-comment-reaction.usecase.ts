@@ -1,11 +1,11 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UpdatePostReactionCommand } from '../../../reactions/application/usecases/update-post-reaction.usecase';
 import { CommentsRepository } from '../../infrastructure/comments-repository';
-import { CommentDb } from '../../types/comment-db.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { ReactionDb } from '../../../reactions/types/reaction-db.type';
 import { ReactionUpdateDto } from '../../../reactions/dto/reaction.create-dto';
+import { Comment } from '../../domain/entities/comment.entity';
 
 export class UpdateCommentReactionCommand {
   constructor(public readonly dto: ReactionUpdateDto) {}
@@ -16,7 +16,7 @@ export class UpdateCommentReactionUseCase implements ICommandHandler<UpdateComme
   constructor(private readonly commentsRepository: CommentsRepository) {}
 
   async execute({ dto }: UpdatePostReactionCommand): Promise<void> {
-    const comment: CommentDb | null = await this.commentsRepository.getById(dto.parentId);
+    const comment: Comment | null = await this.commentsRepository.getById(dto.parentId);
 
     if (!comment) {
       throw new DomainException({

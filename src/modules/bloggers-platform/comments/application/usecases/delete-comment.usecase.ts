@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { CommentsRepository } from '../../infrastructure/comments-repository';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { CommentDb } from '../../types/comment-db.type';
 import { DeleteCommentDto } from '../../dto/delete-comment.dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { Comment } from '../../domain/entities/comment.entity';
 
 export class DeleteCommentCommand {
   constructor(public readonly dto: DeleteCommentDto) {}
@@ -14,7 +14,7 @@ export class DeleteCommentUseCase implements ICommandHandler<DeleteCommentComman
   constructor(private readonly commentsRepository: CommentsRepository) {}
 
   async execute({ dto }: DeleteCommentCommand): Promise<void> {
-    const comment: CommentDb | null = await this.commentsRepository.getById(dto.commentId);
+    const comment: Comment | null = await this.commentsRepository.getById(dto.commentId);
 
     if (!comment) {
       throw new DomainException({
@@ -23,7 +23,7 @@ export class DeleteCommentUseCase implements ICommandHandler<DeleteCommentComman
       });
     }
 
-    if (comment.commentatorId !== dto.userId) {
+    if (comment.userId !== dto.userId) {
       throw new DomainException({
         code: DomainExceptionCode.Forbidden,
         message: `The user with the ID (${dto.userId}) is not the owner of this comment`,
