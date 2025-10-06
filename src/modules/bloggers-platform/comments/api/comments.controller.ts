@@ -73,16 +73,16 @@ export class CommentsController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @UseGuards(JwtAuthGuard)
   async updateReaction(
-    @ExtractUserFromRequest() user: UserContextDto,
+    @ExtractUserFromRequest() { id: userId }: UserContextDto,
     @Param('commentId', ParseIntPipe) commentId: number,
-    @Body() body: ReactionInputDto,
+    @Body() { likeStatus }: ReactionInputDto,
   ): Promise<void> {
-    const reactionUpdateDto: ReactionUpdateDto = {
-      status: body.likeStatus,
-      userId: user.id,
+    const dto: ReactionUpdateDto = {
+      status: likeStatus,
+      userId,
       parentId: commentId,
     };
 
-    await this.commandBus.execute(new UpdateCommentReactionCommand(reactionUpdateDto));
+    await this.commandBus.execute(new UpdateCommentReactionCommand(dto));
   }
 }
