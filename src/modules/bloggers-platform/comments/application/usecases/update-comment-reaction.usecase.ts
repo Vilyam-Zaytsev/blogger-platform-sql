@@ -6,6 +6,7 @@ import { DomainExceptionCode } from '../../../../../core/exceptions/domain-excep
 import { ReactionUpdateDto } from '../../../reactions/dto/reaction.create-dto';
 import { Comment } from '../../domain/entities/comment.entity';
 import { Reaction } from '../../../reactions/domain/entities/reaction.entity';
+import { ReactionsRepository } from '../../../reactions/infrastructure/reactions.repository';
 
 export class UpdateCommentReactionCommand {
   constructor(public readonly dto: ReactionUpdateDto) {}
@@ -13,7 +14,10 @@ export class UpdateCommentReactionCommand {
 
 @CommandHandler(UpdateCommentReactionCommand)
 export class UpdateCommentReactionUseCase implements ICommandHandler<UpdateCommentReactionCommand> {
-  constructor(private readonly commentsRepository: CommentsRepository) {}
+  constructor(
+    private readonly commentsRepository: CommentsRepository,
+    private readonly reactionsRepository: ReactionsRepository,
+  ) {}
 
   async execute({ dto }: UpdatePostReactionCommand): Promise<void> {
     const comment: Comment | null = await this.commentsRepository.getById(dto.parentId);
@@ -25,15 +29,19 @@ export class UpdateCommentReactionUseCase implements ICommandHandler<UpdateComme
       });
     }
 
-    const reaction: Reaction | null = await this.commentsRepository.getReactionByUserIdAndCommentId(
+    const reaction: Reaction | null = await this.reactionsRepository.getByUserIdAndCommentId(
       dto.userId,
       dto.parentId,
     );
 
     if (!reaction) {
-      return await this.commentsRepository.createReaction(dto);
+      const reaction: Reaction = Reaction.createForComment(dto);
+      await this.reactionsRepository.save(reaction);
+
+      return;
     }
 
-    await this.commentsRepository.updateStatusPostReaction(reaction.id, dto.status);
+    reaction.updateStatus(dto.status);
+    await this.reactionsRepository.save(reaction);
   }
 }
