@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { configModule } from '../../dynamic-config.module';
 import { NotificationsConfigModule } from './config/notifications-config.module';
 import { NotificationsConfig } from './config/notifications.config';
 import { EmailService } from './services/email.service';
@@ -11,7 +10,6 @@ import { SendRecoveryCodeEmailWhenUserPasswordRecoveryEventHandler } from './eve
 
 @Module({
   imports: [
-    configModule,
     MailerModule.forRootAsync({
       imports: [NotificationsConfigModule],
       inject: [NotificationsConfig],

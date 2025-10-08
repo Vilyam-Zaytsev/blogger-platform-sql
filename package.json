@@ -20,7 +20,11 @@
     "test:e2e": "cross-env NODE_ENV=testing jest --config ./test/jest-e2e.json --runInBand --detectOpenHandles",
     "test:e2e-all": "cross-env NODE_ENV=testing jest --config ./test/jest-e2e.json --runInBand",
     "test:unit": "cross-env NODE_ENV=testing jest --config test/jest-unit.json --runInBand --detectOpenHandles",
-    "test:int": "cross-env NODE_ENV=testing jest --config test/jest-int.json --runInBand --detectOpenHandles"
+    "test:int": "cross-env NODE_ENV=testing jest --config test/jest-int.json --runInBand --detectOpenHandles",
+    "migration:create": "cross-env NODE_ENV=development && typeorm-ts-node-commonjs migration:create ./src/modules/database/migrations/empty",
+    "migration:generate": "cross-env NODE_ENV=development typeorm-ts-node-commonjs migration:generate -d ./src/migrations-data-source.ts  src/modules/database/migrations/$npm_config_name",
+    "migration:run": "cross-env NODE_ENV=development typeorm-ts-node-commonjs migration:run -d ./src/migrations-data-source.ts",
+    "migration:revert": "cross-env NODE_ENV=development typeorm-ts-node-commonjs migration:revert -d ./src/migrations-data-source.ts"
   },
   "dependencies": {
     "@nestjs-modules/mailer": "^2.0.2",
@@ -73,6 +77,7 @@
     "@types/pg": "^8.15.4",
     "@types/supertest": "^6.0.2",
     "cross-env": "^7.0.3",
+    "dotenv-cli": "^10.0.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.4",

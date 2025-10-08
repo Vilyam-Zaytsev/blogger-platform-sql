@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { IsNotEmpty, IsNumber } from 'class-validator';
+import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
 import { ConfigService } from '@nestjs/config';
 import { configValidator } from '../../../core/utils/config.validator';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
@@ -29,6 +29,21 @@ export class DatabaseConfig {
   })
   postgresDbName: string;
 
+  @IsBoolean({
+    message: 'Set Env variable AUTO_LOAD_ENTITIES to boolean value (true or false)',
+  })
+  autoLoadEntities: boolean;
+
+  @IsBoolean({
+    message: 'Set Env variable SYNCHRONIZE to boolean value (true or false)',
+  })
+  synchronize: boolean;
+
+  @IsBoolean({
+    message: 'Set Env variable LOGGING to boolean value (true or false)',
+  })
+  logging: boolean;
+
   constructor(private configService: ConfigService<any, true>) {
     this.postgresHost = this.configService.get('POSTGRES_HOST');
 
@@ -39,6 +54,16 @@ export class DatabaseConfig {
     this.postgresPassword = this.configService.get('POSTGRES_PASSWORD');
 
     this.postgresDbName = this.configService.get('POSTGRES_DB_NAME');
+
+    this.autoLoadEntities = configValidator.convertToBoolean(
+      this.configService.get('AUTO_LOAD_ENTITIES'),
+    ) as boolean;
+
+    this.synchronize = configValidator.convertToBoolean(
+      this.configService.get('SYNCHRONIZE'),
+    ) as boolean;
+
+    this.logging = configValidator.convertToBoolean(this.configService.get('LOGGING')) as boolean;
 
     configValidator.validateConfig(this);
   }
@@ -51,8 +76,9 @@ export class DatabaseConfig {
       username: this.postgresUser,
       password: this.postgresPassword,
       database: this.postgresDbName,
-      autoLoadEntities: true,
-      synchronize: true,
+      autoLoadEntities: this.autoLoadEntities,
+      synchronize: this.synchronize,
+      logging: this.logging,
     };
   }
 }
