@@ -2,6 +2,7 @@ import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
 import { envFilePaths } from './env-file-paths';
 import * as process from 'node:process';
+import { join } from 'path';
 
 config({
   path: envFilePaths,
@@ -16,6 +17,6 @@ export default new DataSource({
   database: process.env.POSTGRES_DB_NAME,
   synchronize: false,
   logging: true,
-  migrations: [`${__dirname}/modules/database/migrations`],
+  migrations: [join(__dirname, 'modules/database/migrations/*.{ts,js}')],
   entities: ['src/**/*.entity.ts'],
 });
