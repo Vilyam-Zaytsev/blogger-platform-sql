@@ -12,6 +12,7 @@ import { ThrottlerModule } from '@nestjs/throttler';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
 import { DatabaseModule } from './modules/database/database.module';
+import { QuizModule } from './modules/quiz/quiz.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { DatabaseModule } from './modules/database/database.module';
     UserAccountsModule,
     NotificationsModule,
     BloggersPlatformModule,
+    QuizModule,
     ThrottlerModule.forRootAsync({
       inject: [CoreConfig],
       useFactory: (coreConfig: CoreConfig) => [
