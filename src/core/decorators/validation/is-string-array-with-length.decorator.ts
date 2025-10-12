@@ -18,7 +18,8 @@ export function IsStringArrayWithLength(
 
           const [min, max] = args.constraints as number[];
           return value.every(
-            (item) => typeof item === 'string' && item.length >= min && item.length <= max,
+            (item) =>
+              typeof item === 'string' && item.trim().length >= min && item.trim().length <= max,
           );
         },
         defaultMessage(args: ValidationArguments) {
