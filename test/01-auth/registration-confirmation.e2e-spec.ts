@@ -49,7 +49,7 @@ describe('AuthController - registrationConfirmation() (POST: /auth/registration-
   });
 
   beforeEach(async () => {
-    await appTestManager.cleanupDb(['schema_migrations']);
+    await appTestManager.cleanupDb(['migrations']);
 
     sendEmailMock.mockClear();
 
