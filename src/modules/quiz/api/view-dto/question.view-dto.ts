@@ -1,4 +1,5 @@
 import { Question, QuestionStatus } from '../../domain/entities/question.entity';
+import { RawQuestion } from '../../infrastructure/types/raw-question.type';
 
 export class QuestionViewDto {
   id: string;
@@ -8,7 +9,7 @@ export class QuestionViewDto {
   createdAt: string;
   updatedAt: string;
 
-  static mapToView(question: Question): QuestionViewDto {
+  static mapToView(question: Question | RawQuestion): QuestionViewDto {
     const dto = new this();
 
     dto.id = question.id.toString();
