@@ -40,6 +40,7 @@ export class Question extends BaseEntity {
 
     question.body = body;
     question.correctAnswers = correctAnswers;
+    question.status = QuestionStatus.Draft;
 
     return question;
   }
