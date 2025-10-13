@@ -1,5 +1,6 @@
 import { Check, Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../../../core/entities/base.entity';
+import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
 
 export enum QuestionStatus {
   Draft = 'Draft',
@@ -33,4 +34,13 @@ export class Question extends BaseEntity {
     default: QuestionStatus.Draft,
   })
   status: QuestionStatus;
+
+  static create({ body, correctAnswers }: QuestionInputDto): Question {
+    const question = new this();
+
+    question.body = body;
+    question.correctAnswers = correctAnswers;
+
+    return question;
+  }
 }
