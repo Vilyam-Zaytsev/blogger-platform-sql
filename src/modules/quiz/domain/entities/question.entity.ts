@@ -12,7 +12,7 @@ export const bodyConstraints = {
   maxLength: 500,
 };
 
-@Entity({ name: 'question' })
+@Entity({ name: 'questions' })
 @Check(
   'CHK_body_length',
   `char_length(body) >= ${bodyConstraints.minLength} AND char_length(body) <= ${bodyConstraints.maxLength}`,
