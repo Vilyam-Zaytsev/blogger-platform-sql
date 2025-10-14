@@ -12,7 +12,16 @@ export const bodyConstraints = {
   maxLength: 500,
 };
 
+export const correctAnswersConstraints = {
+  minLength: 1,
+  maxLength: 100,
+};
+
 @Entity({ name: 'questions' })
+@Check(
+  'CHK_correctAnswers_length',
+  `check_varchar_array_length(correctAnswers, ${correctAnswersConstraints.minLength}, ${correctAnswersConstraints.maxLength})`,
+)
 @Check(
   'CHK_body_length',
   `char_length(body) >= ${bodyConstraints.minLength} AND char_length(body) <= ${bodyConstraints.maxLength}`,
