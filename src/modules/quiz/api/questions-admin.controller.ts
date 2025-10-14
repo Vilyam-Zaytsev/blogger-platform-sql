@@ -8,7 +8,7 @@ import { QuestionQueryRepository } from '../infrastructure/query/question.query-
 
 @Controller('sa/quiz/questions')
 @UseGuards(BasicAuthGuard)
-export class QuestionAdminController {
+export class QuestionsAdminController {
   constructor(
     private readonly commandBus: CommandBus,
     public readonly questionQueryRepository: QuestionQueryRepository,
