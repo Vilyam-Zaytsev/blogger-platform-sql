@@ -20,7 +20,7 @@ export const correctAnswersConstraints = {
 @Entity({ name: 'questions' })
 @Check(
   'CHK_correctAnswers_length',
-  `check_varchar_array_length(correctAnswers, ${correctAnswersConstraints.minLength}, ${correctAnswersConstraints.maxLength})`,
+  `check_varchar_array_length("correctAnswers", ${correctAnswersConstraints.minLength}, ${correctAnswersConstraints.maxLength})`,
 )
 @Check(
   'CHK_body_length',
