@@ -54,7 +54,7 @@ describe('CreateQuestionUseCase (Integration)', () => {
       expect(typeof questionId).toBe('number');
       expect(questionId).toBeGreaterThan(0);
 
-      const createdQuestion = await questionRepo.findOne({
+      const createdQuestion: Question | null = await questionRepo.findOne({
         where: { id: questionId },
       });
 
@@ -63,7 +63,7 @@ describe('CreateQuestionUseCase (Integration)', () => {
           'Тест №1: CreateQuestionUseCase (Integration): Не удалось найти вопрос по ID после создания',
         );
       }
-      console.log(createdQuestion);
+
       expect(createdQuestion).toBeDefined();
       expect(createdQuestion.body).toBe(dto.body);
       expect(createdQuestion.correctAnswers).toEqual(dto.correctAnswers);
