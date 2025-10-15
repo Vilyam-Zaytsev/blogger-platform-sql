@@ -1,6 +1,7 @@
 import { Check, Column, Entity } from 'typeorm';
 import { BaseEntity } from '../../../../core/entities/base.entity';
 import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
+import { QuestionUpdateDto } from '../../application/dto/question.update-dto';
 
 export enum QuestionStatus {
   Draft = 'Draft',
@@ -52,5 +53,10 @@ export class Question extends BaseEntity {
     question.status = QuestionStatus.Draft;
 
     return question;
+  }
+
+  public update({ body, correctAnswers }: QuestionUpdateDto) {
+    this.body = body;
+    this.correctAnswers = correctAnswers;
   }
 }
