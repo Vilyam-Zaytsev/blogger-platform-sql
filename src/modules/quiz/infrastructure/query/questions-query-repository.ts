@@ -8,7 +8,7 @@ import { DomainException } from '../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
 
 @Injectable()
-export class QuestionQueryRepository {
+export class QuestionsQueryRepository {
   constructor(@InjectRepository(Question) private readonly repository: Repository<Question>) {}
 
   async getByIdOrNotFoundFail(id: number): Promise<QuestionViewDto> {

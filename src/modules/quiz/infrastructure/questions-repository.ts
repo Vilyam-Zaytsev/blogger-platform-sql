@@ -4,7 +4,7 @@ import { DataSource } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
-export class QuestionRepository extends BaseRepository<Question> {
+export class QuestionsRepository extends BaseRepository<Question> {
   constructor(dataSource: DataSource) {
     super(dataSource, Question);
   }

@@ -6,7 +6,7 @@ import { DatabaseModule } from '../../../database/database.module';
 import { CoreModule } from '../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getRelatedEntities } from '../../../../core/utils/get-related-entities.utility';
-import { QuestionRepository } from '../../infrastructure/question.repository';
+import { QuestionsRepository } from '../../infrastructure/questions-repository';
 import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
 import { configModule } from '../../../../dynamic-config.module';
 
@@ -24,7 +24,7 @@ describe('CreateQuestionUseCase (Integration)', () => {
         CoreModule,
         TypeOrmModule.forFeature(getRelatedEntities(Question)),
       ],
-      providers: [CreateQuestionUseCase, QuestionRepository],
+      providers: [CreateQuestionUseCase, QuestionsRepository],
     }).compile();
 
     useCase = module.get<CreateQuestionUseCase>(CreateQuestionUseCase);

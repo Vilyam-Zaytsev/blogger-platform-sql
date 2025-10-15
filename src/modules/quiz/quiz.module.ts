@@ -3,8 +3,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Question } from './domain/entities/question.entity';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
 import { QuestionsAdminController } from './api/questions-admin.controller';
-import { QuestionRepository } from './infrastructure/question.repository';
-import { QuestionQueryRepository } from './infrastructure/query/question.query-repository';
+import { QuestionsRepository } from './infrastructure/questions-repository';
+import { QuestionsQueryRepository } from './infrastructure/query/questions-query-repository';
 import { CreateQuestionUseCase } from './application/usecases/create-question.usecase';
 
 @Module({
@@ -13,8 +13,8 @@ import { CreateQuestionUseCase } from './application/usecases/create-question.us
   providers: [
     //🔸 Questions:
     //repo
-    QuestionRepository,
-    QuestionQueryRepository,
+    QuestionsRepository,
+    QuestionsQueryRepository,
     //use-cases
     CreateQuestionUseCase,
   ],
