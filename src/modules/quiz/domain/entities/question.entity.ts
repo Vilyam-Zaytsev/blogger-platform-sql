@@ -59,4 +59,12 @@ export class Question extends BaseEntity {
     this.body = body;
     this.correctAnswers = correctAnswers;
   }
+
+  public publish() {
+    this.status = QuestionStatus.Published;
+  }
+
+  public removePublication() {
+    this.status = QuestionStatus.Draft;
+  }
 }
