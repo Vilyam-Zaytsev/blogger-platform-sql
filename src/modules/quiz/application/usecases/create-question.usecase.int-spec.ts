@@ -72,6 +72,36 @@ describe('CreateQuestionUseCase (Integration)', () => {
       expect(createdQuestion.updatedAt).toBeInstanceOf(Date);
     });
 
+    it('должен создать вопрос с пустым массивом correctAnswers', async () => {
+      const dto: QuestionInputDto = {
+        body: 'What is the capital of France?',
+        correctAnswers: [],
+      };
+
+      const questionId: number = await useCase.execute(new CreateQuestionCommand(dto));
+
+      expect(questionId).toBeDefined();
+      expect(typeof questionId).toBe('number');
+      expect(questionId).toBeGreaterThan(0);
+
+      const createdQuestion: Question | null = await questionRepo.findOne({
+        where: { id: questionId },
+      });
+
+      if (!createdQuestion) {
+        throw new Error(
+          'Тест №2: CreateQuestionUseCase (Integration): Не удалось найти вопрос по ID после создания',
+        );
+      }
+
+      expect(createdQuestion).toBeDefined();
+      expect(createdQuestion.body).toBe(dto.body);
+      expect(createdQuestion.correctAnswers).toEqual([]);
+      expect(createdQuestion.status).toBe(QuestionStatus.Draft);
+      expect(createdQuestion.createdAt).toBeInstanceOf(Date);
+      expect(createdQuestion.updatedAt).toBeInstanceOf(Date);
+    });
+
     it('должен создавать уникальные записи для каждого вызова', async () => {
       const dto1: QuestionInputDto = {
         body: 'What is 2+2 equal to?',
@@ -118,11 +148,6 @@ describe('CreateQuestionUseCase (Integration)', () => {
   });
 
   describe('валидация поля correctAnswers', () => {
-    it('должен отклонять создание вопроса с пустым массивом correctAnswers', async () => {
-      const dto: QuestionInputDto = { body: 'Valid question text', correctAnswers: [] };
-      await expect(useCase.execute(new CreateQuestionCommand(dto))).rejects.toThrowError();
-    });
-
     it('должен отклонять создание вопроса с элементом массива длиннее максимальной длины', async () => {
       const long: string = 'A'.repeat(bodyConstraints.maxLength + 1);
       const dto: QuestionInputDto = { body: 'Valid question text', correctAnswers: [long] };
