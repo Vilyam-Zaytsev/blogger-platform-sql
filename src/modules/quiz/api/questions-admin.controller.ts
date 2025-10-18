@@ -17,6 +17,9 @@ import { CreateQuestionCommand } from '../application/usecases/create-question.u
 import { QuestionsQueryRepository } from '../infrastructure/query/questions-query-repository';
 import { QuestionUpdateDto } from '../application/dto/question.update-dto';
 import { UpdateQuestionCommand } from '../application/usecases/update-question.usecase';
+import { PublishInputDto } from './input-dto/publish.input-dto';
+import { PublishQuestionCommand } from '../application/usecases/publish-question.usecase';
+import { RemovePublicationQuestionCommand } from '../application/usecases/remove-publication-question.usecase';
 
 @Controller('sa/quiz/questions')
 @UseGuards(BasicAuthGuard)
@@ -48,5 +51,18 @@ export class QuestionsAdminController {
     };
 
     await this.commandBus.execute(new UpdateQuestionCommand(dto));
+  }
+
+  @Put(':id/publish')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async publishOrRemovePublication(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() { published }: PublishInputDto,
+  ): Promise<void> {
+    if (published) {
+      await this.commandBus.execute(new PublishQuestionCommand(id));
+    } else {
+      await this.commandBus.execute(new RemovePublicationQuestionCommand(id));
+    }
   }
 }
