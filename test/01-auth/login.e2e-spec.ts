@@ -33,7 +33,7 @@ describe('AuthController - login() (POST: /auth/login)', () => {
   });
 
   beforeEach(async () => {
-    await appTestManager.cleanupDb(['schema_migrations']);
+    await appTestManager.cleanupDb(['migrations']);
 
     appTestManager.clearThrottlerStorage();
   });

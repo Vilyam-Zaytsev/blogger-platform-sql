@@ -47,7 +47,7 @@ describe('SessionsController - deleteSessions() (DELETE: /security/devices)', ()
   });
 
   beforeEach(async () => {
-    await appTestManager.cleanupDb(['schema_migrations']);
+    await appTestManager.cleanupDb(['migrations']);
 
     appTestManager.clearThrottlerStorage();
   });

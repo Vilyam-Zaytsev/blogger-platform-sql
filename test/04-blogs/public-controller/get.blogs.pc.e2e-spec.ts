@@ -35,7 +35,7 @@ describe('BlogsPublicController - getBlog() (GET: /blogs)', () => {
   });
 
   beforeEach(async () => {
-    await appTestManager.cleanupDb(['schema_migrations']);
+    await appTestManager.cleanupDb(['migrations']);
   });
 
   afterAll(async () => {

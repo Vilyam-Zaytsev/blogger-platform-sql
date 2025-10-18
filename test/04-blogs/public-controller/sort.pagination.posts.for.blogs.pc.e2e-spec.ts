@@ -43,7 +43,7 @@ describe('BlogsPublicController - getPost() (GET: /blogs/:blogId/posts (paginati
   });
 
   beforeEach(async () => {
-    await appTestManager.cleanupDb(['schema_migrations']);
+    await appTestManager.cleanupDb(['migrations']);
   });
 
   afterAll(async () => {
