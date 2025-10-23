@@ -24,7 +24,7 @@ export class RemovePublicationQuestionUseCase
       });
     }
 
-    if (question.status === QuestionStatus.Draft) {
+    if (question.status === QuestionStatus.NotPublished) {
       throw new DomainException({
         code: DomainExceptionCode.BadRequest,
         message: `In order to remove a question from publication, it must be published.`,
