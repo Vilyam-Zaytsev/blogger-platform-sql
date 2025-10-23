@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   HttpCode,
   HttpStatus,
   Param,
@@ -20,6 +21,7 @@ import { UpdateQuestionCommand } from '../application/usecases/update-question.u
 import { PublishInputDto } from './input-dto/publish.input-dto';
 import { PublishQuestionCommand } from '../application/usecases/publish-question.usecase';
 import { RemovePublicationQuestionCommand } from '../application/usecases/remove-publication-question.usecase';
+import { DeleteQuestionCommand } from '../application/usecases/delete-question.usecase';
 
 @Controller('sa/quiz/questions')
 @UseGuards(BasicAuthGuard)
@@ -64,5 +66,11 @@ export class QuestionsAdminController {
     } else {
       await this.commandBus.execute(new RemovePublicationQuestionCommand(id));
     }
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async deleteQuestion(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    await this.commandBus.execute(new DeleteQuestionCommand(id));
   }
 }
