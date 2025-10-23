@@ -4,8 +4,8 @@ import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
 import { QuestionUpdateDto } from '../../application/dto/question.update-dto';
 
 export enum QuestionStatus {
-  Draft = 'Draft',
-  Published = 'Published',
+  NotPublished = 'notPublished',
+  Published = 'published',
 }
 
 export const bodyConstraints = {
@@ -41,7 +41,7 @@ export class Question extends BaseEntity {
   @Column({
     type: 'enum',
     enum: QuestionStatus,
-    default: QuestionStatus.Draft,
+    default: QuestionStatus.NotPublished,
   })
   status: QuestionStatus;
 
@@ -50,7 +50,7 @@ export class Question extends BaseEntity {
 
     question.body = body;
     question.correctAnswers = correctAnswers;
-    question.status = QuestionStatus.Draft;
+    question.status = QuestionStatus.NotPublished;
 
     return question;
   }
@@ -65,6 +65,6 @@ export class Question extends BaseEntity {
   }
 
   public removePublication() {
-    this.status = QuestionStatus.Draft;
+    this.status = QuestionStatus.NotPublished;
   }
 }
