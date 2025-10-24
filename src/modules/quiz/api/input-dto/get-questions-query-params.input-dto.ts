@@ -11,7 +11,7 @@ export enum QuestionsSortBy {
   Status = 'status',
 }
 
-export enum InputPublishedStatus {
+export enum QuestionInputStatus {
   NotPublished = 'notPublished',
   Published = 'published',
   All = 'all',
@@ -25,6 +25,6 @@ export class GetQuestionsQueryParams extends BaseQueryParams<QuestionsSortBy> {
   @IsOptional()
   bodySearchTerm: string | null = null;
 
-  @IsEnum(InputPublishedStatus)
-  publishedStatus: InputPublishedStatus = InputPublishedStatus.All;
+  @IsEnum(QuestionInputStatus)
+  publishedStatus: QuestionInputStatus = QuestionInputStatus.All;
 }
