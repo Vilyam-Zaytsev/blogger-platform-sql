@@ -39,7 +39,7 @@ describe('BlogsPublicController - getBlog() (GET: /blogs (pagination, sort, sear
   });
 
   beforeEach(async () => {
-    await appTestManager.cleanupDb(['schema_migrations']);
+    await appTestManager.cleanupDb(['migrations']);
   });
 
   afterAll(async () => {

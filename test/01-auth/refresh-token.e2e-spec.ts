@@ -46,7 +46,7 @@ describe('AuthController - refreshToken() (POST: /auth/refresh-token)', () => {
   });
 
   beforeEach(async () => {
-    await appTestManager.cleanupDb(['schema_migrations']);
+    await appTestManager.cleanupDb(['migrations']);
 
     appTestManager.clearThrottlerStorage();
   });
