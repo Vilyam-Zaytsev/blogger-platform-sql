@@ -3,14 +3,14 @@ import { DataSource, Repository } from 'typeorm';
 import { PublishQuestionCommand, PublishQuestionUseCase } from './publish-question.usecase';
 import { Question, QuestionStatus } from '../../domain/entities/question.entity';
 import { QuestionsRepository } from '../../infrastructure/questions-repository';
-import { DatabaseModule } from '../../../database/database.module';
-import { CoreModule } from '../../../../core/core.module';
+import { DatabaseModule } from '../../../../database/database.module';
+import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { getRelatedEntities } from '../../../../core/utils/get-related-entities.utility';
-import { configModule } from '../../../../dynamic-config.module';
-import { DomainException } from '../../../../core/exceptions/domain-exceptions';
-import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
-import { ValidationException } from '../../../../core/exceptions/validation-exception';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
 
 describe('PublishQuestionUseCase (Integration)', () => {

@@ -1,6 +1,6 @@
-import { BaseQueryParams } from '../../../../core/dto/base.query-params.input-dto';
+import { BaseQueryParams } from '../../../../../core/dto/base.query-params.input-dto';
 import { IsEnum, IsOptional } from 'class-validator';
-import { IsStringWithTrimDecorator } from '../../../../core/decorators/validation/is-string-with-trim.decorator';
+import { IsStringWithTrimDecorator } from '../../../../../core/decorators/validation/is-string-with-trim.decorator';
 import { bodyConstraints } from '../../domain/entities/question.entity';
 
 export enum QuestionsSortBy {

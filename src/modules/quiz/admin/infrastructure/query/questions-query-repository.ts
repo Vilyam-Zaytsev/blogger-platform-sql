@@ -4,9 +4,9 @@ import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { QuestionViewDto } from '../../api/view-dto/question.view-dto';
 import { RawQuestion } from '../types/raw-question.type';
-import { DomainException } from '../../../../core/exceptions/domain-exceptions';
-import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
-import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import {
   GetQuestionsQueryParams,
   QuestionInputStatus,

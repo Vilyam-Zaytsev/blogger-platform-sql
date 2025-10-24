@@ -1,9 +1,9 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { QuestionsRepository } from '../../infrastructure/questions-repository';
 import { Question, QuestionStatus } from '../../domain/entities/question.entity';
-import { DomainException } from '../../../../core/exceptions/domain-exceptions';
-import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
-import { ValidationException } from '../../../../core/exceptions/validation-exception';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 
 export class PublishQuestionCommand {
   constructor(public readonly id: number) {}

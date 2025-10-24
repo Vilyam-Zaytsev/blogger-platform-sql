@@ -7,13 +7,13 @@ import {
   Question,
   QuestionStatus,
 } from '../../domain/entities/question.entity';
-import { DatabaseModule } from '../../../database/database.module';
-import { CoreModule } from '../../../../core/core.module';
+import { DatabaseModule } from '../../../../database/database.module';
+import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { getRelatedEntities } from '../../../../core/utils/get-related-entities.utility';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { QuestionsRepository } from '../../infrastructure/questions-repository';
 import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
-import { configModule } from '../../../../dynamic-config.module';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('CreateQuestionUseCase (Integration)', () => {
   let module: TestingModule;

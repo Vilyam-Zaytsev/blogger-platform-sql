@@ -2,20 +2,20 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { GetQuestionQueryHandler, GetQuestionsQuery } from './get-questions.query-handler';
 import { DataSource, Repository } from 'typeorm';
 import { Question } from '../../domain/entities/question.entity';
-import { DatabaseModule } from '../../../database/database.module';
+import { DatabaseModule } from '../../../../database/database.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { getRelatedEntities } from '../../../../core/utils/get-related-entities.utility';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { QuestionsQueryRepository } from '../../infrastructure/query/questions-query-repository';
 import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
-import { configModule } from '../../../../dynamic-config.module';
-import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
+import { configModule } from '../../../../../dynamic-config.module';
+import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { QuestionViewDto } from '../../api/view-dto/question.view-dto';
 import {
   GetQuestionsQueryParams,
   QuestionInputStatus,
   QuestionsSortBy,
 } from '../../api/input-dto/get-questions-query-params.input-dto';
-import { SortDirection } from '../../../../core/dto/base.query-params.input-dto';
+import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 
 describe('GetQuestionQueryHandler (Integration)', () => {
   let module: TestingModule;

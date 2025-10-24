@@ -1,6 +1,6 @@
-import { IsStringWithTrimDecorator } from '../../../../core/decorators/validation/is-string-with-trim.decorator';
+import { IsStringWithTrimDecorator } from '../../../../../core/decorators/validation/is-string-with-trim.decorator';
 import { bodyConstraints } from '../../domain/entities/question.entity';
-import { IsStringArrayWithLength } from '../../../../core/decorators/validation/is-string-array-with-length.decorator';
+import { IsStringArrayWithLength } from '../../../../../core/decorators/validation/is-string-array-with-length.decorator';
 
 export class QuestionInputDto {
   @IsStringWithTrimDecorator(bodyConstraints.minLength, bodyConstraints.maxLength)

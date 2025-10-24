@@ -12,7 +12,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { BasicAuthGuard } from '../../user-accounts/auth/domain/guards/basic/basic-auth.guard';
+import { BasicAuthGuard } from '../../../user-accounts/auth/domain/guards/basic/basic-auth.guard';
 import { QuestionInputDto } from './input-dto/question.input-dto';
 import { QuestionViewDto } from './view-dto/question.view-dto';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
@@ -25,7 +25,7 @@ import { PublishQuestionCommand } from '../application/usecases/publish-question
 import { RemovePublicationQuestionCommand } from '../application/usecases/remove-publication-question.usecase';
 import { DeleteQuestionCommand } from '../application/usecases/delete-question.usecase';
 import { GetQuestionsQueryParams } from './input-dto/get-questions-query-params.input-dto';
-import { PaginatedViewDto } from '../../../core/dto/paginated.view-dto';
+import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetQuestionsQuery } from '../application/queries/get-questions.query-handler';
 
 @Controller('sa/quiz/questions')

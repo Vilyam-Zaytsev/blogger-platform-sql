@@ -2,16 +2,16 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { UpdateQuestionCommand, UpdateQuestionUseCase } from './update-question.usecase';
 import { DataSource, Repository } from 'typeorm';
 import { Question, QuestionStatus } from '../../domain/entities/question.entity';
-import { DatabaseModule } from '../../../database/database.module';
+import { DatabaseModule } from '../../../../database/database.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { getRelatedEntities } from '../../../../core/utils/get-related-entities.utility';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { QuestionsRepository } from '../../infrastructure/questions-repository';
 import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
 import { QuestionUpdateDto } from '../dto/question.update-dto';
-import { configModule } from '../../../../dynamic-config.module';
-import { DomainException } from '../../../../core/exceptions/domain-exceptions';
-import { DomainExceptionCode } from '../../../../core/exceptions/domain-exception-codes';
-import { ValidationException } from '../../../../core/exceptions/validation-exception';
+import { configModule } from '../../../../../dynamic-config.module';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 
 describe('UpdateQuestionUseCase (Integration)', () => {
   let module: TestingModule;
