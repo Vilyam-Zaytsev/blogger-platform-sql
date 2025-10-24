@@ -51,7 +51,7 @@ describe('AuthController - newPassword() (POST: /auth/new-password)', () => {
   });
 
   beforeEach(async () => {
-    await appTestManager.cleanupDb(['schema_migrations']);
+    await appTestManager.cleanupDb(['migrations']);
 
     sendEmailMock.mockClear();
     spy.mockClear();
