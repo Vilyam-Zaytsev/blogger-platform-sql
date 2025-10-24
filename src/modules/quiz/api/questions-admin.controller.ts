@@ -2,18 +2,20 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   HttpCode,
   HttpStatus,
   Param,
   ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
 } from '@nestjs/common';
 import { BasicAuthGuard } from '../../user-accounts/auth/domain/guards/basic/basic-auth.guard';
 import { QuestionInputDto } from './input-dto/question.input-dto';
 import { QuestionViewDto } from './view-dto/question.view-dto';
-import { CommandBus } from '@nestjs/cqrs';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { CreateQuestionCommand } from '../application/usecases/create-question.usecase';
 import { QuestionsQueryRepository } from '../infrastructure/query/questions-query-repository';
 import { QuestionUpdateDto } from '../application/dto/question.update-dto';
@@ -22,12 +24,16 @@ import { PublishInputDto } from './input-dto/publish.input-dto';
 import { PublishQuestionCommand } from '../application/usecases/publish-question.usecase';
 import { RemovePublicationQuestionCommand } from '../application/usecases/remove-publication-question.usecase';
 import { DeleteQuestionCommand } from '../application/usecases/delete-question.usecase';
+import { GetQuestionsQueryParams } from './input-dto/get-questions-query-params.input-dto';
+import { PaginatedViewDto } from '../../../core/dto/paginated.view-dto';
+import { GetQuestionsQuery } from '../application/queries/get-questions.query-handler';
 
 @Controller('sa/quiz/questions')
 @UseGuards(BasicAuthGuard)
 export class QuestionsAdminController {
   constructor(
     private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
     public readonly questionQueryRepository: QuestionsQueryRepository,
   ) {}
 
@@ -72,5 +78,12 @@ export class QuestionsAdminController {
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteQuestion(@Param('id', ParseIntPipe) id: number): Promise<void> {
     await this.commandBus.execute(new DeleteQuestionCommand(id));
+  }
+
+  @Get()
+  async getAllQuestions(
+    @Query() query: GetQuestionsQueryParams,
+  ): Promise<PaginatedViewDto<QuestionViewDto>> {
+    return await this.queryBus.execute(new GetQuestionsQuery(query));
   }
 }
