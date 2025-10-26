@@ -1,7 +1,8 @@
-import { Check, Column, Entity } from 'typeorm';
+import { Check, Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base.entity';
 import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
 import { QuestionUpdateDto } from '../../application/dto/question.update-dto';
+import { GameQuestion } from '../../../public/domain/entities/game-question.entity';
 
 export enum QuestionStatus {
   NotPublished = 'notPublished',
@@ -21,7 +22,7 @@ export const correctAnswersConstraints = {
 @Entity({ name: 'questions' })
 @Check(
   'CHK_correctAnswers_length',
-  `check_varchar_array_length("correctAnswers", ${correctAnswersConstraints.minLength}, ${correctAnswersConstraints.maxLength})`,
+  `check_varchar_array_length("correct_answers", ${correctAnswersConstraints.minLength}, ${correctAnswersConstraints.maxLength})`,
 )
 @Check(
   'CHK_body_length',
@@ -44,6 +45,9 @@ export class Question extends BaseEntity {
     default: QuestionStatus.NotPublished,
   })
   status: QuestionStatus;
+
+  @OneToMany(() => GameQuestion, (gameQuestion: GameQuestion) => gameQuestion.question)
+  gameQuestions: GameQuestion[];
 
   static create({ body, correctAnswers }: QuestionInputDto): Question {
     const question = new this();
