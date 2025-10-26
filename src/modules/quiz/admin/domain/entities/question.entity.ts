@@ -1,5 +1,5 @@
 import { Check, Column, Entity, OneToMany } from 'typeorm';
-import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BaseEntityNumberId } from '../../../../../core/entities/base-entity-number-id';
 import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
 import { QuestionUpdateDto } from '../../application/dto/question.update-dto';
 import { GameQuestion } from '../../../public/domain/entities/game-question.entity';
@@ -28,7 +28,7 @@ export const correctAnswersConstraints = {
   'CHK_body_length',
   `char_length(body) >= ${bodyConstraints.minLength} AND char_length(body) <= ${bodyConstraints.maxLength}`,
 )
-export class Question extends BaseEntity {
+export class Question extends BaseEntityNumberId {
   @Column({
     type: 'varchar',
     length: bodyConstraints.maxLength,

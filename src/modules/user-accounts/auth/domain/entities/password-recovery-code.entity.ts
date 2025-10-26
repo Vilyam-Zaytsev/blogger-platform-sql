@@ -1,9 +1,9 @@
 import { Column, Entity, JoinColumn, OneToOne, RelationId } from 'typeorm';
-import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BaseEntityNumberId } from '../../../../../core/entities/base-entity-number-id';
 import { User } from '../../../users/domain/entities/user.entity';
 
 @Entity({ name: 'password_recovery_codes' })
-export class PasswordRecoveryCode extends BaseEntity {
+export class PasswordRecoveryCode extends BaseEntityNumberId {
   @Column({
     type: 'varchar',
     length: 255,
@@ -17,6 +17,11 @@ export class PasswordRecoveryCode extends BaseEntity {
     nullable: true,
   })
   public expirationDate: Date | null;
+  @OneToOne(() => User, (user) => user.passwordRecoveryCode, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'userId' })
+  user: User;
+  @RelationId((passwordRecoveryCode: PasswordRecoveryCode) => passwordRecoveryCode.user)
+  public userId: number;
 
   protected constructor() {
     super();
@@ -30,11 +35,4 @@ export class PasswordRecoveryCode extends BaseEntity {
 
     return passwordRecoveryCode;
   }
-
-  @OneToOne(() => User, (user) => user.passwordRecoveryCode, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
-  user: User;
-
-  @RelationId((passwordRecoveryCode: PasswordRecoveryCode) => passwordRecoveryCode.user)
-  public userId: number;
 }

@@ -1,5 +1,5 @@
 import { Check, Column, Entity, OneToMany } from 'typeorm';
-import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BaseEntityNumberId } from '../../../../../core/entities/base-entity-number-id';
 import { BlogUpdateDto } from '../../application/dto/blog.update-dto';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
 import { Post } from '../../../posts/domain/entities/post.entity';
@@ -29,7 +29,7 @@ export const websiteUrlConstraints = {
   `char_length(description) >= ${descriptionConstraints.minLength} AND char_length(description) <= ${descriptionConstraints.maxLength}`,
 )
 @Check('CHK_websiteUrl_pattern', `"websiteUrl" ~ '${websiteUrlConstraints.match.source}'`)
-export class Blog extends BaseEntity {
+export class Blog extends BaseEntityNumberId {
   @Column({
     type: 'varchar',
     length: nameConstraints.maxLength,
@@ -56,6 +56,8 @@ export class Blog extends BaseEntity {
     default: false,
   })
   isMembership: boolean;
+  @OneToMany(() => Post, (post: Post) => post.blog)
+  posts: Post[];
 
   protected constructor() {
     super();
@@ -77,7 +79,4 @@ export class Blog extends BaseEntity {
     this.description = description;
     this.websiteUrl = websiteUrl;
   }
-
-  @OneToMany(() => Post, (post: Post) => post.blog)
-  posts: Post[];
 }

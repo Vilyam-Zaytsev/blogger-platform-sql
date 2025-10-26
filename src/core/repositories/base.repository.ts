@@ -1,7 +1,7 @@
 import { DataSource, EntityTarget, FindOptionsWhere, Repository } from 'typeorm';
-import { BaseEntity } from '../entities/base.entity';
+import { BaseEntityNumberId } from '../entities/base-entity-number-id';
 
-export abstract class BaseRepository<Entity extends BaseEntity> {
+export abstract class BaseRepository<Entity extends BaseEntityNumberId> {
   protected readonly repository: Repository<Entity>;
 
   protected constructor(

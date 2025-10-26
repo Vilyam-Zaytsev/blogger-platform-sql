@@ -1,5 +1,5 @@
 import { Check, Column, Entity, OneToMany, OneToOne } from 'typeorm';
-import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BaseEntityNumberId } from '../../../../../core/entities/base-entity-number-id';
 import {
   ConfirmationStatus,
   EmailConfirmationCode,
@@ -9,6 +9,7 @@ import { PasswordRecoveryCode } from '../../../auth/domain/entities/password-rec
 import { Session } from '../../../sessions/domain/entities/session.entity';
 import { Reaction } from '../../../../bloggers-platform/reactions/domain/entities/reaction.entity';
 import { Comment } from '../../../../bloggers-platform/comments/domain/entities/comment.entity';
+import { Player } from '../../../../quiz/public/domain/entities/player.entity';
 
 export const loginConstraints = {
   minLength: 3,
@@ -32,7 +33,7 @@ export const passwordConstraints = {
 )
 @Check('CHK_login_pattern', `login ~ '${loginConstraints.match.source}'`)
 @Check('CHK_email_pattern', `email ~ '${emailConstraints.match.source}'`)
-export class User extends BaseEntity {
+export class User extends BaseEntityNumberId {
   @Column({
     type: 'varchar',
     length: loginConstraints.maxLength,
@@ -78,6 +79,9 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Comment, (comment: Comment) => comment.user)
   comments: Comment[];
+
+  @OneToMany(() => Player, (player: Player) => player.user)
+  players: Player[];
 
   protected constructor() {
     super();

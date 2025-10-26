@@ -1,10 +1,10 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
-import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BaseEntityNumberId } from '../../../../../core/entities/base-entity-number-id';
 import { User } from '../../../users/domain/entities/user.entity';
 import { SessionCreateDomainDto } from '../dto/session.create-domain.dto';
 
 @Entity('sessions')
-export class Session extends BaseEntity {
+export class Session extends BaseEntityNumberId {
   @Column({
     type: 'varchar',
     length: 255,
@@ -31,6 +31,12 @@ export class Session extends BaseEntity {
 
   @Column({ type: 'timestamptz' })
   public exp: Date;
+  @ManyToOne(() => User, (user) => user.sessions, {
+    onDelete: 'CASCADE',
+  })
+  user: User;
+  @Column()
+  public userId: number;
 
   protected constructor() {
     super();
@@ -53,12 +59,4 @@ export class Session extends BaseEntity {
     this.iat = iat;
     this.exp = exp;
   }
-
-  @ManyToOne(() => User, (user) => user.sessions, {
-    onDelete: 'CASCADE',
-  })
-  user: User;
-
-  @Column()
-  public userId: number;
 }
