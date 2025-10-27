@@ -1,5 +1,5 @@
 import { Check, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { BaseEntityNumberId } from '../../../../../core/entities/base-entity-number-id';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { Blog } from '../../../blogs/domain/entities/blog.entity';
 import { PostCreateDto } from '../../application/dto/post.create-dto';
 import { ReactionPost } from '../../../reactions/domain/entities/reaction-post.entity';
@@ -34,7 +34,7 @@ export const contentConstraints = {
   'CHK_content_length',
   `char_length(content) >= ${contentConstraints.minLength} AND char_length(content) <= ${contentConstraints.maxLength}`,
 )
-export class Post extends BaseEntityNumberId {
+export class Post extends BaseEntity {
   @Column({
     type: 'varchar',
     length: titleConstraints.maxLength,

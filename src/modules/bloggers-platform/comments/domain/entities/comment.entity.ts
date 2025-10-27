@@ -1,5 +1,5 @@
 import { Check, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { BaseEntityNumberId } from '../../../../../core/entities/base-entity-number-id';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 import { Post } from '../../../posts/domain/entities/post.entity';
 import { ReactionComment } from '../../../reactions/domain/entities/reaction-comment.entity';
@@ -15,7 +15,7 @@ export const contentConstraints = {
   'CHK_content_length',
   `char_length(content) >= ${contentConstraints.minLength} AND char_length(content) <= ${contentConstraints.maxLength}`,
 )
-export class Comment extends BaseEntityNumberId {
+export class Comment extends BaseEntity {
   @Column({
     type: 'varchar',
     length: contentConstraints.maxLength,

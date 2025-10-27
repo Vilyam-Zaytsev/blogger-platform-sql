@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, OneToOne, RelationId } from 'typeorm';
-import { BaseEntityNumberId } from '../../../../../core/entities/base-entity-number-id';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { User } from '../../../users/domain/entities/user.entity';
 
 export enum ConfirmationStatus {
@@ -8,7 +8,7 @@ export enum ConfirmationStatus {
 }
 
 @Entity({ name: 'email_confirmation_codes' })
-export class EmailConfirmationCode extends BaseEntityNumberId {
+export class EmailConfirmationCode extends BaseEntity {
   @Column({
     type: 'varchar',
     length: 255,

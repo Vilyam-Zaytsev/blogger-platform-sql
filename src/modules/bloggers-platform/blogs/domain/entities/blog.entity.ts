@@ -1,5 +1,5 @@
 import { Check, Column, Entity, OneToMany } from 'typeorm';
-import { BaseEntityNumberId } from '../../../../../core/entities/base-entity-number-id';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { BlogUpdateDto } from '../../application/dto/blog.update-dto';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
 import { Post } from '../../../posts/domain/entities/post.entity';
@@ -29,7 +29,7 @@ export const websiteUrlConstraints = {
   `char_length(description) >= ${descriptionConstraints.minLength} AND char_length(description) <= ${descriptionConstraints.maxLength}`,
 )
 @Check('CHK_websiteUrl_pattern', `"websiteUrl" ~ '${websiteUrlConstraints.match.source}'`)
-export class Blog extends BaseEntityNumberId {
+export class Blog extends BaseEntity {
   @Column({
     type: 'varchar',
     length: nameConstraints.maxLength,

@@ -1,5 +1,5 @@
 import { Check, Column, Entity, OneToMany, OneToOne } from 'typeorm';
-import { BaseEntityNumberId } from '../../../../../core/entities/base-entity-number-id';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import {
   ConfirmationStatus,
   EmailConfirmationCode,
@@ -33,7 +33,7 @@ export const passwordConstraints = {
 )
 @Check('CHK_login_pattern', `login ~ '${loginConstraints.match.source}'`)
 @Check('CHK_email_pattern', `email ~ '${emailConstraints.match.source}'`)
-export class User extends BaseEntityNumberId {
+export class User extends BaseEntity {
   @Column({
     type: 'varchar',
     length: loginConstraints.maxLength,

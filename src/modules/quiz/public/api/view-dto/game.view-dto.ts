@@ -1,16 +1,10 @@
 import { PlayerProgressViewDto } from './player-progress.view-dto';
+import { GameStatus } from '../../domain/entities/game.entity';
 
 //TODO: вынести в Question
 export class QuestionsForGameViewDto {
   id: string;
   body: string;
-}
-
-//TODO: вынести в Game
-export enum GameStatus {
-  Pending = 'PendingSecondPlayer',
-  Active = 'Active',
-  Finished = 'Finished',
 }
 
 export class GameViewDto {

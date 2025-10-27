@@ -2,7 +2,7 @@ import { Check, Column, Entity, OneToMany } from 'typeorm';
 import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
 import { QuestionUpdateDto } from '../../application/dto/question.update-dto';
 import { GameQuestion } from '../../../public/domain/entities/game-question.entity';
-import { BaseEntityUuid } from '../../../../../core/entities/base-entity-uuid';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 
 export enum QuestionStatus {
   NotPublished = 'notPublished',
@@ -28,7 +28,7 @@ export const correctAnswersConstraints = {
   'CHK_body_length',
   `char_length(body) >= ${bodyConstraints.minLength} AND char_length(body) <= ${bodyConstraints.maxLength}`,
 )
-export class Question extends BaseEntityUuid {
+export class Question extends BaseEntity {
   @Column({
     type: 'varchar',
     length: bodyConstraints.maxLength,

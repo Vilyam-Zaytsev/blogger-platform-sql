@@ -1,9 +1,9 @@
 import { Column, Entity, JoinColumn, OneToOne, RelationId } from 'typeorm';
-import { BaseEntityNumberId } from '../../../../../core/entities/base-entity-number-id';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { User } from '../../../users/domain/entities/user.entity';
 
 @Entity({ name: 'password_recovery_codes' })
-export class PasswordRecoveryCode extends BaseEntityNumberId {
+export class PasswordRecoveryCode extends BaseEntity {
   @Column({
     type: 'varchar',
     length: 255,

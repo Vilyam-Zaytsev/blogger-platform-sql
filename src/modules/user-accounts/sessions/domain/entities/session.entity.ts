@@ -1,10 +1,10 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
-import { BaseEntityNumberId } from '../../../../../core/entities/base-entity-number-id';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { User } from '../../../users/domain/entities/user.entity';
 import { SessionCreateDomainDto } from '../dto/session.create-domain.dto';
 
 @Entity('sessions')
-export class Session extends BaseEntityNumberId {
+export class Session extends BaseEntity {
   @Column({
     type: 'varchar',
     length: 255,
