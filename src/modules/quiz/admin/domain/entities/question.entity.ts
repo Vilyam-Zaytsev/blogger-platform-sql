@@ -30,24 +30,31 @@ export const correctAnswersConstraints = {
 )
 export class Question extends BaseEntity {
   @Column({
+    type: 'uuid',
+    unique: true,
+    default: () => 'gen_random_uuid()',
+  })
+  public publicId: string;
+
+  @Column({
     type: 'varchar',
     length: bodyConstraints.maxLength,
     collation: 'C',
   })
-  body: string;
+  public body: string;
 
   @Column('varchar', { array: true })
-  correctAnswers: string[];
+  public correctAnswers: string[];
 
   @Column({
     type: 'enum',
     enum: QuestionStatus,
     default: QuestionStatus.NotPublished,
   })
-  status: QuestionStatus;
+  public status: QuestionStatus;
 
   @OneToMany(() => GameQuestion, (gameQuestion: GameQuestion) => gameQuestion.question)
-  gameQuestions: GameQuestion[];
+  public gameQuestions: GameQuestion[];
 
   protected constructor() {
     super();
