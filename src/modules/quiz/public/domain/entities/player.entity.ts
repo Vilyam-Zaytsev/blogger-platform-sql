@@ -8,7 +8,7 @@ export enum GameRole {
   Player = 'Player',
 }
 
-@Entity({ name: 'players' })
+@Entity()
 export class Player extends BaseEntity {
   @Column({
     type: 'enum',
@@ -18,14 +18,16 @@ export class Player extends BaseEntity {
   public role: GameRole;
 
   @ManyToOne(() => Game, (game: Game) => game.players, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'gameId' })
+  @JoinColumn()
   public game: Game;
+
   @Column()
   public gameId: number;
 
   @ManyToOne(() => User, (user: User) => user.players, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'userId' })
+  @JoinColumn()
   public user: User;
+
   @Column()
   public userId: number;
 }

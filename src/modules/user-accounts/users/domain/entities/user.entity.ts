@@ -26,7 +26,7 @@ export const passwordConstraints = {
   maxLength: 20,
 };
 
-@Entity({ name: 'users' })
+@Entity()
 @Check(
   'CHK_login_length',
   `char_length(login) >= ${loginConstraints.minLength} AND char_length(login) <= ${loginConstraints.maxLength}`,
@@ -60,7 +60,7 @@ export class User extends BaseEntity {
       cascade: true,
     },
   )
-  emailConfirmationCode: EmailConfirmationCode;
+  public emailConfirmationCode: EmailConfirmationCode;
 
   @OneToOne(
     () => PasswordRecoveryCode,
@@ -69,19 +69,19 @@ export class User extends BaseEntity {
       cascade: true,
     },
   )
-  passwordRecoveryCode: PasswordRecoveryCode;
+  public passwordRecoveryCode: PasswordRecoveryCode;
 
   @OneToMany(() => Session, (session: Session) => session.user)
-  sessions: Session[];
+  public sessions: Session[];
 
   @OneToMany(() => Reaction, (reaction: Reaction) => reaction.user)
-  reactions: Reaction[];
+  public reactions: Reaction[];
 
   @OneToMany(() => Comment, (comment: Comment) => comment.user)
-  comments: Comment[];
+  public comments: Comment[];
 
   @OneToMany(() => Player, (player: Player) => player.user)
-  players: Player[];
+  public players: Player[];
 
   protected constructor() {
     super();

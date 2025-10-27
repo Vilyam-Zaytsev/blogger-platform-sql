@@ -35,6 +35,7 @@ export class Session extends BaseEntity {
     onDelete: 'CASCADE',
   })
   user: User;
+
   @Column()
   public userId: number;
 

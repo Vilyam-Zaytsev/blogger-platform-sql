@@ -9,7 +9,7 @@ export enum GameStatus {
   Finished = 'Finished',
 }
 
-@Entity({ name: 'games' })
+@Entity()
 export class Game extends BaseEntity {
   @Column({
     type: 'enum',
