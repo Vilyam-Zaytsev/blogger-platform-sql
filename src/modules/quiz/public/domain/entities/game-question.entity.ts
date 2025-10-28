@@ -17,6 +17,12 @@ export class GameQuestion {
   @PrimaryGeneratedColumn()
   public id: number;
 
+  @Column('int')
+  order: number;
+
+  @CreateDateColumn()
+  addedAt: Date;
+
   @ManyToOne(() => Game, (game: Game) => game.gameQuestions, { onDelete: 'CASCADE' })
   @JoinColumn()
   public game: Game;
@@ -26,10 +32,4 @@ export class GameQuestion {
   })
   @JoinColumn()
   public question: Question;
-
-  @Column('int')
-  order: number;
-
-  @CreateDateColumn()
-  addedAt: Date;
 }
