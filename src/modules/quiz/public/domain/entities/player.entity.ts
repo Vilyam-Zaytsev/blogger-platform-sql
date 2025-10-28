@@ -2,7 +2,7 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToMany, Unique } from 'typeor
 import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 import { Game } from './game.entity';
-import { Answer } from './player-answer.entity';
+import { Answer } from './answer.entity';
 
 export enum GameRole {
   Host = 'Host',
