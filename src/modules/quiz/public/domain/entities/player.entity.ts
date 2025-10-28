@@ -1,7 +1,8 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToMany, Unique } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 import { Game } from './game.entity';
+import { Answer } from './player-answer.entity';
 
 export enum GameRole {
   Host = 'Host',
@@ -9,6 +10,7 @@ export enum GameRole {
 }
 
 @Entity()
+@Unique(['user', 'game'])
 export class Player extends BaseEntity {
   @Column({
     type: 'enum',
@@ -17,17 +19,20 @@ export class Player extends BaseEntity {
   })
   public role: GameRole;
 
+  @Column({
+    type: 'int',
+    default: 0,
+  })
+  score: number;
+
   @ManyToOne(() => Game, (game: Game) => game.players, { onDelete: 'CASCADE' })
   @JoinColumn()
   public game: Game;
-
-  @Column()
-  public gameId: number;
 
   @ManyToOne(() => User, (user: User) => user.players, { onDelete: 'CASCADE' })
   @JoinColumn()
   public user: User;
 
-  @Column()
-  public userId: number;
+  @OneToMany(() => Answer, (answer: Answer) => answer.player)
+  public answers: Answer[];
 }
