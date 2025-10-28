@@ -1,5 +1,5 @@
 import { DataSource, EntityTarget, FindOptionsWhere, Repository } from 'typeorm';
-import { BaseEntity } from '../entities/base.entity';
+import { BaseEntity } from '../entities/base-entity';
 
 export abstract class BaseRepository<Entity extends BaseEntity> {
   protected readonly repository: Repository<Entity>;

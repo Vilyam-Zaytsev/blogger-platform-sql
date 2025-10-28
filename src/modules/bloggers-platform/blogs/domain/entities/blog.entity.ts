@@ -1,5 +1,5 @@
 import { Check, Column, Entity, OneToMany } from 'typeorm';
-import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { BlogUpdateDto } from '../../application/dto/blog.update-dto';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
 import { Post } from '../../../posts/domain/entities/post.entity';
@@ -56,6 +56,8 @@ export class Blog extends BaseEntity {
     default: false,
   })
   isMembership: boolean;
+  @OneToMany(() => Post, (post: Post) => post.blog)
+  posts: Post[];
 
   protected constructor() {
     super();
@@ -77,7 +79,4 @@ export class Blog extends BaseEntity {
     this.description = description;
     this.websiteUrl = websiteUrl;
   }
-
-  @OneToMany(() => Post, (post: Post) => post.blog)
-  posts: Post[];
 }

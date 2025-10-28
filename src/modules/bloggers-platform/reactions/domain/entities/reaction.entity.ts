@@ -1,4 +1,4 @@
-import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { Column, Entity, ManyToOne, OneToOne } from 'typeorm';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 import { ReactionPost } from './reaction-post.entity';
@@ -11,7 +11,7 @@ export enum ReactionStatus {
   Dislike = 'Dislike',
 }
 
-@Entity({ name: 'reactions' })
+@Entity()
 export class Reaction extends BaseEntity {
   @Column({
     type: 'enum',

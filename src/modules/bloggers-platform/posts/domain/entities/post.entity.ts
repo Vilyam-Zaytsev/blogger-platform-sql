@@ -1,5 +1,5 @@
 import { Check, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { Blog } from '../../../blogs/domain/entities/blog.entity';
 import { PostCreateDto } from '../../application/dto/post.create-dto';
 import { ReactionPost } from '../../../reactions/domain/entities/reaction-post.entity';
