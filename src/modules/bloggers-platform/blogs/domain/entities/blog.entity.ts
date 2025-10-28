@@ -42,22 +42,23 @@ export class Blog extends BaseEntity {
     length: descriptionConstraints.maxLength,
     collation: 'C',
   })
-  description: string;
+  public description: string;
 
   @Column({
     type: 'varchar',
     length: websiteUrlConstraints.maxLength,
     collation: 'C',
   })
-  websiteUrl: string;
+  public websiteUrl: string;
 
   @Column({
     type: 'boolean',
     default: false,
   })
-  isMembership: boolean;
+  public isMembership: boolean;
+
   @OneToMany(() => Post, (post: Post) => post.blog)
-  posts: Post[];
+  public posts: Post[];
 
   protected constructor() {
     super();

@@ -56,7 +56,7 @@ export class Post extends BaseEntity {
   })
   public content: string;
 
-  @ManyToOne(() => Blog, (blog: Blog): Post[] => blog.posts, {
+  @ManyToOne(() => Blog, (blog: Blog) => blog.posts, {
     onDelete: 'CASCADE',
   })
   public blog: Blog;
