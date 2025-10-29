@@ -16,7 +16,7 @@ export enum AnswerStatus {
   Incorrect = 'Incorrect',
 }
 
-@Entity()
+@Entity({ name: 'answers' })
 @Unique(['player', 'gameQuestion'])
 export class Answer {
   @PrimaryGeneratedColumn()

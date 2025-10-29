@@ -28,7 +28,7 @@ export const websiteUrlConstraints = {
   'CHK_description_length',
   `char_length(description) >= ${descriptionConstraints.minLength} AND char_length(description) <= ${descriptionConstraints.maxLength}`,
 )
-@Check('CHK_websiteUrl_pattern', `"websiteUrl" ~ '${websiteUrlConstraints.match.source}'`)
+@Check('CHK_website_url_pattern', `"website_url" ~ '${websiteUrlConstraints.match.source}'`)
 export class Blog extends BaseEntity {
   @Column({
     type: 'varchar',

@@ -11,7 +11,7 @@ export enum ReactionStatus {
   Dislike = 'Dislike',
 }
 
-@Entity()
+@Entity({ name: 'reactions' })
 export class Reaction extends BaseEntity {
   @Column({
     type: 'enum',

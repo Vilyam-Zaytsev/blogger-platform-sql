@@ -28,7 +28,7 @@ export const contentConstraints = {
 )
 @Check(
   'CHK_short_direction_length',
-  `char_length("shortDescription") >= ${shortDescriptionConstraints.minLength} AND char_length("shortDescription") <= ${shortDescriptionConstraints.maxLength}`,
+  `char_length("short_description") >= ${shortDescriptionConstraints.minLength} AND char_length("short_description") <= ${shortDescriptionConstraints.maxLength}`,
 )
 @Check(
   'CHK_content_length',

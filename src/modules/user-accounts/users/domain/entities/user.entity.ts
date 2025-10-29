@@ -26,7 +26,7 @@ export const passwordConstraints = {
   maxLength: 20,
 };
 
-@Entity()
+@Entity({ name: 'users' })
 @Check(
   'CHK_login_length',
   `char_length(login) >= ${loginConstraints.minLength} AND char_length(login) <= ${loginConstraints.maxLength}`,

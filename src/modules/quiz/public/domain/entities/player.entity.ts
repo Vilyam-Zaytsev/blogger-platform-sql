@@ -9,7 +9,7 @@ export enum GameRole {
   Player = 'Player',
 }
 
-@Entity()
+@Entity({ name: 'players' })
 @Unique(['user', 'game'])
 export class Player extends BaseEntity {
   @Column({
