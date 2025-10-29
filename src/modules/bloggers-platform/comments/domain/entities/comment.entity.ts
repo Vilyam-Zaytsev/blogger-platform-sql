@@ -1,5 +1,5 @@
 import { Check, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 import { Post } from '../../../posts/domain/entities/post.entity';
 import { ReactionComment } from '../../../reactions/domain/entities/reaction-comment.entity';

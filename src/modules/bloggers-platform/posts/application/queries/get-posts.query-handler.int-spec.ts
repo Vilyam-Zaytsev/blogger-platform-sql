@@ -25,6 +25,7 @@ import { PostInputDto } from '../../api/input-dto/post.input-dto';
 import { PostCreateDto } from '../dto/post.create-dto';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { ReactionStatus } from '../../../reactions/domain/entities/reaction.entity';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('GetPostsQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -37,7 +38,12 @@ describe('GetPostsQueryHandler (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Post))],
+      imports: [
+        configModule,
+        DatabaseModule,
+        CoreModule,
+        TypeOrmModule.forFeature(getRelatedEntities(Post)),
+      ],
       providers: [
         GetPostsQueryHandler,
         PostsQueryRepository,

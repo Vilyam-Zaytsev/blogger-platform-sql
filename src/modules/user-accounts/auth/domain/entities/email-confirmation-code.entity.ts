@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, OneToOne, RelationId } from 'typeorm';
-import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { User } from '../../../users/domain/entities/user.entity';
 
 export enum ConfirmationStatus {
@@ -29,6 +29,13 @@ export class EmailConfirmationCode extends BaseEntity {
     default: ConfirmationStatus.NotConfirmed,
   })
   public confirmationStatus: ConfirmationStatus;
+  @OneToOne(() => User, (user) => user.emailConfirmationCode, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'userId' })
+  user: User;
+  @RelationId((emailConfirmationCode: EmailConfirmationCode) => emailConfirmationCode.user)
+  public userId: number;
 
   protected constructor() {
     super();
@@ -43,13 +50,4 @@ export class EmailConfirmationCode extends BaseEntity {
 
     return emailConfirmationCode;
   }
-
-  @OneToOne(() => User, (user) => user.emailConfirmationCode, {
-    onDelete: 'CASCADE',
-  })
-  @JoinColumn({ name: 'userId' })
-  user: User;
-
-  @RelationId((emailConfirmationCode: EmailConfirmationCode) => emailConfirmationCode.user)
-  public userId: number;
 }

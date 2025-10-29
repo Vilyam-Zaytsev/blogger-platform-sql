@@ -36,7 +36,7 @@ export class AppTestManager {
     await this.app.init();
   }
 
-  async cleanupDb(excludedTables: string[] = ['schema_migrations']): Promise<void> {
+  async cleanupDb(excludedTables: string[] = ['migrations']): Promise<void> {
     const tables: { table_name: string }[] = await this.dataSource.query(`
       SELECT table_name
       FROM information_schema.tables
