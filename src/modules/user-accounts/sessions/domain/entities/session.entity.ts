@@ -31,6 +31,7 @@ export class Session extends BaseEntity {
 
   @Column({ type: 'timestamptz' })
   public exp: Date;
+
   @ManyToOne(() => User, (user) => user.sessions, {
     onDelete: 'CASCADE',
   })

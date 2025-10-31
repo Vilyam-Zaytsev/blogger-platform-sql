@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne, OneToMany, Unique } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany, Unique } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 import { Game } from './game.entity';
@@ -26,12 +26,13 @@ export class Player extends BaseEntity {
   score: number;
 
   @ManyToOne(() => Game, (game: Game) => game.players, { onDelete: 'CASCADE' })
-  @JoinColumn()
   public game: Game;
 
   @ManyToOne(() => User, (user: User) => user.players, { onDelete: 'CASCADE' })
-  @JoinColumn()
   public user: User;
+
+  @Column()
+  public userId: number;
 
   @OneToMany(() => Answer, (answer: Answer) => answer.player)
   public answers: Answer[];
