@@ -28,6 +28,9 @@ export class Player extends BaseEntity {
   @ManyToOne(() => Game, (game: Game) => game.players, { onDelete: 'CASCADE' })
   public game: Game;
 
+  @Column()
+  public gameId: number;
+
   @ManyToOne(() => User, (user: User) => user.players, { onDelete: 'CASCADE' })
   public user: User;
 
@@ -36,4 +39,19 @@ export class Player extends BaseEntity {
 
   @OneToMany(() => Answer, (answer: Answer) => answer.player)
   public answers: Answer[];
+
+  protected constructor() {
+    super();
+  }
+
+  static create(userId: number, gameId: number): Player {
+    const player = new this();
+
+    player.role = GameRole.Player;
+    player.score = 0;
+    player.userId = userId;
+    player.gameId = gameId;
+
+    return player;
+  }
 }
