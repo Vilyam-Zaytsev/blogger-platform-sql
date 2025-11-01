@@ -36,10 +36,6 @@ export class Question extends BaseEntity {
   @Generated('uuid')
   public publicId: string;
 
-  // @Column()
-  // @Generated("uuid")
-  // uuid: string
-
   @Column({
     type: 'varchar',
     length: bodyConstraints.maxLength,
