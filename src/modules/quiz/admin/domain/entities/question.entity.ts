@@ -1,4 +1,4 @@
-import { Check, Column, Entity, OneToMany } from 'typeorm';
+import { Check, Column, Entity, Generated, OneToMany } from 'typeorm';
 import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
 import { QuestionUpdateDto } from '../../application/dto/question.update-dto';
 import { GameQuestion } from '../../../public/domain/entities/game-question.entity';
@@ -32,9 +32,13 @@ export class Question extends BaseEntity {
   @Column({
     type: 'uuid',
     unique: true,
-    default: () => 'gen_random_uuid()',
   })
+  @Generated('uuid')
   public publicId: string;
+
+  // @Column()
+  // @Generated("uuid")
+  // uuid: string
 
   @Column({
     type: 'varchar',
