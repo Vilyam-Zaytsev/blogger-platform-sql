@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, Generated, OneToMany } from 'typeorm';
 import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { Player } from './player.entity';
 import { GameQuestion } from './game-question.entity';
@@ -11,6 +11,13 @@ export enum GameStatus {
 
 @Entity({ name: 'games' })
 export class Game extends BaseEntity {
+  @Column({
+    type: 'uuid',
+    unique: true,
+  })
+  @Generated('uuid')
+  public publicId: string;
+
   @Column({
     type: 'enum',
     enum: GameStatus,
