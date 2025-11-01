@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
@@ -38,14 +37,19 @@ export class Answer {
   addedAt: Date;
 
   @ManyToOne(() => Player, (player: Player) => player.answers, { onDelete: 'CASCADE' })
-  @JoinColumn()
   public player: Player;
 
+  @Column()
+  public playerId: number;
+
   @ManyToOne(() => GameQuestion, { onDelete: 'CASCADE' })
-  @JoinColumn()
   public gameQuestion: GameQuestion;
 
+  @Column()
+  public gameQuestionId: number;
+
   @ManyToOne(() => Game, { onDelete: 'CASCADE' })
-  @JoinColumn()
   public game: Game;
+
+  public gameId: number;
 }
