@@ -18,9 +18,43 @@ export class Game extends BaseEntity {
   })
   public status: GameStatus;
 
+  @Column({
+    type: 'timestamptz',
+    nullable: true,
+  })
+  public startGameDate: Date | null;
+
+  @Column({
+    type: 'timestamptz',
+    nullable: true,
+  })
+  public finishGameDate: Date | null;
+
   @OneToMany(() => Player, (player: Player) => player.game)
   public players: Player[];
 
   @OneToMany(() => GameQuestion, (gameQuestion: GameQuestion) => gameQuestion.game)
   public gameQuestions: GameQuestion[];
+
+  protected constructor() {
+    super();
+  }
+
+  static create(): Game {
+    const game = new this();
+
+    game.status = GameStatus.Pending;
+
+    return game;
+  }
+
+  public startGame() {
+    this.status = GameStatus.Active;
+    this.startGameDate = new Date();
+  }
+
+  public finishGame() {
+    this.status = GameStatus.Finished;
+    this.startGameDate = new Date();
+  }
 }
