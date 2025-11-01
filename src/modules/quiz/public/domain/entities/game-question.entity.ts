@@ -2,13 +2,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
   Unique,
 } from 'typeorm';
 import { Game } from './game.entity';
 import { Question } from '../../../admin/domain/entities/question.entity';
+import { GameQuestionCreateDto } from '../dto/game-question.create-dto';
 
 @Entity({ name: 'game_questions' })
 @Unique(['game', 'question'])
@@ -24,12 +24,25 @@ export class GameQuestion {
   addedAt: Date;
 
   @ManyToOne(() => Game, (game: Game) => game.gameQuestions, { onDelete: 'CASCADE' })
-  @JoinColumn()
   public game: Game;
+
+  @Column()
+  public gameId: number;
 
   @ManyToOne(() => Question, (question: Question) => question.gameQuestions, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn()
   public question: Question;
+
+  @Column()
+  public questionId: number;
+
+  static create({ order, gameId, questionId }: GameQuestionCreateDto): GameQuestion {
+    const gameQuestion = new this();
+    gameQuestion.order = order;
+    gameQuestion.gameId = gameId;
+    gameQuestion.questionId = questionId;
+
+    return gameQuestion;
+  }
 }
