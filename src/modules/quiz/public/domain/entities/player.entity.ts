@@ -54,4 +54,8 @@ export class Player extends BaseEntity {
 
     return player;
   }
+
+  public updateRole(role: GameRole) {
+    this.role = role;
+  }
 }
