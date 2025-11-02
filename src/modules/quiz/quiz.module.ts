@@ -10,20 +10,35 @@ import { Game } from './public/domain/entities/game.entity';
 import { GameQuestion } from './public/domain/entities/game-question.entity';
 import { Player } from './public/domain/entities/player.entity';
 import { Answer } from './public/domain/entities/answer.entity';
+import { GamesRepository } from './public/infrastructure/games.repository';
+import { ConnectToGameUseCase } from './public/application/usecases/connect-to-game.usecase';
+import { PlayersRepository } from './public/infrastructure/players.repository';
+import { QuizPublicController } from './public/api/quiz-public.controller';
+import { GamesQueryRepository } from './public/infrastructure/query/games.query-repository';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Question, Game, GameQuestion, Player, Answer]),
     UserAccountsModule,
   ],
-  controllers: [QuestionsAdminController],
+  controllers: [QuestionsAdminController, QuizPublicController],
   providers: [
-    //🔸 Questions:
+    // 🔸 Questions:
     //repo
     QuestionsRepository,
     QuestionsQueryRepository,
     //use-cases
     CreateQuestionUseCase,
+
+    // 🔸 Games:
+    //repo
+    GamesRepository,
+    GamesQueryRepository,
+    //use-cases
+    ConnectToGameUseCase,
+    // 🔸 Players:
+    //repo
+    PlayersRepository,
   ],
 })
 export class QuizModule {}
