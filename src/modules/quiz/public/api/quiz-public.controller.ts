@@ -5,16 +5,20 @@ import { UserContextDto } from '../../../user-accounts/auth/domain/guards/dto/us
 import { GameViewDto } from './view-dto/game.view-dto';
 import { CommandBus } from '@nestjs/cqrs';
 import { ConnectToGameCommand } from '../application/usecases/connect-to-game.usecase';
+import { GamesQueryRepository } from '../infrastructure/query/games.query-repository';
 
 @Controller('pair-game-quiz/pairs')
 @UseGuards(JwtAuthGuard)
 export class QuizPublicController {
-  constructor(private readonly commandBus: CommandBus) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly gamesQueryRepository: GamesQueryRepository,
+  ) {}
 
   @Post('connection')
   async connectToGame(@ExtractUserFromRequest() { id }: UserContextDto): Promise<GameViewDto> {
     const idConnectedGame: number = await this.commandBus.execute(new ConnectToGameCommand(id));
 
-    return {} as GameViewDto;
+    return this.gamesQueryRepository.getById(idConnectedGame);
   }
 }
