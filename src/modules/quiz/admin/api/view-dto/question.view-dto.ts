@@ -22,3 +22,8 @@ export class QuestionViewDto {
     return dto;
   }
 }
+
+export class QuestionsForGameViewDto {
+  id: string;
+  body: string;
+}
