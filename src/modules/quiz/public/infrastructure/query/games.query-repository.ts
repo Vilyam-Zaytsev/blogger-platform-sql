@@ -48,7 +48,9 @@ export class GamesQueryRepository {
 
       // Игрок 2
       .addSelect(
-        `json_build_object(
+        `CASE
+                   WHEN p2.id IS NULL THEN NULL
+                   ELSE json_build_object(
         'answers', COALESCE(
           json_agg(
             json_build_object(
