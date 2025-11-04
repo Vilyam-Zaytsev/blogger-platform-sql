@@ -22,6 +22,8 @@ export class ConnectToGameUseCase implements ICommandHandler<ConnectToGameComman
     private readonly questionsRepository: QuestionsRepository,
   ) {}
 
+  //TODO: обернуть в транзакцию
+
   async execute({ userId }: ConnectToGameCommand): Promise<number> {
     const player: Player | null =
       await this.playersRepository.getPlayerByUserIdInPendingOrActiveGame(userId);
@@ -33,20 +35,20 @@ export class ConnectToGameUseCase implements ICommandHandler<ConnectToGameComman
       });
     }
 
-    let gameId: number | null = (await this.gamesRepository.getGameInPending())?.id ?? null;
+    const game: Game | null = await this.gamesRepository.getGameInPending();
 
-    if (!gameId) {
-      const game: Game = Game.create();
-      gameId = await this.gamesRepository.save(game);
+    if (!game) {
+      const newGame: Game = Game.create();
+      const idCreatedGame: number = await this.gamesRepository.save(newGame);
 
-      const newPlayer: Player = Player.create(userId, gameId);
+      const newPlayer: Player = Player.create(userId, idCreatedGame);
       newPlayer.updateRole(GameRole.Host);
       await this.playersRepository.save(newPlayer);
 
-      return gameId;
+      return idCreatedGame;
     }
 
-    const newPlayer: Player = Player.create(userId, gameId);
+    const newPlayer: Player = Player.create(userId, game.id);
     await this.playersRepository.save(newPlayer);
 
     const questions: Question[] = await this.questionsRepository.getRandomPublishedQuestions(5);
@@ -63,7 +65,7 @@ export class ConnectToGameUseCase implements ICommandHandler<ConnectToGameComman
     for (let i = 0; i < 5; i++) {
       const dto: GameQuestionCreateDto = {
         order: i + 1,
-        gameId,
+        gameId: game.id,
         questionId: questions[i].id,
       };
 
@@ -74,15 +76,6 @@ export class ConnectToGameUseCase implements ICommandHandler<ConnectToGameComman
     }
 
     await Promise.all(promisesCreatedGameQuestions);
-
-    const game: Game | null = await this.gamesRepository.getById(gameId);
-
-    if (!game) {
-      throw new DomainException({
-        code: DomainExceptionCode.InternalServerError,
-        message: `Unable to connect to game with ID ${gameId}. Game not found or no longer available`,
-      });
-    }
 
     game.startGame();
 
