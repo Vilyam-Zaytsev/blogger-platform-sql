@@ -6,7 +6,7 @@ import { RawGame } from '../../infrastructure/query/types/raw-game.type';
 export class GameViewDto {
   id: string;
   firstPlayerProgress: PlayerProgressViewDto;
-  secondPlayerProgress: PlayerProgressViewDto;
+  secondPlayerProgress: PlayerProgressViewDto | null;
   questions: QuestionsForGameViewDto[];
   status: GameStatus;
   pairCreatedDate: string;
@@ -31,18 +31,20 @@ export class GameViewDto {
       score: game.firstPlayerProgress.score,
     };
 
-    dto.secondPlayerProgress = {
-      answers: game.secondPlayerProgress.answers.map((a) => ({
-        questionId: a.questionId,
-        answerStatus: a.answerStatus,
-        addedAt: a.addedAt.toISOString(),
-      })),
-      player: {
-        id: game.secondPlayerProgress.player.id.toString(),
-        login: game.secondPlayerProgress.player.login,
-      },
-      score: game.secondPlayerProgress.score,
-    };
+    dto.secondPlayerProgress = game.secondPlayerProgress
+      ? {
+          answers: game.secondPlayerProgress.answers.map((a) => ({
+            questionId: a.questionId,
+            answerStatus: a.answerStatus,
+            addedAt: a.addedAt.toISOString(),
+          })),
+          player: {
+            id: game.secondPlayerProgress.player.id.toString(),
+            login: game.secondPlayerProgress.player.login,
+          },
+          score: game.secondPlayerProgress.score,
+        }
+      : game.secondPlayerProgress;
 
     dto.questions = game.questions;
     dto.status = game.status;
