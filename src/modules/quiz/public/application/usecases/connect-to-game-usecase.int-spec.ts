@@ -30,29 +30,35 @@ import { PlayerValidationService } from '../../domain/services/player-validation
 
 describe('ConnectToGameUseCase (Integration)', () => {
   let module: TestingModule;
+  let dataSource: DataSource;
+
   let useCase: ConnectToGameUseCase;
+  let usersFactory: UsersFactory;
+
   let gamesRepository: GamesRepository;
   let playersRepository: PlayersRepository;
   let questionsRepository: QuestionsRepository;
-  let dataSource: DataSource;
+
+  let userRepo: Repository<User>;
   let gameRepo: Repository<Game>;
   let playerRepo: Repository<Player>;
   let questionRepo: Repository<Question>;
   let gameQuestionRepo: Repository<GameQuestion>;
-  let userRepo: Repository<User>;
-  let usersFactory: UsersFactory;
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Game))],
       providers: [
         ConnectToGameUseCase,
+
         GamesRepository,
         PlayersRepository,
         QuestionsRepository,
+
         UsersFactory,
         CryptoService,
         DateService,
+
         GameMatchingService,
         GameQuestionsService,
         GameStateService,
@@ -60,17 +66,19 @@ describe('ConnectToGameUseCase (Integration)', () => {
       ],
     }).compile();
 
+    dataSource = module.get<DataSource>(DataSource);
+    usersFactory = module.get<UsersFactory>(UsersFactory);
     useCase = module.get<ConnectToGameUseCase>(ConnectToGameUseCase);
+
     gamesRepository = module.get<GamesRepository>(GamesRepository);
     playersRepository = module.get<PlayersRepository>(PlayersRepository);
     questionsRepository = module.get<QuestionsRepository>(QuestionsRepository);
-    dataSource = module.get<DataSource>(DataSource);
+
     gameRepo = dataSource.getRepository<Game>(Game);
     playerRepo = dataSource.getRepository<Player>(Player);
     questionRepo = dataSource.getRepository<Question>(Question);
     gameQuestionRepo = dataSource.getRepository<GameQuestion>(GameQuestion);
     userRepo = dataSource.getRepository<User>(User);
-    usersFactory = module.get<UsersFactory>(UsersFactory);
   });
 
   beforeEach(async () => {
