@@ -15,6 +15,10 @@ import { ConnectToGameUseCase } from './public/application/usecases/connect-to-g
 import { PlayersRepository } from './public/infrastructure/players.repository';
 import { QuizPublicController } from './public/api/quiz-public.controller';
 import { GamesQueryRepository } from './public/infrastructure/query/games.query-repository';
+import { GameMatchingService } from './public/domain/services/game-matching.service';
+import { GameStateService } from './public/domain/services/game-state.service';
+import { GameQuestionsService } from './public/domain/services/game-questions.service';
+import { PlayerValidationService } from './public/domain/services/player-validation.service';
 
 @Module({
   imports: [
@@ -36,9 +40,15 @@ import { GamesQueryRepository } from './public/infrastructure/query/games.query-
     GamesQueryRepository,
     //use-cases
     ConnectToGameUseCase,
+    //services
+    GameMatchingService,
+    GameQuestionsService,
+    GameStateService,
     // 🔸 Players:
     //repo
     PlayersRepository,
+    //services
+    PlayerValidationService,
   ],
 })
 export class QuizModule {}
