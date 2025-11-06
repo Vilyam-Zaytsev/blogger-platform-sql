@@ -23,6 +23,10 @@ import { DateService } from '../../../../user-accounts/users/application/service
 import { UserInputDto } from '../../../../user-accounts/users/api/input-dto/user.input-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { GameMatchingService } from '../../domain/services/game-matching.service';
+import { GameQuestionsService } from '../../domain/services/game-questions.service';
+import { GameStateService } from '../../domain/services/game-state.service';
+import { PlayerValidationService } from '../../domain/services/player-validation.service';
 
 describe('ConnectToGameUseCase (Integration)', () => {
   let module: TestingModule;
@@ -49,6 +53,10 @@ describe('ConnectToGameUseCase (Integration)', () => {
         UsersFactory,
         CryptoService,
         DateService,
+        GameMatchingService,
+        GameQuestionsService,
+        GameStateService,
+        PlayerValidationService,
       ],
     }).compile();
 
@@ -392,8 +400,6 @@ describe('ConnectToGameUseCase (Integration)', () => {
   });
 
   describe('Негативные сценарии - недостаток вопросов', () => {
-    //TODO: баг!!! создает игрока если не удается подключить его к игре!!!(обернуть в транзакцию!)
-
     it('должен выбросить DomainException InternalServerError если нет опубликованных вопросов', async () => {
       const { id: firstUserId }: User = await createTestUser({
         login: 'firstUser',
@@ -429,8 +435,6 @@ describe('ConnectToGameUseCase (Integration)', () => {
     });
 
     it('должен выбросить DomainException InternalServerError если недостаточно опубликованных вопросов', async () => {
-      //TODO: баг!!! создает игрока если не удается подключить его к игре!!!(обернуть в транзакцию!)
-
       const { id: firstUserId }: User = await createTestUser({
         login: 'firstUser',
         email: 'firstUser@example.com',
@@ -465,8 +469,6 @@ describe('ConnectToGameUseCase (Integration)', () => {
     });
 
     it('должен учитывать только опубликованные вопросы при проверке количества', async () => {
-      //TODO: баг!!! создает игрока если не удается подключить его к игре!!!(обернуть в транзакцию!)
-
       const { id: firstUserId }: User = await createTestUser({
         login: 'firstUser',
         email: 'firstUser@example.com',
