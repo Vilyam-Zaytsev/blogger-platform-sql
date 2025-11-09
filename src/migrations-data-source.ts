@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import { envFilePaths } from './env-file-paths';
 import * as process from 'node:process';
 import { join } from 'path';
+import { SnakeNamingStrategy } from './modules/database/config/snake-naming.strategy';
 
 config({
   path: envFilePaths,
@@ -19,4 +20,5 @@ export default new DataSource({
   logging: true,
   migrations: [join(__dirname, 'modules/database/migrations/*.{ts,js}')],
   entities: ['src/**/*.entity.ts'],
+  namingStrategy: new SnakeNamingStrategy(),
 });

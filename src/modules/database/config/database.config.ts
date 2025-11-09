@@ -3,6 +3,7 @@ import { IsBoolean, IsNotEmpty, IsNumber } from 'class-validator';
 import { ConfigService } from '@nestjs/config';
 import { configValidator } from '../../../core/utils/config.validator';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
+import { SnakeNamingStrategy } from './snake-naming.strategy';
 
 @Injectable()
 export class DatabaseConfig {
@@ -79,6 +80,7 @@ export class DatabaseConfig {
       autoLoadEntities: this.autoLoadEntities,
       synchronize: this.synchronize,
       logging: this.logging,
+      namingStrategy: new SnakeNamingStrategy(),
     };
   }
 }

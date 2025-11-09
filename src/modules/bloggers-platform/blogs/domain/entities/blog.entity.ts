@@ -1,5 +1,5 @@
 import { Check, Column, Entity, OneToMany } from 'typeorm';
-import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { BlogUpdateDto } from '../../application/dto/blog.update-dto';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
 import { Post } from '../../../posts/domain/entities/post.entity';
@@ -28,7 +28,7 @@ export const websiteUrlConstraints = {
   'CHK_description_length',
   `char_length(description) >= ${descriptionConstraints.minLength} AND char_length(description) <= ${descriptionConstraints.maxLength}`,
 )
-@Check('CHK_websiteUrl_pattern', `"websiteUrl" ~ '${websiteUrlConstraints.match.source}'`)
+@Check('CHK_website_url_pattern', `"website_url" ~ '${websiteUrlConstraints.match.source}'`)
 export class Blog extends BaseEntity {
   @Column({
     type: 'varchar',
@@ -42,20 +42,23 @@ export class Blog extends BaseEntity {
     length: descriptionConstraints.maxLength,
     collation: 'C',
   })
-  description: string;
+  public description: string;
 
   @Column({
     type: 'varchar',
     length: websiteUrlConstraints.maxLength,
     collation: 'C',
   })
-  websiteUrl: string;
+  public websiteUrl: string;
 
   @Column({
     type: 'boolean',
     default: false,
   })
-  isMembership: boolean;
+  public isMembership: boolean;
+
+  @OneToMany(() => Post, (post: Post) => post.blog)
+  public posts: Post[];
 
   protected constructor() {
     super();
@@ -77,7 +80,4 @@ export class Blog extends BaseEntity {
     this.description = description;
     this.websiteUrl = websiteUrl;
   }
-
-  @OneToMany(() => Post, (post: Post) => post.blog)
-  posts: Post[];
 }

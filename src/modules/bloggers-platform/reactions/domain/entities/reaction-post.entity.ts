@@ -10,11 +10,11 @@ export class ReactionPost {
   @OneToOne(() => Reaction, (reaction: Reaction) => reaction.reactionPost, {
     onDelete: 'CASCADE',
   })
-  @JoinColumn({ name: 'reactionId' })
+  @JoinColumn()
   public reaction: Reaction;
 
   @ManyToOne(() => Post, (post: Post) => post.reactions)
-  @JoinColumn({ name: 'postId' })
+  @JoinColumn()
   public post: Post;
 
   @Column({ type: 'int' })

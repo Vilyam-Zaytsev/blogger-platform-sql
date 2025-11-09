@@ -1,5 +1,5 @@
 import { Check, Column, Entity, OneToMany, OneToOne } from 'typeorm';
-import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import {
   ConfirmationStatus,
   EmailConfirmationCode,
@@ -9,6 +9,7 @@ import { PasswordRecoveryCode } from '../../../auth/domain/entities/password-rec
 import { Session } from '../../../sessions/domain/entities/session.entity';
 import { Reaction } from '../../../../bloggers-platform/reactions/domain/entities/reaction.entity';
 import { Comment } from '../../../../bloggers-platform/comments/domain/entities/comment.entity';
+import { Player } from '../../../../quiz/public/domain/entities/player.entity';
 
 export const loginConstraints = {
   minLength: 3,
@@ -59,7 +60,7 @@ export class User extends BaseEntity {
       cascade: true,
     },
   )
-  emailConfirmationCode: EmailConfirmationCode;
+  public emailConfirmationCode: EmailConfirmationCode;
 
   @OneToOne(
     () => PasswordRecoveryCode,
@@ -68,16 +69,19 @@ export class User extends BaseEntity {
       cascade: true,
     },
   )
-  passwordRecoveryCode: PasswordRecoveryCode;
+  public passwordRecoveryCode: PasswordRecoveryCode;
 
   @OneToMany(() => Session, (session: Session) => session.user)
-  sessions: Session[];
+  public sessions: Session[];
 
   @OneToMany(() => Reaction, (reaction: Reaction) => reaction.user)
-  reactions: Reaction[];
+  public reactions: Reaction[];
 
   @OneToMany(() => Comment, (comment: Comment) => comment.user)
-  comments: Comment[];
+  public comments: Comment[];
+
+  @OneToMany(() => Player, (player: Player) => player.user)
+  public players: Player[];
 
   protected constructor() {
     super();
