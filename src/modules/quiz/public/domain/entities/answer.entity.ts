@@ -9,6 +9,7 @@ import {
 import { Player } from './player.entity';
 import { GameQuestion } from './game-question.entity';
 import { Game } from './game.entity';
+import { AnswerCreateDto } from '../dto/answer.create-dto';
 
 export enum AnswerStatus {
   Correct = 'Correct',
@@ -51,5 +52,20 @@ export class Answer {
   @ManyToOne(() => Game, { onDelete: 'CASCADE' })
   public game: Game;
 
+  @Column()
   public gameId: number;
+
+  protected constructor() {}
+
+  static create({ answerBody, status, playerId, gameQuestionId, gameId }: AnswerCreateDto) {
+    const answer = new this();
+
+    answer.answerBody = answerBody;
+    answer.status = status;
+    answer.playerId = playerId;
+    answer.gameQuestionId = gameQuestionId;
+    answer.gameId = gameId;
+
+    return answer;
+  }
 }
