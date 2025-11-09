@@ -19,6 +19,7 @@ import { GameMatchingService } from './public/domain/services/game-matching.serv
 import { GameStateService } from './public/domain/services/game-state.service';
 import { GameQuestionsService } from './public/domain/services/game-questions.service';
 import { PlayerValidationService } from './public/domain/services/player-validation.service';
+import { GameProgressService } from './public/domain/services/game-progress.service';
 
 @Module({
   imports: [
@@ -43,6 +44,7 @@ import { PlayerValidationService } from './public/domain/services/player-validat
     //services
     GameMatchingService,
     GameQuestionsService,
+    GameProgressService,
     GameStateService,
     // 🔸 Players:
     //repo
