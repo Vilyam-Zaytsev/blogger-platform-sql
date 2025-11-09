@@ -9,7 +9,7 @@ import { GameViewDto } from '../../api/view-dto/game.view-dto';
 export class PlayerValidationService {
   constructor(private readonly playersRepository: PlayersRepository) {}
 
-  async ensureUserNotInActiveGame(userId: number): Promise<void> {
+  async ensureUserNotInPendingOrActiveGame(userId: number): Promise<void> {
     const player: Player | null =
       await this.playersRepository.getPlayerByUserIdInPendingOrActiveGame(userId);
 
@@ -21,7 +21,19 @@ export class PlayerValidationService {
     }
   }
 
-  ensureUserParticipatesInGame(userId: number, game: GameViewDto): void {
+  async ensureUserInActiveGame(userId: number): Promise<void> {
+    const player: Player | null =
+      await this.playersRepository.getPlayerByUserIdInActiveGame(userId);
+
+    if (!player) {
+      throw new DomainException({
+        code: DomainExceptionCode.Forbidden,
+        message: `The user with the ID ${userId} is not in an active pair`,
+      });
+    }
+  }
+
+  ensureUserParticipatesInCurrentGame(userId: number, game: GameViewDto): void {
     if (
       Number(game.firstPlayerProgress.player.id) !== userId &&
       Number(game.secondPlayerProgress?.player.id) !== userId
