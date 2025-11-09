@@ -19,7 +19,7 @@ export class ConnectToGameUseCase implements ICommandHandler<ConnectToGameComman
   ) {}
 
   async execute({ userId }: ConnectToGameCommand): Promise<number> {
-    await this.playerValidationService.ensureUserNotInActiveGame(userId);
+    await this.playerValidationService.ensureUserNotInPendingOrActiveGame(userId);
 
     const pendingGame: Game | null = await this.gameMatchingService.findPendingGame();
 
