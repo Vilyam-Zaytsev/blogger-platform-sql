@@ -24,4 +24,19 @@ export class PlayersRepository extends BaseRepository<Player> {
       },
     });
   }
+
+  async getPlayerByUserIdInActiveGame(userId: number): Promise<Player | null> {
+    return await this.repository.findOne({
+      where: {
+        userId,
+        game: {
+          status: GameStatus.Active,
+        },
+      },
+      relations: {
+        user: true,
+        game: true,
+      },
+    });
+  }
 }
