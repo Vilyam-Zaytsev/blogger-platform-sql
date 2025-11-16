@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '../../../../core/repositories/base.repository';
-import { Player } from '../domain/entities/player.entity';
+import { GameRole, Player } from '../domain/entities/player.entity';
 import { DataSource, In } from 'typeorm';
 import { GameStatus } from '../domain/entities/game.entity';
+import { PlayerProgress } from './types/player-progress.type';
 
 @Injectable()
 export class PlayersRepository extends BaseRepository<Player> {
@@ -38,5 +39,21 @@ export class PlayersRepository extends BaseRepository<Player> {
         game: true,
       },
     });
+  }
+
+  async getPlayerProgress(gameId: number, role: GameRole): Promise<PlayerProgress | null> {
+    const qb = this.repository
+      .createQueryBuilder('p')
+      .select('p.id', 'playerId')
+      .addSelect('p.score', 'score')
+      .addSelect('COUNT(a.id)', 'answersCount')
+      .leftJoin('p.answers', 'a')
+      .where('p.game_id = :gameId', { gameId })
+      .andWhere('p.role = :role', { role })
+      .groupBy('p.id, p.score');
+
+    const playerProgress: PlayerProgress | null = (await qb.getRawOne()) ?? null;
+
+    return playerProgress;
   }
 }
