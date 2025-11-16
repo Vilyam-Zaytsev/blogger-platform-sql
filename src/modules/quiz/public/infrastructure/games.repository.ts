@@ -22,26 +22,28 @@ export class GamesRepository extends BaseRepository<Game> {
 
       .select('g.id', 'gameId')
       .addSelect('p.id', 'playerId')
-      .addSelect('COUNT(DISTINCT gq.id)', 'questionsCount')
+      .addSelect(`(SELECT COUNT(*) FROM game_questions WHERE game_id = g.id)`, 'questionsCount')
       .addSelect('COUNT(DISTINCT a.id)', 'answersCount')
       .addSelect(
-        `COALESCE(
+        `(
+        SELECT COALESCE(
           jsonb_agg(
             jsonb_build_object(
-              'gameQuestionId', gq.id,
-              'questionPublicId', q.public_id,
-              'body', q.body,
-              'order', gq.order,
-              'correctAnswers', q.correct_answers
-            ) ORDER BY gq.order ASC
-          ) FILTER (WHERE gq.id IS NOT NULL),
+              'gameQuestionId', gq_sub.id,
+              'questionPublicId', q_sub.public_id,
+              'body', q_sub.body,
+              'order', gq_sub.order,
+              'correctAnswers', q_sub.correct_answers
+            ) ORDER BY gq_sub.order ASC
+          ),
           '[]'
-        )`,
+        )
+        FROM game_questions gq_sub
+        LEFT JOIN questions q_sub ON q_sub.id = gq_sub.question_id
+        WHERE gq_sub.game_id = g.id
+      )`,
         'questions',
       )
-
-      .leftJoin('g.gameQuestions', 'gq')
-      .leftJoin('gq.question', 'q')
 
       .leftJoin('g.players', 'p', 'p.user_id = :userId', { userId })
       .leftJoin('p.answers', 'a')
