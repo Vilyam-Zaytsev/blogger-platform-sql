@@ -20,6 +20,7 @@ import { GameStateService } from './public/domain/services/game-state.service';
 import { GameQuestionsService } from './public/domain/services/game-questions.service';
 import { PlayerValidationService } from './public/domain/services/player-validation.service';
 import { GameProgressService } from './public/domain/services/game-progress.service';
+import { PlayerInfoService } from './public/domain/services/player-info.service';
 
 @Module({
   imports: [
@@ -51,6 +52,7 @@ import { GameProgressService } from './public/domain/services/game-progress.serv
     PlayersRepository,
     //services
     PlayerValidationService,
+    PlayerInfoService,
   ],
 })
 export class QuizModule {}
