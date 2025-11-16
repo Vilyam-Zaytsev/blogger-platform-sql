@@ -58,4 +58,8 @@ export class Player extends BaseEntity {
   public updateRole(role: GameRole) {
     this.role = role;
   }
+
+  public addScore(quantity: number = 1) {
+    this.score += quantity;
+  }
 }
