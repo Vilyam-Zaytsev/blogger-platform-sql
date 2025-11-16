@@ -21,6 +21,7 @@ import { GameQuestionsService } from './public/domain/services/game-questions.se
 import { PlayerValidationService } from './public/domain/services/player-validation.service';
 import { GameProgressService } from './public/domain/services/game-progress.service';
 import { PlayerInfoService } from './public/domain/services/player-info.service';
+import { RecordAnswerUseCase } from './public/application/usecases/record-answer.usecase';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { PlayerInfoService } from './public/domain/services/player-info.service'
     GamesQueryRepository,
     //use-cases
     ConnectToGameUseCase,
+    RecordAnswerUseCase,
     //services
     GameMatchingService,
     GameQuestionsService,
