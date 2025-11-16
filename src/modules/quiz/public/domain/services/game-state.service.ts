@@ -11,4 +11,10 @@ export class GameStateService {
 
     return this.gamesRepository.save(game);
   }
+
+  async finishGame(game: Game): Promise<number> {
+    game.finishGame();
+
+    return this.gamesRepository.save(game);
+  }
 }
