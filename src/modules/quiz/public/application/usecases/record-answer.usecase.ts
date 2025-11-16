@@ -5,6 +5,10 @@ import { DetailsOfQuestion, GameProgress } from '../../infrastructure/types/game
 import { Answer, AnswerStatus } from '../../domain/entities/answer.entity';
 import { AnswerViewDto } from '../../api/view-dto/answer.view-dto';
 import { GameProgressService } from '../../domain/services/game-progress.service';
+import { GameStateService } from '../../domain/services/game-state.service';
+import { Game } from '../../domain/entities/game.entity';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
 export class RecordAnswerCommand {
   constructor(
@@ -18,6 +22,7 @@ export class RecordAnswerUseCase implements ICommandHandler<RecordAnswerCommand>
   constructor(
     private readonly playerValidationService: PlayerValidationService,
     private readonly gameProgressService: GameProgressService,
+    private readonly gameStateService: GameStateService,
     private readonly gamesRepository: GamesRepository,
   ) {}
 
@@ -44,6 +49,26 @@ export class RecordAnswerUseCase implements ICommandHandler<RecordAnswerCommand>
     });
 
     const savedAnswer: Answer = await this.gamesRepository.saveAnswer(answer);
+
+    await this.gameProgressService.awardPointsToPlayer(
+      gameProgress.playerId,
+      answerStatus,
+      currentQuestion.order,
+      gameProgress.gameId,
+    );
+
+    if (currentQuestion.order === 5) {
+      const game: Game | null = await this.gamesRepository.getById(gameProgress.gameId);
+
+      if (!game) {
+        throw new DomainException({
+          code: DomainExceptionCode.InternalServerError,
+          message: `At the end of the game (${gameProgress.gameId}), no game data was found`,
+        });
+      }
+
+      await this.gameStateService.finishGame(game);
+    }
 
     return {
       questionId: currentQuestion.questionPublicId,
