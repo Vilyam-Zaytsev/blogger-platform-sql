@@ -62,6 +62,6 @@ export class Game extends BaseEntity {
 
   public finishGame() {
     this.status = GameStatus.Finished;
-    this.startGameDate = new Date();
+    this.finishGameDate = new Date();
   }
 }
