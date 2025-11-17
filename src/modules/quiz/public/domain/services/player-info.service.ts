@@ -3,7 +3,9 @@ import { GameRole, Player } from '../entities/player.entity';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { PlayerProgress } from '../../infrastructure/types/player-progress.type';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class PlayerInfoService {
   constructor(private readonly playersRepository: PlayersRepository) {}
 
