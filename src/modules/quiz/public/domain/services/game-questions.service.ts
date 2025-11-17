@@ -6,20 +6,18 @@ import { DomainException } from '../../../../../core/exceptions/domain-exception
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { GameQuestion } from '../entities/game-question.entity';
 import { GameQuestionCreateDto } from '../dto/game-question.create-dto';
+import { REQUIRED_QUESTIONS_COUNT } from '../constants/game.constants';
 
 @Injectable()
 export class GameQuestionsService {
-  private readonly REQUIRED_QUESTIONS_COUNT = 5;
-
   constructor(
     private readonly questionsRepository: QuestionsRepository,
     private readonly gamesRepository: GamesRepository,
   ) {}
 
   async assignRandomQuestionsToGame(gameId: number): Promise<void> {
-    const questions: Question[] = await this.questionsRepository.getRandomPublishedQuestions(
-      this.REQUIRED_QUESTIONS_COUNT,
-    );
+    const questions: Question[] =
+      await this.questionsRepository.getRandomPublishedQuestions(REQUIRED_QUESTIONS_COUNT);
 
     this.validateSufficientQuestions(questions);
 
@@ -28,10 +26,10 @@ export class GameQuestionsService {
   }
 
   private validateSufficientQuestions(questions: Question[]): void {
-    if (questions.length < this.REQUIRED_QUESTIONS_COUNT) {
+    if (questions.length < REQUIRED_QUESTIONS_COUNT) {
       throw new DomainException({
         code: DomainExceptionCode.InternalServerError,
-        message: `Insufficient published questions for game creation. Required: ${this.REQUIRED_QUESTIONS_COUNT}, available: ${questions.length}`,
+        message: `Insufficient published questions for game creation. Required: ${REQUIRED_QUESTIONS_COUNT}, available: ${questions.length}`,
       });
     }
   }
