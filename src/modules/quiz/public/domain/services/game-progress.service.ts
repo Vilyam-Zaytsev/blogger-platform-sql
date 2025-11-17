@@ -8,6 +8,7 @@ import { GameRole, Player } from '../entities/player.entity';
 import { PlayersRepository } from '../../infrastructure/players.repository';
 import { PlayerProgress } from '../../infrastructure/types/player-progress.type';
 import { PlayerInfoService } from './player-info.service';
+import { REQUIRED_QUESTIONS_COUNT } from '../constants/game.constants';
 
 @Injectable()
 export class GameProgressService {
@@ -56,7 +57,7 @@ export class GameProgressService {
     questionOrder: number,
     gameId: number,
   ): Promise<void> {
-    if (answerStatus === AnswerStatus.Incorrect && questionOrder < 5) return;
+    if (answerStatus === AnswerStatus.Incorrect && questionOrder < REQUIRED_QUESTIONS_COUNT) return;
 
     const player: Player = await this.playerInfoService.findPlayerOrFailed(playerId);
 
@@ -66,8 +67,8 @@ export class GameProgressService {
       opponentRole,
     );
 
-    if (answerStatus === AnswerStatus.Incorrect && questionOrder === 5) {
-      if (player.score > 0 && opponentProgress.answersCount < 5) {
+    if (answerStatus === AnswerStatus.Incorrect && questionOrder === REQUIRED_QUESTIONS_COUNT) {
+      if (player.score > 0 && opponentProgress.answersCount < REQUIRED_QUESTIONS_COUNT) {
         player.addScore();
         await this.playersRepository.save(player);
 
@@ -77,15 +78,15 @@ export class GameProgressService {
       }
     }
 
-    if (answerStatus === AnswerStatus.Correct && questionOrder < 5) {
+    if (answerStatus === AnswerStatus.Correct && questionOrder < REQUIRED_QUESTIONS_COUNT) {
       player.addScore();
       await this.playersRepository.save(player);
 
       return;
     }
 
-    if (answerStatus === AnswerStatus.Correct && questionOrder === 5) {
-      if (opponentProgress.answersCount < 5) {
+    if (answerStatus === AnswerStatus.Correct && questionOrder === REQUIRED_QUESTIONS_COUNT) {
+      if (opponentProgress.answersCount < REQUIRED_QUESTIONS_COUNT) {
         player.addScore(2);
         await this.playersRepository.save(player);
 
