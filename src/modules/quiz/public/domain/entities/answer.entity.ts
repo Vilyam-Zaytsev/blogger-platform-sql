@@ -34,7 +34,7 @@ export class Answer {
   })
   status: AnswerStatus;
 
-  @CreateDateColumn()
+  @CreateDateColumn({ type: 'timestamp with time zone' })
   addedAt: Date;
 
   @ManyToOne(() => Player, (player: Player) => player.answers, { onDelete: 'CASCADE' })
