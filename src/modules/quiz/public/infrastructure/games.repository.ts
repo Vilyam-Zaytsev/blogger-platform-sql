@@ -21,9 +21,7 @@ export class GamesRepository extends BaseRepository<Game> {
       .createQueryBuilder('g')
 
       .select('g.id', 'gameId')
-      .addSelect('p.id', 'playerId')
-      .addSelect(`(SELECT COUNT(*) FROM game_questions WHERE game_id = g.id)`, 'questionsCount')
-      .addSelect('COUNT(DISTINCT a.id)', 'answersCount')
+
       .addSelect(
         `(
         SELECT COALESCE(
@@ -45,13 +43,47 @@ export class GamesRepository extends BaseRepository<Game> {
         'questions',
       )
 
-      .leftJoin('g.players', 'p', 'p.user_id = :userId', { userId })
-      .leftJoin('p.answers', 'a')
+      .addSelect(
+        `(
+          SELECT jsonb_build_object(
+            'playerId', p_current.id,
+            'answersCount', COUNT(a_current.id),
+            'score', p_current.score
+          )
+          FROM players p_current
+          LEFT JOIN answers a_current ON a_current.player_id = p_current.id
+          WHERE p_current.game_id = g.id
+            AND p_current.user_id = :userId
+          GROUP BY p_current.id, p_current.score
+        )`,
+        'progressCurrentPlayer',
+      )
+
+      .addSelect(
+        `(
+          SELECT jsonb_build_object(
+            'playerId', p_opponent.id,
+            'answersCount', COUNT(a_opponent.id),
+            'score', p_opponent.score
+          )
+          FROM players p_opponent
+          LEFT JOIN answers a_opponent ON a_opponent.player_id = p_opponent.id
+          WHERE p_opponent.game_id = g.id
+            AND p_opponent.user_id != :userId
+          GROUP BY p_opponent.id, p_opponent.score
+        )`,
+        'progressOpponent',
+      )
 
       .where('g.status = :status', { status: GameStatus.Active })
-      .andWhere('p.user_id = :userId', { userId })
-
-      .groupBy('g.id, p.id');
+      .andWhere(
+        `EXISTS (
+        SELECT 1 FROM players p_check
+        WHERE p_check.game_id = g.id
+          AND p_check.user_id = :userId
+      )`,
+      )
+      .setParameter('userId', userId);
 
     return (await qb.getRawOne()) ?? null;
   }
