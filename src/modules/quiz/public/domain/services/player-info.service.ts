@@ -1,8 +1,7 @@
 import { PlayersRepository } from '../../infrastructure/players.repository';
-import { GameRole, Player } from '../entities/player.entity';
+import { Player } from '../entities/player.entity';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { PlayerProgress } from '../../infrastructure/types/player-progress.type';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()
@@ -20,21 +19,5 @@ export class PlayerInfoService {
     }
 
     return player;
-  }
-
-  async findOpponentProgress(gameId: number, opponentRole: GameRole): Promise<PlayerProgress> {
-    const opponentProgress: PlayerProgress | null = await this.playersRepository.getPlayerProgress(
-      gameId,
-      opponentRole,
-    );
-
-    if (!opponentProgress) {
-      throw new DomainException({
-        code: DomainExceptionCode.InternalServerError,
-        message: `Data mismatch: Player data has not been found`,
-      });
-    }
-
-    return opponentProgress;
   }
 }
