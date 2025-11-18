@@ -9,6 +9,7 @@ import { GameStateService } from '../../domain/services/game-state.service';
 import { Game } from '../../domain/entities/game.entity';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants';
 
 export class RecordAnswerCommand {
   constructor(
@@ -29,11 +30,13 @@ export class RecordAnswerUseCase implements ICommandHandler<RecordAnswerCommand>
   async execute({ userId, answerText }: RecordAnswerCommand): Promise<AnswerViewDto> {
     await this.playerValidationService.ensureUserInActiveGame(userId);
 
-    const gameProgress: GameProgress =
+    const { gameId, progressCurrentPlayer, progressOpponent, questions }: GameProgress =
       await this.gameProgressService.findGameProgressOrFailed(userId);
 
-    const currentQuestion: DetailsOfQuestion =
-      this.gameProgressService.getCurrentQuestionOrFailed(gameProgress);
+    const currentQuestion: DetailsOfQuestion = this.gameProgressService.getCurrentQuestionOrFailed(
+      progressCurrentPlayer,
+      questions,
+    );
 
     const answerStatus: AnswerStatus = this.gameProgressService.determineAnswerStatus(
       answerText,
@@ -43,27 +46,30 @@ export class RecordAnswerUseCase implements ICommandHandler<RecordAnswerCommand>
     const answer: Answer = Answer.create({
       answerBody: answerText,
       status: answerStatus,
-      playerId: gameProgress.playerId,
+      playerId: progressCurrentPlayer.playerId,
       gameQuestionId: currentQuestion.gameQuestionId,
-      gameId: gameProgress.gameId,
+      gameId,
     });
 
     const savedAnswer: Answer = await this.gamesRepository.saveAnswer(answer);
 
-    await this.gameProgressService.awardPointsToPlayer(
-      gameProgress.playerId,
+    await this.gameProgressService.awardPointsToPlayer({
+      playerId: progressCurrentPlayer.playerId,
       answerStatus,
-      currentQuestion.order,
-      gameProgress.gameId,
-    );
+      questionOrder: currentQuestion.order,
+      opponentAnswersCount: progressOpponent.answersCount,
+    });
 
-    if (currentQuestion.order === 5) {
-      const game: Game | null = await this.gamesRepository.getById(gameProgress.gameId);
+    if (
+      currentQuestion.order === REQUIRED_QUESTIONS_COUNT &&
+      progressOpponent.answersCount === REQUIRED_QUESTIONS_COUNT
+    ) {
+      const game: Game | null = await this.gamesRepository.getById(gameId);
 
       if (!game) {
         throw new DomainException({
           code: DomainExceptionCode.InternalServerError,
-          message: `At the end of the game (${gameProgress.gameId}), no game data was found`,
+          message: `At the end of the game (${gameId}), no game data was found`,
         });
       }
 
