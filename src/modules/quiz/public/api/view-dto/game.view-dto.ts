@@ -22,7 +22,7 @@ export class GameViewDto {
       answers: game.firstPlayerProgress.answers.map((a) => ({
         questionId: a.questionId,
         answerStatus: a.answerStatus,
-        addedAt: a.addedAt.toISOString(),
+        addedAt: a.addedAt,
       })),
       player: {
         id: game.firstPlayerProgress.player.id.toString(),
@@ -36,7 +36,7 @@ export class GameViewDto {
           answers: game.secondPlayerProgress.answers.map((a) => ({
             questionId: a.questionId,
             answerStatus: a.answerStatus,
-            addedAt: a.addedAt.toISOString(),
+            addedAt: a.addedAt,
           })),
           player: {
             id: game.secondPlayerProgress.player.id.toString(),
