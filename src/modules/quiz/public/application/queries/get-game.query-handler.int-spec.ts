@@ -39,9 +39,6 @@ describe('GetGameQueryHandler (Integration)', () => {
   let queryHandler: GetGameQueryHandler;
   let usersFactory: UsersFactory;
 
-  let gamesQueryRepository: GamesQueryRepository;
-  let playerValidationService: PlayerValidationService;
-
   let gameRepo: Repository<Game>;
   let playerRepo: Repository<Player>;
   let questionRepo: Repository<Question>;
@@ -68,9 +65,6 @@ describe('GetGameQueryHandler (Integration)', () => {
     dataSource = module.get<DataSource>(DataSource);
     usersFactory = module.get<UsersFactory>(UsersFactory);
     queryHandler = module.get<GetGameQueryHandler>(GetGameQueryHandler);
-
-    gamesQueryRepository = module.get<GamesQueryRepository>(GamesQueryRepository);
-    playerValidationService = module.get<PlayerValidationService>(PlayerValidationService);
 
     gameRepo = dataSource.getRepository(Game);
     playerRepo = dataSource.getRepository(Player);
