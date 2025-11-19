@@ -8,7 +8,7 @@ export type RawGame = {
     answers: {
       questionId: string;
       answerStatus: AnswerStatus;
-      addedAt: Date;
+      addedAt: string;
     }[];
     player: {
       id: number;
@@ -21,7 +21,7 @@ export type RawGame = {
     answers: {
       questionId: string;
       answerStatus: AnswerStatus;
-      addedAt: Date;
+      addedAt: string;
     }[];
     player: {
       id: number;
