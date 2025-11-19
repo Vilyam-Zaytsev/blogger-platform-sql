@@ -66,6 +66,7 @@ export class Question extends BaseEntity {
     question.body = body;
     question.correctAnswers = correctAnswers;
     question.status = QuestionStatus.NotPublished;
+    question.updatedAt = null;
 
     return question;
   }
