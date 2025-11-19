@@ -11,6 +11,7 @@ import { AnswerViewDto } from './view-dto/answer.view-dto';
 import { RecordAnswerCommand } from '../application/usecases/record-answer.usecase';
 import { GetGameQuery } from '../application/queries/get-game.query-handler';
 import { TypeId } from '../application/types/type-id.type';
+import { GetCurrentGameQuery } from '../application/queries/get-current-game.query-handler';
 
 @Controller('pair-game-quiz/pairs')
 @UseGuards(JwtAuthGuard)
@@ -42,5 +43,12 @@ export class QuizPublicController {
     @Param('id', ParseUUIDPipe) gameId: string,
   ): Promise<GameViewDto> {
     return this.queryBus.execute(new GetGameQuery(userId, gameId));
+  }
+
+  @Get('my-current')
+  async getCurrentGameForPlayer(
+    @ExtractUserFromRequest() { id: userId }: UserContextDto,
+  ): Promise<GameViewDto> {
+    return this.queryBus.execute(new GetCurrentGameQuery(userId));
   }
 }
