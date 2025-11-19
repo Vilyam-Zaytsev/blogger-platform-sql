@@ -3,13 +3,13 @@ import { DeleteBlogCommand, DeleteBlogUseCase } from './delete-blog.usecase';
 import { Blog } from '../../domain/entities/blog.entity';
 import { DataSource, Repository } from 'typeorm';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
 import { BlogsRepository } from '../../infrastructure/blogs.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('DeleteBlogUseCase (Integration)', () => {
   let module: TestingModule;
@@ -20,7 +20,7 @@ describe('DeleteBlogUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Blog))],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Blog))],
       providers: [DeleteBlogUseCase, BlogsRepository],
     }).compile();
 

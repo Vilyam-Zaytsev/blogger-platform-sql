@@ -10,6 +10,16 @@ export enum PostsSortBy {
   BlogName = 'blogName',
 }
 
+// TODO: временное решение
+export enum PostsSortBy_DB {
+  createdAt = 'created_at',
+  updatedAt = 'updated_at',
+  deletedAt = 'deleted_at',
+  title = 'title',
+  blogId = 'blog_id',
+  blogName = 'name',
+}
+
 export class GetPostsQueryParams extends BaseQueryParams<PostsSortBy> {
   @IsEnum(PostsSortBy)
   sortBy: PostsSortBy = PostsSortBy.CreatedAt;

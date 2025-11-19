@@ -7,7 +7,6 @@ import { DataSource, Repository } from 'typeorm';
 import { User } from '../../../users/domain/entities/user.entity';
 import { UsersFactory } from '../../../users/application/factories/users.factory';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfirmationStatus } from '../../domain/entities/email-confirmation-code.entity';
 import { UserValidationService } from '../../../users/application/services/user-validation.service';
@@ -20,6 +19,8 @@ import { RegistrationEmailResandingInputDto } from '../../api/input-dto/registra
 import { UserResendRegisteredEvent } from '../../domain/events/user-resend-registered.event';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
+import { CoreModule } from '../../../../../core/core.module';
 import SpyInstance = jest.SpyInstance;
 
 describe('ResendRegistrationEmailUseCase (Integration)', () => {
@@ -33,7 +34,12 @@ describe('ResendRegistrationEmailUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
+      imports: [
+        configModule,
+        CoreModule,
+        DatabaseModule,
+        TypeOrmModule.forFeature(getRelatedEntities(User)),
+      ],
       providers: [
         ResendRegistrationEmailUseCase,
         UserValidationService,

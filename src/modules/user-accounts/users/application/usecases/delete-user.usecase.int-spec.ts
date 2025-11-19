@@ -2,7 +2,6 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { DeleteUserCommand, DeleteUserUseCase } from './delete-user.usecase';
 import { DataSource, Repository } from 'typeorm';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersRepository } from '../../infrastructure/users.repository';
 import { User } from '../../domain/entities/user.entity';
@@ -13,6 +12,7 @@ import { DomainException } from '../../../../../core/exceptions/domain-exception
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { DateService } from '../services/date.service';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('DeleteUserUseCase (Integration)', () => {
   let module: TestingModule;
@@ -23,7 +23,7 @@ describe('DeleteUserUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
       providers: [DeleteUserUseCase, UsersRepository, UsersFactory, CryptoService, DateService],
     }).compile();
 
