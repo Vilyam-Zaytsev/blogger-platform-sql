@@ -22,6 +22,13 @@ import { PlayerValidationService } from './public/domain/services/player-validat
 import { GameProgressService } from './public/domain/services/game-progress.service';
 import { PlayerInfoService } from './public/domain/services/player-info.service';
 import { RecordAnswerUseCase } from './public/application/usecases/record-answer.usecase';
+import { GetQuestionQueryHandler } from './admin/application/queries/get-questions.query-handler';
+import { GetCurrentGameQueryHandler } from './public/application/queries/get-current-game.query-handler';
+import { GetGameQueryHandler } from './public/application/queries/get-game.query-handler';
+import { PublishQuestionUseCase } from './admin/application/usecases/publish-question.usecase';
+import { RemovePublicationQuestionUseCase } from './admin/application/usecases/remove-publication-question.usecase';
+import { UpdateQuestionUseCase } from './admin/application/usecases/update-question.usecase';
+import { DeleteQuestionUseCase } from './admin/application/usecases/delete-question.usecase';
 
 @Module({
   imports: [
@@ -36,6 +43,12 @@ import { RecordAnswerUseCase } from './public/application/usecases/record-answer
     QuestionsQueryRepository,
     //use-cases
     CreateQuestionUseCase,
+    PublishQuestionUseCase,
+    RemovePublicationQuestionUseCase,
+    UpdateQuestionUseCase,
+    DeleteQuestionUseCase,
+    //query-handlers
+    GetQuestionQueryHandler,
 
     // 🔸 Games:
     //repo
@@ -44,6 +57,9 @@ import { RecordAnswerUseCase } from './public/application/usecases/record-answer
     //use-cases
     ConnectToGameUseCase,
     RecordAnswerUseCase,
+    //query-handlers
+    GetCurrentGameQueryHandler,
+    GetGameQueryHandler,
     //services
     GameMatchingService,
     GameQuestionsService,
