@@ -21,6 +21,20 @@ export class PlayerValidationService {
     }
   }
 
+  async ensureUserInPendingOrActiveGame(userId: number): Promise<number> {
+    const player: Player | null =
+      await this.playersRepository.getPlayerByUserIdInPendingOrActiveGame(userId);
+
+    if (!player) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `User with id ${userId} is not participating in active pair`,
+      });
+    }
+
+    return player.game.id;
+  }
+
   async ensureUserInActiveGame(userId: number): Promise<void> {
     const player: Player | null =
       await this.playersRepository.getPlayerByUserIdInActiveGame(userId);
