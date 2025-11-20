@@ -53,4 +53,37 @@ export class QuizTestManager {
 
     return newQuestions;
   }
+
+  async createQuestionsWithNoCorrectAnswers(quantity: number): Promise<QuestionViewDto[]> {
+    const newQuestions: QuestionViewDto[] = [];
+    const dtos: QuestionInputDto[] = TestDtoFactory.generateQuestionInputDto(quantity);
+
+    for (let i = 0; i < quantity; i++) {
+      const dto: QuestionInputDto = dtos[i];
+      dto.correctAnswers = [];
+
+      const response: Response = await request(this.server)
+        .post(`/${GLOBAL_PREFIX}/sa/quiz/questions`)
+        .send(dto)
+        .set('Authorization', this.adminCredentialsInBase64)
+        .expect(HttpStatus.CREATED);
+
+      const newQuestion: QuestionViewDto = response.body as QuestionViewDto;
+
+      expect(typeof newQuestion.id).toBe('string');
+      expect(new Date(newQuestion.createdAt).toString()).not.toBe('Invalid Date');
+      expect(newQuestion.updatedAt).toBe(null);
+      expect(newQuestion.body).toBe(dto.body);
+      expect(newQuestion.correctAnswers).toEqual([]);
+      expect(newQuestion.published).toBe(false);
+
+      newQuestions.push(newQuestion);
+    }
+
+    return newQuestions;
+  }
+
+  // async publishQuestion(id: string, dto: PublishInputDto): Promise<void> {
+  //
+  // }
 }
