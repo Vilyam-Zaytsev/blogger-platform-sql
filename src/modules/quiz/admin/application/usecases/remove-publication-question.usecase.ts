@@ -1,37 +1,30 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { QuestionsRepository } from '../../infrastructure/questions-repository';
-import { Question, QuestionStatus } from '../../domain/entities/question.entity';
-import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
-import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { Question } from '../../domain/entities/question.entity';
+import { QuestionValidatorService } from '../../domain/services/question-validator.service';
 
 export class RemovePublicationQuestionCommand {
-  constructor(public readonly id: number) {}
+  constructor(public readonly id: string) {}
 }
 
 @CommandHandler(RemovePublicationQuestionCommand)
 export class RemovePublicationQuestionUseCase
   implements ICommandHandler<RemovePublicationQuestionCommand>
 {
-  constructor(private readonly questionsRepository: QuestionsRepository) {}
+  constructor(
+    private readonly questionsRepository: QuestionsRepository,
+    private readonly questionValidator: QuestionValidatorService,
+  ) {}
 
   async execute({ id }: RemovePublicationQuestionCommand): Promise<void> {
-    const question: Question | null = await this.questionsRepository.getById(id);
+    const question: Question | null = await this.questionsRepository.getByPublicId(id);
 
-    if (!question) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: `The question with ID (${id}) does not exist`,
-      });
-    }
+    const validQuestion: Question = this.questionValidator.validateBeforeRemovePublication(
+      question,
+      id,
+    );
 
-    if (question.status === QuestionStatus.NotPublished) {
-      throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
-        message: `In order to remove a question from publication, it must be published.`,
-      });
-    }
-
-    question.removePublication();
-    await this.questionsRepository.save(question);
+    validQuestion.removePublication();
+    await this.questionsRepository.save(validQuestion);
   }
 }
