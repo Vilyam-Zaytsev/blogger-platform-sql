@@ -29,6 +29,7 @@ import { PublishQuestionUseCase } from './admin/application/usecases/publish-que
 import { RemovePublicationQuestionUseCase } from './admin/application/usecases/remove-publication-question.usecase';
 import { UpdateQuestionUseCase } from './admin/application/usecases/update-question.usecase';
 import { DeleteQuestionUseCase } from './admin/application/usecases/delete-question.usecase';
+import { QuestionValidatorService } from './admin/domain/services/question-validator.service';
 
 @Module({
   imports: [
@@ -49,6 +50,8 @@ import { DeleteQuestionUseCase } from './admin/application/usecases/delete-quest
     DeleteQuestionUseCase,
     //query-handlers
     GetQuestionQueryHandler,
+    //services
+    QuestionValidatorService,
 
     // 🔸 Games:
     //repo
