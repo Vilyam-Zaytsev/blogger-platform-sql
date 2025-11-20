@@ -6,7 +6,6 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -51,7 +50,7 @@ export class QuestionsAdminController {
   @Put(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async updateQuestion(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipeNotFound) id: string,
     @Body() { body, correctAnswers }: QuestionInputDto,
   ): Promise<void> {
     const dto: QuestionUpdateDto = {
