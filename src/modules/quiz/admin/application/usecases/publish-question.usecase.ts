@@ -1,45 +1,25 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { QuestionsRepository } from '../../infrastructure/questions-repository';
-import { Question, QuestionStatus } from '../../domain/entities/question.entity';
-import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
-import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { ValidationException } from '../../../../../core/exceptions/validation-exception';
+import { Question } from '../../domain/entities/question.entity';
+import { QuestionValidatorService } from '../../domain/services/question-validator.service';
 
 export class PublishQuestionCommand {
-  constructor(public readonly id: number) {}
+  constructor(public readonly id: string) {}
 }
 
 @CommandHandler(PublishQuestionCommand)
 export class PublishQuestionUseCase implements ICommandHandler<PublishQuestionCommand> {
-  constructor(private readonly questionsRepository: QuestionsRepository) {}
+  constructor(
+    private readonly questionsRepository: QuestionsRepository,
+    private readonly questionValidator: QuestionValidatorService,
+  ) {}
 
   async execute({ id }: PublishQuestionCommand): Promise<void> {
-    const question: Question | null = await this.questionsRepository.getById(id);
+    const question: Question | null = await this.questionsRepository.getByPublicId(id);
 
-    if (!question) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: `The question with ID (${id}) does not exist`,
-      });
-    }
+    const validQuestion: Question = this.questionValidator.validateBeforePublish(question, id);
 
-    if (question.status === QuestionStatus.Published) {
-      throw new DomainException({
-        code: DomainExceptionCode.BadRequest,
-        message: `The question with ID (${id}) already published`,
-      });
-    }
-
-    if (question.correctAnswers.length < 1) {
-      throw new ValidationException([
-        {
-          message: `Cannot publish question without correct answers`,
-          field: 'correctAnswers',
-        },
-      ]);
-    }
-
-    question.publish();
-    await this.questionsRepository.save(question);
+    validQuestion.publish();
+    await this.questionsRepository.save(validQuestion);
   }
 }
