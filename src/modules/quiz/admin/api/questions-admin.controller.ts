@@ -66,7 +66,7 @@ export class QuestionsAdminController {
   @Put(':id/publish')
   @HttpCode(HttpStatus.NO_CONTENT)
   async publishOrRemovePublication(
-    @Param('id', ParseIntPipe) id: number,
+    @Param('id', ParseUUIDPipeNotFound) id: string,
     @Body() { published }: PublishInputDto,
   ): Promise<void> {
     if (published) {
