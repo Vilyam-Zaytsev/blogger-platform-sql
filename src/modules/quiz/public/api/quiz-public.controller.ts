@@ -1,4 +1,14 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../../../user-accounts/auth/domain/guards/bearer/jwt-auth.guard';
 import { ExtractUserFromRequest } from '../../../user-accounts/auth/domain/guards/decorators/extract-user-from-request.decorator';
 import { UserContextDto } from '../../../user-accounts/auth/domain/guards/dto/user-context.dto';
@@ -10,7 +20,7 @@ import { AnswerInputDto } from './input-dto/answer.input-dto';
 import { AnswerViewDto } from './view-dto/answer.view-dto';
 import { RecordAnswerCommand } from '../application/usecases/record-answer.usecase';
 import { GetGameQuery } from '../application/queries/get-game.query-handler';
-import { TypeId } from '../application/types/type-id.type';
+import { TypeId } from '../../types/type-id.type';
 import { GetCurrentGameQuery } from '../application/queries/get-current-game.query-handler';
 
 @Controller('pair-game-quiz/pairs')
@@ -23,6 +33,7 @@ export class QuizPublicController {
   ) {}
 
   @Post('connection')
+  @HttpCode(HttpStatus.OK)
   async connectToGame(@ExtractUserFromRequest() { id }: UserContextDto): Promise<GameViewDto> {
     const idConnectedGame: number = await this.commandBus.execute(new ConnectToGameCommand(id));
 
