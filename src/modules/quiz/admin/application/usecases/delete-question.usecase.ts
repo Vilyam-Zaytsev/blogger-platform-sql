@@ -5,7 +5,7 @@ import { DomainException } from '../../../../../core/exceptions/domain-exception
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
 export class DeleteQuestionCommand {
-  constructor(public readonly id: number) {}
+  constructor(public readonly id: string) {}
 }
 
 @CommandHandler(DeleteQuestionCommand)
@@ -13,7 +13,7 @@ export class DeleteQuestionUseCase implements ICommandHandler<DeleteQuestionComm
   constructor(private readonly questionsRepository: QuestionsRepository) {}
 
   async execute({ id }: DeleteQuestionCommand) {
-    const question: Question | null = await this.questionsRepository.getById(id);
+    const question: Question | null = await this.questionsRepository.getByPublicId(id);
 
     if (!question) {
       throw new DomainException({
@@ -22,6 +22,6 @@ export class DeleteQuestionUseCase implements ICommandHandler<DeleteQuestionComm
       });
     }
 
-    await this.questionsRepository.softDelete(id);
+    await this.questionsRepository.softDelete(question.id);
   }
 }
