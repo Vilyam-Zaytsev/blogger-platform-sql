@@ -7,7 +7,7 @@ import { GameRole } from '../../domain/entities/player.entity';
 import { RawGame } from './types/raw-game.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { TypeId } from '../../application/types/type-id.type';
+import { TypeId } from '../../../types/type-id.type';
 
 @Injectable()
 export class GamesQueryRepository {
