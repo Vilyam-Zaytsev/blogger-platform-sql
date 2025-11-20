@@ -8,7 +8,6 @@ export class QuestionsRepository extends BaseRepository<Question> {
   constructor(dataSource: DataSource) {
     super(dataSource, Question);
   }
-
   async getRandomPublishedQuestions(count: number): Promise<Question[]> {
     return this.repository
       .createQueryBuilder('q')
@@ -16,5 +15,11 @@ export class QuestionsRepository extends BaseRepository<Question> {
       .orderBy('RANDOM()')
       .take(count)
       .getMany();
+  }
+
+  async getByPublicId(publicId: string): Promise<Question | null> {
+    return this.repository.findOne({
+      where: { publicId },
+    });
   }
 }
