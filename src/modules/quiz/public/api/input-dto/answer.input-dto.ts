@@ -1,6 +1,6 @@
-import { IsStringWithTrimDecorator } from '../../../../../core/decorators/validation/is-string-with-trim.decorator';
+import { IsString } from 'class-validator';
 
 export class AnswerInputDto {
-  @IsStringWithTrimDecorator(1, 255)
+  @IsString()
   answer: string;
 }
