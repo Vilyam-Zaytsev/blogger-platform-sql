@@ -11,25 +11,26 @@ import {
   GetQuestionsQueryParams,
   QuestionInputStatus,
 } from '../../api/input-dto/get-questions-query-params.input-dto';
+import { TypeId } from '../../../types/type-id.type';
 
 @Injectable()
 export class QuestionsQueryRepository {
   constructor(@InjectRepository(Question) private readonly repository: Repository<Question>) {}
 
-  async getByIdOrNotFoundFail(id: number): Promise<QuestionViewDto> {
-    const question: RawQuestion | null =
-      (await this.repository
-        .createQueryBuilder('question')
-        .select([
-          'question.id AS "id"',
-          'question.body AS "body"',
-          'question.correctAnswers AS "correctAnswers"',
-          'question.status AS "status"',
-          'question.createdAt AS "createdAt"',
-          'question.updatedAt AS "updatedAt"',
-        ])
-        .where('question.id = :id', { id })
-        .getRawOne()) ?? null;
+  async getByIdOrNotFoundFail(id: number | string, typeId: TypeId): Promise<QuestionViewDto> {
+    const qb = this.repository
+      .createQueryBuilder('question')
+      .select([
+        'question.public_id AS id',
+        'question.body AS body',
+        'question.correct_answers AS "correctAnswers"',
+        'question.status AS status',
+        'question.created_at AS "createdAt"',
+        'question.updated_at AS "updatedAt"',
+      ])
+      .where(`question.${typeId} = :id`, { id });
+
+    const question: RawQuestion | null = (await qb.getRawOne()) ?? null;
 
     if (!question) {
       throw new DomainException({
@@ -55,12 +56,12 @@ export class QuestionsQueryRepository {
     const qb = this.repository
       .createQueryBuilder('question')
       .select([
-        'question.id AS "id"',
-        'question.body AS "body"',
-        'question.correctAnswers AS "correctAnswers"',
-        'question.status AS "status"',
-        'question.createdAt AS "createdAt"',
-        'question.updatedAt AS "updatedAt"',
+        'question.public_id AS id',
+        'question.body AS body',
+        'question.correct_answers AS "correctAnswers"',
+        'question.status AS status',
+        'question.created_at AS "createdAt"',
+        'question.updated_at AS "updatedAt"',
       ]);
 
     if (bodySearchTerm) {
