@@ -26,6 +26,15 @@ export class QuestionValidatorService {
     }
   }
 
+  validateAlreadyPublished(question: Question): void {
+    if (question.status === QuestionStatus.NotPublished) {
+      throw new DomainException({
+        code: DomainExceptionCode.BadRequest,
+        message: `In order to remove a question from publication, it must be published`,
+      });
+    }
+  }
+
   validateHasCorrectAnswers(question: Question): void {
     if (question.correctAnswers.length < 1) {
       throw new ValidationException([
@@ -41,6 +50,13 @@ export class QuestionValidatorService {
     const existingQuestion: Question = this.validateQuestionExists(question, id);
     this.validateNotAlreadyPublished(existingQuestion);
     this.validateHasCorrectAnswers(existingQuestion);
+
+    return existingQuestion;
+  }
+
+  validateBeforeRemovePublication(question: Question | null, id: string): Question {
+    const existingQuestion: Question = this.validateQuestionExists(question, id);
+    this.validateAlreadyPublished(existingQuestion);
 
     return existingQuestion;
   }
