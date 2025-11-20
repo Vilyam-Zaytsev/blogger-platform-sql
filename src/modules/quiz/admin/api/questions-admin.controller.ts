@@ -27,6 +27,8 @@ import { DeleteQuestionCommand } from '../application/usecases/delete-question.u
 import { GetQuestionsQueryParams } from './input-dto/get-questions-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetQuestionsQuery } from '../application/queries/get-questions.query-handler';
+import { TypeId } from '../../types/type-id.type';
+import { ParseUUIDPipeNotFound } from '../../../../core/pipes/parse-uuid-not-found.pipe';
 
 @Controller('sa/quiz/questions')
 @UseGuards(BasicAuthGuard)
@@ -43,7 +45,7 @@ export class QuestionsAdminController {
       new CreateQuestionCommand(body),
     );
 
-    return this.questionQueryRepository.getByIdOrNotFoundFail(idCreatedQuestion);
+    return this.questionQueryRepository.getByIdOrNotFoundFail(idCreatedQuestion, TypeId.id);
   }
 
   @Put(':id')
@@ -76,7 +78,7 @@ export class QuestionsAdminController {
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  async deleteQuestion(@Param('id', ParseIntPipe) id: number): Promise<void> {
+  async deleteQuestion(@Param('id', ParseUUIDPipeNotFound) id: string): Promise<void> {
     await this.commandBus.execute(new DeleteQuestionCommand(id));
   }
 
