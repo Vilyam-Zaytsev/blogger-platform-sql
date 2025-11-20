@@ -1,5 +1,5 @@
 export class QuestionUpdateDto {
-  id: number;
+  id: string;
   body: string;
   correctAnswers: string[];
 }
