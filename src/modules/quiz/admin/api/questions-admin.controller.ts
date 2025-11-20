@@ -76,6 +76,7 @@ export class QuestionsAdminController {
     }
   }
 
+  // TODO: реализовать логику удаления только не опубликованных вопросов!
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)
   async deleteQuestion(@Param('id', ParseUUIDPipeNotFound) id: string): Promise<void> {
