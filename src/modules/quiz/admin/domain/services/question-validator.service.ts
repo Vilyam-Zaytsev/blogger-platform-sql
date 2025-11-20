@@ -60,4 +60,15 @@ export class QuestionValidatorService {
 
     return existingQuestion;
   }
+
+  validateQuestionBeforeUpdate(question: Question, inputCorrectAnswers: string[]): void {
+    if (question.status === QuestionStatus.Published && inputCorrectAnswers.length < 1) {
+      throw new ValidationException([
+        {
+          message: `Cannot publish question without correct answers`,
+          field: 'correctAnswers',
+        },
+      ]);
+    }
+  }
 }
