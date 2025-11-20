@@ -1,7 +1,7 @@
 import { QuestionStatus } from '../../domain/entities/question.entity';
 
 export type RawQuestion = {
-  id: number;
+  id: string;
   body: string;
   correctAnswers: string[];
   status: QuestionStatus;
