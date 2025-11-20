@@ -83,7 +83,13 @@ export class QuizTestManager {
     return newQuestions;
   }
 
-  // async publishQuestion(id: string, dto: PublishInputDto): Promise<void> {
-  //
-  // }
+  async publishQuestions(ids: string[]): Promise<void> {
+    for (let i = 0; i < ids.length; i++) {
+      await request(this.server)
+        .put(`/${GLOBAL_PREFIX}/sa/quiz/questions/${ids[i]}/publish`)
+        .set('Authorization', this.adminCredentialsInBase64)
+        .send({ published: true })
+        .expect(HttpStatus.NO_CONTENT);
+    }
+  }
 }
