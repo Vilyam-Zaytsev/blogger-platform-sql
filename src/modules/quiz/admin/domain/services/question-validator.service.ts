@@ -6,13 +6,15 @@ import { ValidationException } from '../../../../../core/exceptions/validation-e
 
 @Injectable()
 export class QuestionValidatorService {
-  validateQuestionExists(question: Question | null, id: string): void {
+  validateQuestionExists(question: Question | null, id: string): Question {
     if (!question) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
         message: `The question with ID (${id}) does not exist`,
       });
     }
+
+    return question;
   }
 
   validateNotAlreadyPublished(question: Question): void {
@@ -35,9 +37,11 @@ export class QuestionValidatorService {
     }
   }
 
-  validateBeforePublish(question: Question | null, id: string): void {
-    this.validateQuestionExists(question, id);
-    this.validateNotAlreadyPublished(question!);
-    this.validateHasCorrectAnswers(question!);
+  validateBeforePublish(question: Question | null, id: string): Question {
+    const existingQuestion: Question = this.validateQuestionExists(question, id);
+    this.validateNotAlreadyPublished(existingQuestion);
+    this.validateHasCorrectAnswers(existingQuestion);
+
+    return existingQuestion;
   }
 }
