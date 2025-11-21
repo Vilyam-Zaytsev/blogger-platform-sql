@@ -7,19 +7,18 @@ import { GameRole } from '../../domain/entities/player.entity';
 import { RawGame } from './types/raw-game.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { TypeId } from '../../../types/type-id.type';
 
 @Injectable()
 export class GamesQueryRepository {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
-  async getByIdOrNotFoundFail(id: number | string, typeId: TypeId): Promise<GameViewDto> {
+  async getByIdOrNotFoundFail(id: number): Promise<GameViewDto> {
     const qb = this.dataSource
       .getRepository<Game>(Game)
       .createQueryBuilder('g')
 
       // Игра
-      .select('g.public_id', 'id')
+      .select('g.id', 'id')
       .addSelect('g.created_at', 'pairCreatedDate')
       .addSelect('g.start_game_date', 'startGameDate')
       .addSelect('g.finish_game_date', 'finishGameDate')
@@ -115,7 +114,7 @@ export class GamesQueryRepository {
       })
       .leftJoin('users', 'u2', 'u2.id = p2.user_id')
 
-      .where(`g.${typeId} = :id`, { id })
+      .where(`g.id = :id`, { id })
 
       .groupBy('g.id')
       .addGroupBy('p1.id')
