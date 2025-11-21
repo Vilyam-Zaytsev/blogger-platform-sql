@@ -1,3 +1,5 @@
+import { AnswerStatus } from '../../domain/entities/answer.entity';
+
 export type GameProgress = {
   gameId: number;
   questions: DetailsOfQuestion[];
@@ -13,8 +15,13 @@ export type DetailsOfQuestion = {
   correctAnswers: string[];
 };
 
+export type DetailsOfAnswers = {
+  status: AnswerStatus;
+  addedAt: string;
+};
+
 export type PlayerProgress = {
   playerId: number;
-  answersCount: number;
+  answers: DetailsOfAnswers[];
   score: number;
 };
