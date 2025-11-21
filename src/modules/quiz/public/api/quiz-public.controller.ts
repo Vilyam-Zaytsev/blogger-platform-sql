@@ -5,7 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
-  ParseUUIDPipe,
+  ParseIntPipe,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -20,7 +20,6 @@ import { AnswerInputDto } from './input-dto/answer.input-dto';
 import { AnswerViewDto } from './view-dto/answer.view-dto';
 import { RecordAnswerCommand } from '../application/usecases/record-answer.usecase';
 import { GetGameQuery } from '../application/queries/get-game.query-handler';
-import { TypeId } from '../../types/type-id.type';
 import { GetCurrentGameQuery } from '../application/queries/get-current-game.query-handler';
 
 @Controller('pair-game-quiz/pairs')
@@ -37,10 +36,11 @@ export class QuizPublicController {
   async connectToGame(@ExtractUserFromRequest() { id }: UserContextDto): Promise<GameViewDto> {
     const idConnectedGame: number = await this.commandBus.execute(new ConnectToGameCommand(id));
 
-    return this.gamesQueryRepository.getByIdOrNotFoundFail(idConnectedGame, TypeId.id);
+    return this.gamesQueryRepository.getByIdOrNotFoundFail(idConnectedGame);
   }
 
   @Post('my-current/answers')
+  @HttpCode(HttpStatus.OK)
   async recordAnswer(
     @ExtractUserFromRequest() { id: userId }: UserContextDto,
     @Body() { answer }: AnswerInputDto,
@@ -48,18 +48,18 @@ export class QuizPublicController {
     return this.commandBus.execute(new RecordAnswerCommand(userId, answer));
   }
 
-  @Get(':id')
-  async getGameById(
-    @ExtractUserFromRequest() { id: userId }: UserContextDto,
-    @Param('id', ParseUUIDPipe) gameId: string,
-  ): Promise<GameViewDto> {
-    return this.queryBus.execute(new GetGameQuery(userId, gameId));
-  }
-
   @Get('my-current')
   async getCurrentGameForPlayer(
     @ExtractUserFromRequest() { id: userId }: UserContextDto,
   ): Promise<GameViewDto> {
     return this.queryBus.execute(new GetCurrentGameQuery(userId));
+  }
+
+  @Get(':id')
+  async getGameById(
+    @ExtractUserFromRequest() { id: userId }: UserContextDto,
+    @Param('id', ParseIntPipe) gameId: number,
+  ): Promise<GameViewDto> {
+    return this.queryBus.execute(new GetGameQuery(userId, gameId));
   }
 }
