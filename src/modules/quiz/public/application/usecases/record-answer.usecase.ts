@@ -3,7 +3,6 @@ import { GamesRepository } from '../../infrastructure/games.repository';
 import { DetailsOfQuestion, GameProgress } from '../../infrastructure/types/game-progress.type';
 import { Answer, AnswerStatus } from '../../domain/entities/answer.entity';
 import { AnswerViewDto } from '../../api/view-dto/answer.view-dto';
-import { GameStateService } from '../../domain/services/game-state.service';
 import { Game } from '../../domain/entities/game.entity';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
@@ -23,7 +22,6 @@ export class RecordAnswerCommand {
 export class RecordAnswerUseCase implements ICommandHandler<RecordAnswerCommand> {
   constructor(
     private readonly playersRepository: PlayersRepository,
-    private readonly gameStateService: GameStateService,
     private readonly gamesRepository: GamesRepository,
   ) {}
 
