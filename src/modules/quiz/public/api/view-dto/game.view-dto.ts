@@ -7,7 +7,7 @@ export class GameViewDto {
   id: string;
   firstPlayerProgress: PlayerProgressViewDto;
   secondPlayerProgress: PlayerProgressViewDto | null;
-  questions: QuestionsForGameViewDto[];
+  questions: QuestionsForGameViewDto[] | null;
   status: GameStatus;
   pairCreatedDate: string;
   startGameDate: string | null;
@@ -16,7 +16,7 @@ export class GameViewDto {
   static mapToView(game: RawGame): GameViewDto {
     const dto = new this();
 
-    dto.id = game.id;
+    dto.id = game.id.toString();
 
     dto.firstPlayerProgress = {
       answers: game.firstPlayerProgress.answers.map((a) => ({
@@ -46,7 +46,7 @@ export class GameViewDto {
         }
       : game.secondPlayerProgress;
 
-    dto.questions = game.questions;
+    dto.questions = game.questions.length > 0 ? game.questions : null;
     dto.status = game.status;
 
     dto.pairCreatedDate = game.pairCreatedDate.toISOString();
