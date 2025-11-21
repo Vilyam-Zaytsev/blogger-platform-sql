@@ -18,10 +18,6 @@ export class PlayersRepository extends BaseRepository<Player> {
           status: In([GameStatus.Pending, GameStatus.Active]),
         },
       },
-      relations: {
-        user: true,
-        game: true,
-      },
     });
   }
 
@@ -32,10 +28,6 @@ export class PlayersRepository extends BaseRepository<Player> {
         game: {
           status: GameStatus.Active,
         },
-      },
-      relations: {
-        user: true,
-        game: true,
       },
     });
   }
