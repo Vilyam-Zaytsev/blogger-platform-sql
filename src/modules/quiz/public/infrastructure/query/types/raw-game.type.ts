@@ -2,7 +2,7 @@ import { AnswerStatus } from '../../../domain/entities/answer.entity';
 import { GameStatus } from '../../../domain/entities/game.entity';
 
 export type RawGame = {
-  id: string;
+  id: number;
 
   firstPlayerProgress: {
     answers: {
