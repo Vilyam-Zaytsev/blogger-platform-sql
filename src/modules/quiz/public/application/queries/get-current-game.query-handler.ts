@@ -1,8 +1,10 @@
 import { IQueryHandler, QueryHandler } from '@nestjs/cqrs';
 import { GameViewDto } from '../../api/view-dto/game.view-dto';
-import { PlayerValidationService } from '../../domain/services/player-validation.service';
 import { GamesQueryRepository } from '../../infrastructure/query/games.query-repository';
-import { TypeId } from '../../../types/type-id.type';
+import { Player } from '../../domain/entities/player.entity';
+import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
+import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { PlayersRepository } from '../../infrastructure/players.repository';
 
 export class GetCurrentGameQuery {
   constructor(public readonly userId: number) {}
@@ -12,13 +14,26 @@ export class GetCurrentGameQuery {
 export class GetCurrentGameQueryHandler implements IQueryHandler<GetCurrentGameQuery, GameViewDto> {
   constructor(
     private readonly gamesQueryRepository: GamesQueryRepository,
-    private readonly playersValidationService: PlayerValidationService,
+    private readonly playersRepository: PlayersRepository,
   ) {}
 
   async execute({ userId }: GetCurrentGameQuery): Promise<GameViewDto> {
-    const gameId: number =
-      await this.playersValidationService.ensureUserInPendingOrActiveGame(userId);
+    const gameId: number = await this.ensureUserInPendingOrActiveGame(userId);
 
-    return this.gamesQueryRepository.getByIdOrNotFoundFail(gameId, TypeId.id);
+    return await this.gamesQueryRepository.getByIdOrNotFoundFail(gameId);
+  }
+
+  private async ensureUserInPendingOrActiveGame(userId: number): Promise<number> {
+    const player: Player | null =
+      await this.playersRepository.getPlayerByUserIdInPendingOrActiveGame(userId);
+
+    if (!player) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `User with id ${userId} is not participating in active pair`,
+      });
+    }
+
+    return player.gameId;
   }
 }
