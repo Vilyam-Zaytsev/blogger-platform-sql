@@ -54,6 +54,34 @@ export class QuizTestManager {
     return newQuestions;
   }
 
+  async createPublishedQuestions(quantity: number): Promise<void> {
+    const dtos: QuestionInputDto[] = TestDtoFactory.generateQuestionInputDto(quantity);
+
+    for (let i = 0; i < quantity; i++) {
+      const dto: QuestionInputDto = dtos[i];
+
+      const resCreateQuestion: Response = await request(this.server)
+        .post(`/${GLOBAL_PREFIX}/sa/quiz/questions`)
+        .send(dto)
+        .set('Authorization', this.adminCredentialsInBase64)
+        .expect(HttpStatus.CREATED);
+
+      const newQuestion: QuestionViewDto = resCreateQuestion.body as QuestionViewDto;
+
+      expect(typeof newQuestion.id).toBe('string');
+      expect(new Date(newQuestion.createdAt).toString()).not.toBe('Invalid Date');
+      expect(newQuestion.updatedAt).toBe(null);
+      expect(newQuestion.body).toBe(dto.body);
+      expect(newQuestion.correctAnswers).toEqual(dto.correctAnswers);
+      expect(newQuestion.published).toBe(false);
+
+      await request(this.server)
+        .post(`/${GLOBAL_PREFIX}/sa/quiz/questions/${newQuestion.id}/publish`)
+        .set('Authorization', this.adminCredentialsInBase64)
+        .send({ published: true })
+        .expect(HttpStatus.NO_CONTENT);
+    }
+  }
   async createQuestionsWithNoCorrectAnswers(quantity: number): Promise<QuestionViewDto[]> {
     const newQuestions: QuestionViewDto[] = [];
     const dtos: QuestionInputDto[] = TestDtoFactory.generateQuestionInputDto(quantity);
