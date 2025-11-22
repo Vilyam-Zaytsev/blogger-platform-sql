@@ -16,20 +16,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { CryptoService } from '../../../../user-accounts/users/application/services/crypto.service';
 import { DateService } from '../../../../user-accounts/users/application/services/date.service';
-import { GameMatchingService } from '../../domain/services/game-matching.service';
-import { GameQuestionsService } from '../../domain/services/game-questions.service';
-import { GameStateService } from '../../domain/services/game-state.service';
-import { PlayerValidationService } from '../../domain/services/player-validation.service';
 import { UserInputDto } from '../../../../user-accounts/users/api/input-dto/user.input-dto';
 import { CreateUserDto } from '../../../../user-accounts/users/dto/create-user.dto';
 import { QuestionInputDto } from '../../../admin/api/input-dto/question.input-dto';
 import { GameQuestionCreateDto } from '../../domain/dto/game-question.create-dto';
-import { GameProgressService } from '../../domain/services/game-progress.service';
 import { Answer, AnswerStatus } from '../../domain/entities/answer.entity';
-import { PlayerInfoService } from '../../domain/services/player-info.service';
 import { AnswerViewDto } from '../../api/view-dto/answer.view-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants';
 
 describe('RecordAnswerUseCase (Integration)', () => {
   let module: TestingModule;
@@ -58,13 +53,6 @@ describe('RecordAnswerUseCase (Integration)', () => {
         UsersFactory,
         CryptoService,
         DateService,
-
-        GameMatchingService,
-        GameQuestionsService,
-        GameProgressService,
-        GameStateService,
-        PlayerValidationService,
-        PlayerInfoService,
       ],
     }).compile();
 
@@ -191,7 +179,8 @@ describe('RecordAnswerUseCase (Integration)', () => {
         email: 'secondUser@example.com',
       });
       const { game, players } = await createActiveGameWithPlayers(firstUserId, secondUserId);
-      const questions: Question[] = await createMultiplePublishedQuestions(5);
+      const questions: Question[] =
+        await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
       const gameQuestions: GameQuestion[] = await linkQuestionsToGame(game.id, questions);
 
       const gameQuestionUnderTest: GameQuestion = gameQuestions[0];
@@ -238,7 +227,8 @@ describe('RecordAnswerUseCase (Integration)', () => {
         email: 'secondUser@example.com',
       });
       const { game, players } = await createActiveGameWithPlayers(firstUserId, secondUserId);
-      const questions: Question[] = await createMultiplePublishedQuestions(5);
+      const questions: Question[] =
+        await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
       const gameQuestions: GameQuestion[] = await linkQuestionsToGame(game.id, questions);
 
       const gameQuestionUnderTest: GameQuestion = gameQuestions[0];
@@ -283,7 +273,8 @@ describe('RecordAnswerUseCase (Integration)', () => {
         email: 'secondUser@example.com',
       });
       const { game, players } = await createActiveGameWithPlayers(firstUserId, secondUserId);
-      const questions: Question[] = await createMultiplePublishedQuestions(5);
+      const questions: Question[] =
+        await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
       const gameQuestions: GameQuestion[] = await linkQuestionsToGame(game.id, questions);
 
       for (let i = 0; i < questions.length - 1; i++) {
@@ -329,7 +320,8 @@ describe('RecordAnswerUseCase (Integration)', () => {
         email: 'secondUser@example.com',
       });
       const { game, players } = await createActiveGameWithPlayers(firstUserId, secondUserId);
-      const questions: Question[] = await createMultiplePublishedQuestions(5);
+      const questions: Question[] =
+        await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
       const gameQuestions: GameQuestion[] = await linkQuestionsToGame(game.id, questions);
 
       for (let i = 0; i < questions.length - 1; i++) {
@@ -390,7 +382,7 @@ describe('RecordAnswerUseCase (Integration)', () => {
       }
     });
 
-    it('должен начислить 2 очка за правильный ответ на 5-й вопрос если противник ещё не закончил отвечать', async () => {
+    it('должен начислить 2 очка за правильный ответ на последний вопрос если противник уже закончил отвечать', async () => {
       const { id: firstUserId }: User = await createTestUser({
         login: 'firstUser',
         email: 'firstUser@example.com',
@@ -400,35 +392,62 @@ describe('RecordAnswerUseCase (Integration)', () => {
         email: 'secondUser@example.com',
       });
       const { game, players } = await createActiveGameWithPlayers(firstUserId, secondUserId);
-      const questions: Question[] = await createMultiplePublishedQuestions(5);
+      const questions: Question[] =
+        await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
       await linkQuestionsToGame(game.id, questions);
 
       for (let i = 0; i < questions.length - 1; i++) {
         await useCase.execute(new RecordAnswerCommand(firstUserId, questions[i].correctAnswers[0]));
+        await useCase.execute(
+          new RecordAnswerCommand(secondUserId, questions[i].correctAnswers[0]),
+        );
       }
 
-      const playerBeforeAnsweringLastQuestion: Player | null = await playerRepo.findOne({
-        where: { id: players[0].id },
-      });
+      const [firstPlayerBeforeAnsweringLastQuestion, secondPlayerBeforeAnsweringLastQuestion] =
+        await Promise.all([
+          playerRepo.findOne({
+            where: { id: players[0].id },
+          }),
+          playerRepo.findOne({
+            where: { id: players[1].id },
+          }),
+        ]);
 
-      expect(playerBeforeAnsweringLastQuestion).toBeDefined();
-      expect(playerBeforeAnsweringLastQuestion).not.toBeNull();
-      expect(playerBeforeAnsweringLastQuestion!.score).toBe(4);
+      expect(firstPlayerBeforeAnsweringLastQuestion).toBeDefined();
+      expect(firstPlayerBeforeAnsweringLastQuestion).not.toBeNull();
+      expect(firstPlayerBeforeAnsweringLastQuestion!.score).toBe(4);
+
+      expect(secondPlayerBeforeAnsweringLastQuestion).toBeDefined();
+      expect(secondPlayerBeforeAnsweringLastQuestion).not.toBeNull();
+      expect(secondPlayerBeforeAnsweringLastQuestion!.score).toBe(4);
 
       await useCase.execute(
         new RecordAnswerCommand(firstUserId, questions[questions.length - 1].correctAnswers[0]),
       );
+      await useCase.execute(
+        new RecordAnswerCommand(secondUserId, questions[questions.length - 1].correctAnswers[0]),
+      );
 
-      const playerAfterAnsweringLastQuestion: Player | null = await playerRepo.findOne({
-        where: { id: players[0].id },
-      });
+      const [firstPlayerAfterAnsweringLastQuestion, secondPlayerAfterAnsweringLastQuestion] =
+        await Promise.all([
+          playerRepo.findOne({
+            where: { id: players[0].id },
+          }),
+          playerRepo.findOne({
+            where: { id: players[1].id },
+          }),
+        ]);
 
-      expect(playerAfterAnsweringLastQuestion).toBeDefined();
-      expect(playerAfterAnsweringLastQuestion).not.toBeNull();
-      expect(playerAfterAnsweringLastQuestion!.score).toBe(6);
+      expect(firstPlayerAfterAnsweringLastQuestion).toBeDefined();
+      expect(firstPlayerAfterAnsweringLastQuestion).not.toBeNull();
+      expect(firstPlayerAfterAnsweringLastQuestion!.score).toBe(6);
+
+      expect(secondPlayerAfterAnsweringLastQuestion).toBeDefined();
+      expect(secondPlayerAfterAnsweringLastQuestion).not.toBeNull();
+      expect(secondPlayerAfterAnsweringLastQuestion!.score).toBe(5);
     });
 
-    it('должен начислить 1 очко за правильный ответ на 5-й вопрос если противник уже закончил отвечать', async () => {
+    it('должен начислить 1 очко за правильный ответ на 5-й вопрос если противник еще не закончил отвечать', async () => {
       const { id: firstUserId }: User = await createTestUser({
         login: 'firstUser',
         email: 'firstUser@example.com',
@@ -438,43 +457,59 @@ describe('RecordAnswerUseCase (Integration)', () => {
         email: 'secondUser@example.com',
       });
       const { game, players } = await createActiveGameWithPlayers(firstUserId, secondUserId);
-      const questions: Question[] = await createMultiplePublishedQuestions(5);
+      const questions: Question[] =
+        await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
       await linkQuestionsToGame(game.id, questions);
 
-      for (let i = 0; i < questions.length; i++) {
+      for (let i = 0; i < questions.length - 1; i++) {
+        await useCase.execute(new RecordAnswerCommand(firstUserId, questions[i].correctAnswers[0]));
         await useCase.execute(
           new RecordAnswerCommand(secondUserId, questions[i].correctAnswers[0]),
         );
-
-        if (i < questions.length - 1) {
-          await useCase.execute(
-            new RecordAnswerCommand(firstUserId, questions[i].correctAnswers[0]),
-          );
-        }
       }
 
-      const playerBeforeAnsweringLastQuestion: Player | null = await playerRepo.findOne({
-        where: { id: players[0].id },
-      });
+      const [firstPlayerBeforeAnsweringLastQuestion, secondPlayerBeforeAnsweringLastQuestion] =
+        await Promise.all([
+          playerRepo.findOne({
+            where: { id: players[0].id },
+          }),
+          playerRepo.findOne({
+            where: { id: players[1].id },
+          }),
+        ]);
 
-      expect(playerBeforeAnsweringLastQuestion).toBeDefined();
-      expect(playerBeforeAnsweringLastQuestion).not.toBeNull();
-      expect(playerBeforeAnsweringLastQuestion!.score).toBe(4);
+      expect(firstPlayerBeforeAnsweringLastQuestion).toBeDefined();
+      expect(firstPlayerBeforeAnsweringLastQuestion).not.toBeNull();
+      expect(firstPlayerBeforeAnsweringLastQuestion!.score).toBe(4);
+
+      expect(secondPlayerBeforeAnsweringLastQuestion).toBeDefined();
+      expect(secondPlayerBeforeAnsweringLastQuestion).not.toBeNull();
+      expect(secondPlayerBeforeAnsweringLastQuestion!.score).toBe(4);
 
       await useCase.execute(
         new RecordAnswerCommand(firstUserId, questions[questions.length - 1].correctAnswers[0]),
       );
 
-      const playerAfterAnsweringLastQuestion: Player | null = await playerRepo.findOne({
-        where: { id: players[0].id },
-      });
+      const [firstPlayerAfterAnsweringLastQuestion, secondPlayerAfterAnsweringLastQuestion] =
+        await Promise.all([
+          playerRepo.findOne({
+            where: { id: players[0].id },
+          }),
+          playerRepo.findOne({
+            where: { id: players[1].id },
+          }),
+        ]);
 
-      expect(playerAfterAnsweringLastQuestion).toBeDefined();
-      expect(playerAfterAnsweringLastQuestion).not.toBeNull();
-      expect(playerAfterAnsweringLastQuestion!.score).toBe(5);
+      expect(firstPlayerAfterAnsweringLastQuestion).toBeDefined();
+      expect(firstPlayerAfterAnsweringLastQuestion).not.toBeNull();
+      expect(firstPlayerAfterAnsweringLastQuestion!.score).toBe(5);
+
+      expect(secondPlayerAfterAnsweringLastQuestion).toBeDefined();
+      expect(secondPlayerAfterAnsweringLastQuestion).not.toBeNull();
+      expect(secondPlayerAfterAnsweringLastQuestion!.score).toBe(4);
     });
 
-    it('должен завершить игру со статусом Finished после ответа на 5-й вопрос (в не зависимости от статуса ответа)', async () => {
+    it('должен завершить игру со статусом Finished после ответа на последний вопрос последним игроком', async () => {
       const { id: firstUserId }: User = await createTestUser({
         login: 'firstUser',
         email: 'firstUser@example.com',
@@ -484,7 +519,8 @@ describe('RecordAnswerUseCase (Integration)', () => {
         email: 'secondUser@example.com',
       });
       const { game } = await createActiveGameWithPlayers(firstUserId, secondUserId);
-      const questions: Question[] = await createMultiplePublishedQuestions(5);
+      const questions: Question[] =
+        await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
       await linkQuestionsToGame(game.id, questions);
 
       for (let i = 0; i < questions.length; i++) {
@@ -532,7 +568,8 @@ describe('RecordAnswerUseCase (Integration)', () => {
         email: 'secondUser@example.com',
       });
       const { game, players } = await createActiveGameWithPlayers(firstUserId, secondUserId);
-      const questions: Question[] = await createMultiplePublishedQuestions(5);
+      const questions: Question[] =
+        await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
       const gameQuestions: GameQuestion[] = await linkQuestionsToGame(game.id, questions);
 
       const gameQuestionUnderTest: GameQuestion = gameQuestions[0];
@@ -550,51 +587,6 @@ describe('RecordAnswerUseCase (Integration)', () => {
 
       const respondingPlayer: Player | null = await playerRepo.findOne({
         where: { id: players[0].id },
-      });
-
-      const savedAnswer: Answer | null = await answerRepo.findOne({
-        where: { playerId: respondingPlayer!.id, gameQuestionId: gameQuestionUnderTest.id },
-      });
-
-      expect(savedAnswer).toBeDefined();
-      expect(savedAnswer).not.toBeNull();
-      expect(savedAnswer!.answerBody).toBe(answerUnderTest);
-      expect(savedAnswer!.status).toBe(AnswerStatus.Incorrect);
-      expect(savedAnswer!.addedAt).toBeInstanceOf(Date);
-      expect(savedAnswer!.playerId).toBe(respondingPlayer!.id);
-      expect(savedAnswer!.gameId).toBe(game.id);
-
-      expect(respondingPlayer!.score).toBe(0);
-    });
-
-    it('должен сохранить неправильный ответ второго игрока на первый вопрос без начисления очков и вернуть статус Incorrect', async () => {
-      const { id: firstUserId }: User = await createTestUser({
-        login: 'firstUser',
-        email: 'firstUser@example.com',
-      });
-      const { id: secondUserId }: User = await createTestUser({
-        login: 'secondUser',
-        email: 'secondUser@example.com',
-      });
-      const { game, players } = await createActiveGameWithPlayers(firstUserId, secondUserId);
-      const questions: Question[] = await createMultiplePublishedQuestions(5);
-      const gameQuestions: GameQuestion[] = await linkQuestionsToGame(game.id, questions);
-
-      const gameQuestionUnderTest: GameQuestion = gameQuestions[0];
-      const questionUnderTest: Question = questions[0];
-      const answerUnderTest: string = 'Incorrect answer';
-
-      const result: AnswerViewDto = await useCase.execute(
-        new RecordAnswerCommand(secondUserId, answerUnderTest),
-      );
-
-      expect(result.questionId).toBe(questionUnderTest.publicId);
-      expect(result.answerStatus).toBe(AnswerStatus.Incorrect);
-      expect(result.addedAt).toBeDefined();
-      expect(typeof result.addedAt).toBe('string');
-
-      const respondingPlayer: Player | null = await playerRepo.findOne({
-        where: { id: players[1].id },
       });
 
       const savedAnswer: Answer | null = await answerRepo.findOne({
@@ -649,19 +641,23 @@ describe('RecordAnswerUseCase (Integration)', () => {
         expect(result_player2.addedAt).toBeDefined();
         expect(typeof result_player2.addedAt).toBe('string');
 
-        const responding_player1: Player | null = await playerRepo.findOne({
-          where: { id: players[0].id },
-        });
-        const responding_player2: Player | null = await playerRepo.findOne({
-          where: { id: players[1].id },
-        });
+        const [responding_player1, responding_player2] = await Promise.all([
+          playerRepo.findOne({
+            where: { id: players[0].id },
+          }),
+          playerRepo.findOne({
+            where: { id: players[1].id },
+          }),
+        ]);
 
-        const savedAnswer_player1: Answer | null = await answerRepo.findOne({
-          where: { playerId: responding_player1!.id, gameQuestionId: gameQuestionUnderTest.id },
-        });
-        const savedAnswer_player2: Answer | null = await answerRepo.findOne({
-          where: { playerId: responding_player2!.id, gameQuestionId: gameQuestionUnderTest.id },
-        });
+        const [savedAnswer_player1, savedAnswer_player2] = await Promise.all([
+          answerRepo.findOne({
+            where: { playerId: responding_player1!.id, gameQuestionId: gameQuestionUnderTest.id },
+          }),
+          answerRepo.findOne({
+            where: { playerId: responding_player2!.id, gameQuestionId: gameQuestionUnderTest.id },
+          }),
+        ]);
 
         expect(savedAnswer_player1).toBeDefined();
         expect(savedAnswer_player1).not.toBeNull();
@@ -683,7 +679,7 @@ describe('RecordAnswerUseCase (Integration)', () => {
       }
     });
 
-    it('должен начислить 1 очко за неправильный ответ на 5-й вопрос если у игрока уже есть очки и противник не закончил', async () => {
+    it('должен начислить 1 очко за неправильный ответ на последний вопрос если у игрока уже есть очки и он первым ответил на последний вопрос', async () => {
       const { id: firstUserId }: User = await createTestUser({
         login: 'firstUser',
         email: 'firstUser@example.com',
@@ -695,74 +691,52 @@ describe('RecordAnswerUseCase (Integration)', () => {
       const { game, players } = await createActiveGameWithPlayers(firstUserId, secondUserId);
       const questions: Question[] = await createMultiplePublishedQuestions(5);
       await linkQuestionsToGame(game.id, questions);
-      const incorrectAnswer: string = 'Incorrect answer';
 
       for (let i = 0; i < questions.length - 1; i++) {
         await useCase.execute(new RecordAnswerCommand(firstUserId, questions[i].correctAnswers[0]));
-      }
-
-      const playerBeforeAnsweringLastQuestion: Player | null = await playerRepo.findOne({
-        where: { id: players[0].id },
-      });
-
-      expect(playerBeforeAnsweringLastQuestion).toBeDefined();
-      expect(playerBeforeAnsweringLastQuestion).not.toBeNull();
-      expect(playerBeforeAnsweringLastQuestion!.score).toBe(4);
-
-      await useCase.execute(new RecordAnswerCommand(firstUserId, incorrectAnswer));
-
-      const playerAfterAnsweringLastQuestion: Player | null = await playerRepo.findOne({
-        where: { id: players[0].id },
-      });
-
-      expect(playerAfterAnsweringLastQuestion).toBeDefined();
-      expect(playerAfterAnsweringLastQuestion).not.toBeNull();
-      expect(playerAfterAnsweringLastQuestion!.score).toBe(5);
-    });
-
-    it('не должен начислить 1 очко за неправильный ответ на 5-й вопрос если у игрока уже есть очки и противник уже закончил', async () => {
-      const { id: firstUserId }: User = await createTestUser({
-        login: 'firstUser',
-        email: 'firstUser@example.com',
-      });
-      const { id: secondUserId }: User = await createTestUser({
-        login: 'secondUser',
-        email: 'secondUser@example.com',
-      });
-      const { game, players } = await createActiveGameWithPlayers(firstUserId, secondUserId);
-      const questions: Question[] = await createMultiplePublishedQuestions(5);
-      await linkQuestionsToGame(game.id, questions);
-      const incorrectAnswer: string = 'Incorrect answer';
-
-      for (let i = 0; i < questions.length; i++) {
         await useCase.execute(
           new RecordAnswerCommand(secondUserId, questions[i].correctAnswers[0]),
         );
-
-        if (i < questions.length - 1) {
-          await useCase.execute(
-            new RecordAnswerCommand(firstUserId, questions[i].correctAnswers[0]),
-          );
-        }
       }
 
-      const playerBeforeAnsweringLastQuestion: Player | null = await playerRepo.findOne({
-        where: { id: players[0].id },
-      });
+      const [firstPlayerBeforeAnsweringLastQuestion, secondPlayerBeforeAnsweringLastQuestion] =
+        await Promise.all([
+          playerRepo.findOne({
+            where: { id: players[0].id },
+          }),
+          playerRepo.findOne({
+            where: { id: players[1].id },
+          }),
+        ]);
 
-      expect(playerBeforeAnsweringLastQuestion).toBeDefined();
-      expect(playerBeforeAnsweringLastQuestion).not.toBeNull();
-      expect(playerBeforeAnsweringLastQuestion!.score).toBe(4);
+      expect(firstPlayerBeforeAnsweringLastQuestion).toBeDefined();
+      expect(firstPlayerBeforeAnsweringLastQuestion).not.toBeNull();
+      expect(firstPlayerBeforeAnsweringLastQuestion!.score).toBe(4);
 
-      await useCase.execute(new RecordAnswerCommand(firstUserId, incorrectAnswer));
+      expect(secondPlayerBeforeAnsweringLastQuestion).toBeDefined();
+      expect(secondPlayerBeforeAnsweringLastQuestion).not.toBeNull();
+      expect(secondPlayerBeforeAnsweringLastQuestion!.score).toBe(4);
 
-      const playerAfterAnsweringLastQuestion: Player | null = await playerRepo.findOne({
-        where: { id: players[0].id },
-      });
+      await useCase.execute(new RecordAnswerCommand(firstUserId, 'incorrect answer'));
+      await useCase.execute(new RecordAnswerCommand(secondUserId, 'incorrect answer'));
 
-      expect(playerAfterAnsweringLastQuestion).toBeDefined();
-      expect(playerAfterAnsweringLastQuestion).not.toBeNull();
-      expect(playerAfterAnsweringLastQuestion!.score).toBe(4);
+      const [firstPlayerAfterAnsweringLastQuestion, secondPlayerAfterAnsweringLastQuestion] =
+        await Promise.all([
+          playerRepo.findOne({
+            where: { id: players[0].id },
+          }),
+          playerRepo.findOne({
+            where: { id: players[1].id },
+          }),
+        ]);
+
+      expect(firstPlayerAfterAnsweringLastQuestion).toBeDefined();
+      expect(firstPlayerAfterAnsweringLastQuestion).not.toBeNull();
+      expect(firstPlayerAfterAnsweringLastQuestion!.score).toBe(5);
+
+      expect(secondPlayerAfterAnsweringLastQuestion).toBeDefined();
+      expect(secondPlayerAfterAnsweringLastQuestion).not.toBeNull();
+      expect(secondPlayerAfterAnsweringLastQuestion!.score).toBe(4);
     });
   });
 
