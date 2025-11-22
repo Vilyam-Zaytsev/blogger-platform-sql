@@ -4,13 +4,13 @@ import { BlogsQueryRepository } from '../../infrastructure/query/blogs.query-rep
 import { DataSource, QueryFailedError, Repository } from 'typeorm';
 import { Blog } from '../../domain/entities/blog.entity';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
 import { BlogViewDto } from '../../api/view-dto/blog.view-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('GetBlogQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -21,7 +21,7 @@ describe('GetBlogQueryHandler (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Blog))],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Blog))],
       providers: [GetBlogQueryHandler, BlogsQueryRepository],
     }).compile();
 

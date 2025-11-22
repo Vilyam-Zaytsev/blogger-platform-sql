@@ -3,11 +3,11 @@ import { Blog } from '../../domain/entities/blog.entity';
 import { CreateBlogCommand, CreateBlogUseCase } from './create-blog.usecase';
 import { Test, TestingModule } from '@nestjs/testing';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogsRepository } from '../../infrastructure/blogs.repository';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('CreateBlogUseCase (Integration)', () => {
   let module: TestingModule;
@@ -17,7 +17,7 @@ describe('CreateBlogUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Blog))],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Blog))],
       providers: [CreateBlogUseCase, BlogsRepository],
     }).compile();
 

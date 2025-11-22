@@ -75,7 +75,7 @@ describe('PostsController - updateReaction() (PUT: /posts/:postId/like-status)',
   });
 
   beforeEach(async () => {
-    await appTestManager.cleanupDb(['schema_migrations']);
+    await appTestManager.cleanupDb(['migrations']);
 
     appTestManager.clearThrottlerStorage();
   });

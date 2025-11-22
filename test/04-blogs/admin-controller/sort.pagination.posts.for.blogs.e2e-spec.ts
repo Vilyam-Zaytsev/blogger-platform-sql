@@ -43,7 +43,7 @@ describe('BlogsAdminController - getPost() (GET: /sa/blogs/:blogId/posts (pagina
   });
 
   beforeEach(async () => {
-    await appTestManager.cleanupDb(['schema_migrations']);
+    await appTestManager.cleanupDb(['migrations']);
   });
 
   afterAll(async () => {

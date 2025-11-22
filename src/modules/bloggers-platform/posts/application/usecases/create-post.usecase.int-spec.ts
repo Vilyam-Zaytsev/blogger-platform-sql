@@ -4,7 +4,6 @@ import { DataSource, QueryFailedError, Repository } from 'typeorm';
 import { Blog } from '../../../blogs/domain/entities/blog.entity';
 import { Post } from '../../domain/entities/post.entity';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogInputDto } from '../../../blogs/api/input-dto/blog.input-dto';
 import { PostCreateDto } from '../dto/post.create-dto';
@@ -13,6 +12,7 @@ import { PostsRepository } from '../../infrastructure/posts.repository';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('CreatePostUseCase (Integration)', () => {
   let module: TestingModule;
@@ -25,7 +25,7 @@ describe('CreatePostUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Post))],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Post))],
       providers: [CreatePostUseCase, PostsRepository, BlogsRepository],
     }).compile();
 

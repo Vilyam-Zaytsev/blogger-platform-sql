@@ -41,6 +41,59 @@ export class UsersTestManager {
     return newUsers;
   }
 
+  async createAuthorizedUsers(quantity: number): Promise<TestResultLogin[]> {
+    const resultLogins: TestResultLogin[] = [];
+    const dtos: UserInputDto[] = TestDtoFactory.generateUserInputDto(quantity);
+
+    for (let i = 0; i < quantity; i++) {
+      const dto: UserInputDto = dtos[i];
+
+      const resCreateUser: Response = await request(this.server)
+        .post(`/${GLOBAL_PREFIX}/sa/users`)
+        .send(dto)
+        .set('Authorization', this.adminCredentialsInBase64)
+        .expect(HttpStatus.CREATED);
+
+      const newUser: UserViewDto = resCreateUser.body as UserViewDto;
+
+      expect(typeof newUser.id).toBe('string');
+      expect(new Date(newUser.createdAt).toString()).not.toBe('Invalid Date');
+      expect(newUser.login).toBe(dto.login);
+      expect(newUser.email).toBe(dto.email);
+
+      const resLoginUser: Response = await request(this.server)
+        .post(`/${GLOBAL_PREFIX}/auth/login`)
+        .send({
+          loginOrEmail: newUser.login,
+          password: 'qwerty',
+        })
+        .expect(HttpStatus.OK);
+
+      expect(resLoginUser.body).toEqual(
+        expect.objectContaining({
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          accessToken: expect.any(String),
+        }),
+      );
+
+      const body = resLoginUser.body as { accessToken: string };
+
+      const authTokens = {
+        accessToken: body.accessToken,
+        refreshToken: resLoginUser.headers['set-cookie'][0].split(';')[0].split('=')[1],
+      };
+
+      const result = {
+        loginOrEmail: newUser.login,
+        authTokens,
+      };
+
+      resultLogins.push(result);
+    }
+
+    return resultLogins;
+  }
+
   async registration(dto: UserInputDto): Promise<Response> {
     return await request(this.server)
       .post(`/${GLOBAL_PREFIX}/auth/registration`)

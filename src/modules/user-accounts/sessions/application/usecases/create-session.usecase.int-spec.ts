@@ -6,7 +6,6 @@ import { UsersFactory } from '../../../users/application/factories/users.factory
 import { User } from '../../../users/domain/entities/user.entity';
 import { Session } from '../../domain/entities/session.entity';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SessionsRepository } from '../../infrastructure/sessions.repository';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
@@ -15,6 +14,7 @@ import { CreateUserDto } from '../../../users/dto/create-user.dto';
 import { CreateSessionDto } from '../../dto/create-session.dto';
 import { DateService } from '../../../users/application/services/date.service';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
 
 jest.mock('../../../../../core/utils/user-agent.parser');
 const mockParseUserAgent = parseUserAgent as jest.MockedFunction<typeof parseUserAgent>;
@@ -29,7 +29,11 @@ describe('CreateSessionUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Session))],
+      imports: [
+        configModule,
+        DatabaseModule,
+        TypeOrmModule.forFeature(getRelatedEntities(Session)),
+      ],
       providers: [
         CreateSessionUseCase,
         SessionsRepository,

@@ -4,7 +4,6 @@ import { DataSource, Repository } from 'typeorm';
 import { User } from '../../domain/entities/user.entity';
 import { UsersFactory } from '../factories/users.factory';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UsersRepository } from '../../infrastructure/users.repository';
 import { CryptoService } from '../services/crypto.service';
@@ -19,6 +18,7 @@ import { UsersQueryRepository } from '../../infrastructure/query/users.query-rep
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { DateService } from '../services/date.service';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('GetUsersQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -29,7 +29,7 @@ describe('GetUsersQueryHandler (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
       providers: [
         GetUsersQueryHandler,
         UsersRepository,
