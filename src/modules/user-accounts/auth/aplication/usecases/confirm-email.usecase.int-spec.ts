@@ -3,7 +3,6 @@ import { ConfirmEmailCommand, ConfirmEmailUseCase } from './confirm-email-use.ca
 import { DataSource, Repository } from 'typeorm';
 import { User } from '../../../users/domain/entities/user.entity';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfirmationStatus } from '../../domain/entities/email-confirmation-code.entity';
 import { UserValidationService } from '../../../users/application/services/user-validation.service';
@@ -16,6 +15,7 @@ import { RegistrationConfirmationCodeInputDto } from '../../api/input-dto/regist
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { Duration } from 'date-fns';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('ConfirmEmailUseCase (Integration)', () => {
   let module: TestingModule;
@@ -27,7 +27,7 @@ describe('ConfirmEmailUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
       providers: [
         ConfirmEmailUseCase,
         UserValidationService,

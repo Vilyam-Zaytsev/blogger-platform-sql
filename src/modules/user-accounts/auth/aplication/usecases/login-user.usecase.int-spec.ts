@@ -4,7 +4,6 @@ import { UsersFactory } from '../../../users/application/factories/users.factory
 import { User } from '../../../users/domain/entities/user.entity';
 import { Session } from '../../../sessions/domain/entities/session.entity';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SessionsRepository } from '../../../sessions/infrastructure/sessions.repository';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
@@ -26,6 +25,7 @@ import { AccessTokenProvider } from '../../providers/access-token.provider';
 import { RefreshTokenProvider } from '../../providers/refresh-token.provider';
 import { CreateSessionUseCase } from '../../../sessions/application/usecases/create-session.usecase';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('LoginUserUseCase (Integration)', () => {
   let module: TestingModule;
@@ -39,7 +39,7 @@ describe('LoginUserUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
       providers: [
         UserAccountsConfig,
         CreateSessionUseCase,

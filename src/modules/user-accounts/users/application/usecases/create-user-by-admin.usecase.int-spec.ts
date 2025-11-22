@@ -1,6 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { CreateUserByAdminUseCase, CreateUserCommand } from './create-user-by-admin.usecase';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../../domain/entities/user.entity';
 import { ConfirmationStatus } from '../../../auth/domain/entities/email-confirmation-code.entity';
@@ -14,6 +13,7 @@ import { DatabaseModule } from '../../../../database/database.module';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { DateService } from '../services/date.service';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
 import SpyInstance = jest.SpyInstance;
 
 describe('CreateUserByAdminUseCase (Integration)', () => {
@@ -26,7 +26,7 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
       providers: [
         CreateUserByAdminUseCase,
         UserValidationService,

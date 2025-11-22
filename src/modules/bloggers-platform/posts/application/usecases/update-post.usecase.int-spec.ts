@@ -6,7 +6,6 @@ import { Blog } from '../../../blogs/domain/entities/blog.entity';
 import { PostsRepository } from '../../infrastructure/posts.repository';
 import { BlogsRepository } from '../../../blogs/infrastructure/blogs.repository';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { BlogInputDto } from '../../../blogs/api/input-dto/blog.input-dto';
@@ -15,6 +14,7 @@ import { PostCreateDto } from '../dto/post.create-dto';
 import { PostUpdateDto } from '../dto/post.update-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('UpdatePostUseCase (Integration)', () => {
   let module: TestingModule;
@@ -27,7 +27,7 @@ describe('UpdatePostUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Post))],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Post))],
       providers: [UpdatePostUseCase, PostsRepository, BlogsRepository],
     }).compile();
 

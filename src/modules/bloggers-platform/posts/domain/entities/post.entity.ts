@@ -1,5 +1,5 @@
 import { Check, Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { BaseEntity } from '../../../../../core/entities/base.entity';
+import { BaseEntity } from '../../../../../core/entities/base-entity';
 import { Blog } from '../../../blogs/domain/entities/blog.entity';
 import { PostCreateDto } from '../../application/dto/post.create-dto';
 import { ReactionPost } from '../../../reactions/domain/entities/reaction-post.entity';
@@ -28,7 +28,7 @@ export const contentConstraints = {
 )
 @Check(
   'CHK_short_direction_length',
-  `char_length("shortDescription") >= ${shortDescriptionConstraints.minLength} AND char_length("shortDescription") <= ${shortDescriptionConstraints.maxLength}`,
+  `char_length("short_description") >= ${shortDescriptionConstraints.minLength} AND char_length("short_description") <= ${shortDescriptionConstraints.maxLength}`,
 )
 @Check(
   'CHK_content_length',
@@ -56,7 +56,7 @@ export class Post extends BaseEntity {
   })
   public content: string;
 
-  @ManyToOne(() => Blog, (blog: Blog): Post[] => blog.posts, {
+  @ManyToOne(() => Blog, (blog: Blog) => blog.posts, {
     onDelete: 'CASCADE',
   })
   public blog: Blog;

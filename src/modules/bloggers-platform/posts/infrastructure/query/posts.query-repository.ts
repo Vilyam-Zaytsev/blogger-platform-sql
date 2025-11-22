@@ -6,6 +6,7 @@ import { DomainExceptionCode } from '../../../../../core/exceptions/domain-excep
 import {
   GetPostsQueryParams,
   PostsSortBy,
+  PostsSortBy_DB,
 } from '../../api/input-dto/get-posts-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { RawPost } from './types/raw-post.type';
@@ -21,21 +22,21 @@ export class PostsQueryRepository {
   async getByIdOrNotFoundFail(id: number, user: UserContextDto | null): Promise<PostViewDto> {
     const likesCountQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select('rp."postId"', 'postId')
+      .select('rp.post_id', 'postId')
       .addSelect('COUNT(*)', 'count')
       .from('reactions_posts', 'rp')
-      .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+      .innerJoin('reactions', 'r', 'r.id = rp.reaction_id')
       .where('r.status = :like', { like: ReactionStatus.Like })
-      .groupBy('rp."postId"');
+      .groupBy('rp.post_id');
 
     const dislikesCountQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select('rp."postId"', 'postId')
+      .select('rp.post_id', 'postId')
       .addSelect('COUNT(*)', 'count')
       .from('reactions_posts', 'rp')
-      .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+      .innerJoin('reactions', 'r', 'r.id = rp.reaction_id')
       .where('r.status = :dislike', { dislike: ReactionStatus.Dislike })
-      .groupBy('rp."postId"');
+      .groupBy('rp.post_id');
 
     const newestLikesQueryBuilder = this.dataSource
       .createQueryBuilder()
@@ -53,15 +54,15 @@ export class PostsQueryRepository {
       .from(
         (qb) =>
           qb
-            .select('rp."postId"', 'postId')
-            .addSelect('r."createdAt"', 'createdAt')
-            .addSelect('r."userId"', 'userId')
+            .select('rp.post_id', 'postId')
+            .addSelect('r.created_at', 'createdAt')
+            .addSelect('r.user_id', 'userId')
             .addSelect(
-              'ROW_NUMBER() OVER (PARTITION BY rp."postId" ORDER BY r."createdAt" DESC)',
+              'ROW_NUMBER() OVER (PARTITION BY rp.post_id ORDER BY r.created_at DESC)',
               'rn',
             )
             .from('reactions_posts', 'rp')
-            .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+            .innerJoin('reactions', 'r', 'r.id = rp.reaction_id')
             .where('r.status = :like', { like: ReactionStatus.Like }),
         'r2',
       )
@@ -105,12 +106,12 @@ export class PostsQueryRepository {
               'reactions',
               'r',
               `
-          r.id = rp."reactionId"
+          r.id = rp.reaction_id
          AND r.userId = :uid
          `,
               { uid: user.id },
             )
-            .where('rp."postId" = post.id')
+            .where('rp.post_id = post.id')
             .limit(1),
         'myStatus',
       );
@@ -140,21 +141,21 @@ export class PostsQueryRepository {
 
     const likesCountQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select('rp."postId"', 'postId')
+      .select('rp.post_id', 'postId')
       .addSelect('COUNT(*)', 'count')
       .from('reactions_posts', 'rp')
-      .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+      .innerJoin('reactions', 'r', 'r.id = rp.reaction_id')
       .where('r.status = :like', { like: ReactionStatus.Like })
-      .groupBy('rp."postId"');
+      .groupBy('rp.post_id');
 
     const dislikesCountQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select('rp."postId"', 'postId')
+      .select('rp.post_id', 'postId')
       .addSelect('COUNT(*)', 'count')
       .from('reactions_posts', 'rp')
-      .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+      .innerJoin('reactions', 'r', 'r.id = rp.reaction_id')
       .where('r.status = :dislike', { dislike: ReactionStatus.Dislike })
-      .groupBy('rp."postId"');
+      .groupBy('rp.post_id');
 
     const newestLikesQueryBuilder = this.dataSource
       .createQueryBuilder()
@@ -172,15 +173,15 @@ export class PostsQueryRepository {
       .from(
         (qb) =>
           qb
-            .select('rp."postId"', 'postId')
-            .addSelect('r."createdAt"', 'createdAt')
-            .addSelect('r."userId"', 'userId')
+            .select('rp.post_id', 'postId')
+            .addSelect('r.created_at', 'createdAt')
+            .addSelect('r.user_id', 'userId')
             .addSelect(
-              'ROW_NUMBER() OVER (PARTITION BY rp."postId" ORDER BY r."createdAt" DESC)',
+              'ROW_NUMBER() OVER (PARTITION BY rp.post_id ORDER BY r.created_at DESC)',
               'rn',
             )
             .from('reactions_posts', 'rp')
-            .innerJoin('reactions', 'r', 'r.id = rp."reactionId"')
+            .innerJoin('reactions', 'r', 'r.id = rp.reaction_id')
             .where('r.status = :like', { like: ReactionStatus.Like }),
         'r2',
       )
@@ -206,7 +207,7 @@ export class PostsQueryRepository {
         'post.title AS title',
         'post.shortDescription AS "shortDescription"',
         'post.content AS content',
-        'post.createdAt AS "createdAt"',
+        'post.created_at AS "createdAt"',
         'blog.id AS "blogId"',
         'blog.name AS "blogName"',
       ])
@@ -224,12 +225,12 @@ export class PostsQueryRepository {
               'reactions',
               'r',
               `
-          r.id = rp."reactionId"
+          r.id = rp.reaction_id
          AND r.userId = :uid
          `,
               { uid: user.id },
             )
-            .where('rp."postId" = post.id')
+            .where('rp.post_id = post.id')
             .limit(1),
         'myStatus',
       );
@@ -237,8 +238,9 @@ export class PostsQueryRepository {
       mainQueryBuilder.addSelect(`'${ReactionStatus.None}'`, 'myStatus');
     }
 
+    //TODO: временное решение
     const orderByColumn: string =
-      sortBy !== PostsSortBy.BlogName ? `post."${sortBy}"` : 'blog."name"';
+      sortBy !== PostsSortBy.BlogName ? `post.${PostsSortBy_DB[sortBy]}` : 'blog.name';
 
     mainQueryBuilder
       .orderBy(orderByColumn, sortDirection.toUpperCase() as 'ASC' | 'DESC')

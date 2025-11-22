@@ -19,7 +19,7 @@ export class TestingService {
           SELECT string_agg(format('"%I"', tablename), ', ')
           INTO tabnames
           FROM pg_tables
-          WHERE schemaname = 'public' AND tablename != 'schema_migrations';
+          WHERE schemaname = 'public' AND tablename != 'migrations';
 
           IF tabnames IS NOT NULL THEN
             EXECUTE format('TRUNCATE %s RESTART IDENTITY CASCADE', tabnames);

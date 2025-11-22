@@ -8,7 +8,6 @@ import { Blog } from '../../../blogs/domain/entities/blog.entity';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
@@ -21,6 +20,7 @@ import { PostCreateDto } from '../dto/post.create-dto';
 import { CryptoService } from '../../../../user-accounts/users/application/services/crypto.service';
 import { DateService } from '../../../../user-accounts/users/application/services/date.service';
 import { ReactionStatus } from '../../../reactions/domain/entities/reaction.entity';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('GetPostQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -33,7 +33,7 @@ describe('GetPostQueryHandler (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Post))],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Post))],
       providers: [
         GetPostQueryHandler,
         PostsQueryRepository,

@@ -19,7 +19,6 @@ import { Post } from '../../domain/entities/post.entity';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 import { DataSource, Repository } from 'typeorm';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { CreateUserDto } from '../../../../user-accounts/users/dto/create-user.dto';
@@ -30,9 +29,8 @@ import { UsersFactory } from '../../../../user-accounts/users/application/factor
 import { CryptoService } from '../../../../user-accounts/users/application/services/crypto.service';
 import { DateService } from '../../../../user-accounts/users/application/services/date.service';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
-import { instanceToInstance } from 'class-transformer';
-import { isInstance } from 'class-validator';
 import { ReactionStatus } from '../../../reactions/domain/entities/reaction.entity';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('GetPostsForBlogQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -47,7 +45,7 @@ describe('GetPostsForBlogQueryHandler (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Post))],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Post))],
       providers: [
         GetPostsForBlogQueryHandler,
         PostsQueryRepository,

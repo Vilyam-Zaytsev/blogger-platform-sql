@@ -4,7 +4,6 @@ import { BlogsQueryRepository } from '../../infrastructure/query/blogs.query-rep
 import { DataSource, Repository } from 'typeorm';
 import { Blog } from '../../domain/entities/blog.entity';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
 import {
@@ -15,6 +14,7 @@ import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { BlogViewDto } from '../../api/view-dto/blog.view-dto';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('GetBlogsQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -25,7 +25,7 @@ describe('GetBlogsQueryHandler (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Blog))],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Blog))],
       providers: [GetBlogsQueryHandler, BlogsQueryRepository],
     }).compile();
 

@@ -5,7 +5,6 @@ import { User } from '../../../users/domain/entities/user.entity';
 import { Session } from '../../domain/entities/session.entity';
 import { GetSessionsQuery, GetSessionsQueryHandler } from './get-sessions.query-handler';
 import { DatabaseModule } from '../../../../database/database.module';
-import { CoreModule } from '../../../../../core/core.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { SessionsRepository } from '../../infrastructure/sessions.repository';
 import { UsersRepository } from '../../../users/infrastructure/users.repository';
@@ -16,6 +15,7 @@ import { SessionViewDto } from '../../api/view-dto/session.view-dto';
 import { SessionsQueryRepository } from '../../infrastructure/query/sessions.query-repository';
 import { DateService } from '../../../users/application/services/date.service';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
+import { configModule } from '../../../../../dynamic-config.module';
 
 describe('GetSessionsQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -27,7 +27,11 @@ describe('GetSessionsQueryHandler (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [DatabaseModule, CoreModule, TypeOrmModule.forFeature(getRelatedEntities(Session))],
+      imports: [
+        configModule,
+        DatabaseModule,
+        TypeOrmModule.forFeature(getRelatedEntities(Session)),
+      ],
       providers: [
         GetSessionsQueryHandler,
         SessionsQueryRepository,
