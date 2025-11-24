@@ -22,7 +22,7 @@ import { RecordAnswerCommand } from '../application/usecases/record-answer.useca
 import { GetGameQuery } from '../application/queries/get-game.query-handler';
 import { GetCurrentGameQuery } from '../application/queries/get-current-game.query-handler';
 
-@Controller('pair-game-quiz/pairs')
+@Controller('pair-game-quiz')
 @UseGuards(JwtAuthGuard)
 export class QuizPublicController {
   constructor(
@@ -31,7 +31,7 @@ export class QuizPublicController {
     private readonly gamesQueryRepository: GamesQueryRepository,
   ) {}
 
-  @Post('connection')
+  @Post('pairs/connection')
   @HttpCode(HttpStatus.OK)
   async connectToGame(@ExtractUserFromRequest() { id }: UserContextDto): Promise<GameViewDto> {
     const idConnectedGame: number = await this.commandBus.execute(new ConnectToGameCommand(id));
@@ -39,7 +39,7 @@ export class QuizPublicController {
     return this.gamesQueryRepository.getByIdOrNotFoundFail(idConnectedGame);
   }
 
-  @Post('my-current/answers')
+  @Post('pairs/my-current/answers')
   @HttpCode(HttpStatus.OK)
   async recordAnswer(
     @ExtractUserFromRequest() { id: userId }: UserContextDto,
@@ -48,14 +48,14 @@ export class QuizPublicController {
     return this.commandBus.execute(new RecordAnswerCommand(userId, answer));
   }
 
-  @Get('my-current')
-  async getCurrentGameForPlayer(
+  @Get('pairs/my-current')
+  async getCurrentGameForUser(
     @ExtractUserFromRequest() { id: userId }: UserContextDto,
   ): Promise<GameViewDto> {
     return this.queryBus.execute(new GetCurrentGameQuery(userId));
   }
 
-  @Get(':id')
+  @Get('pairs/:id')
   async getGameById(
     @ExtractUserFromRequest() { id: userId }: UserContextDto,
     @Param('id', ParseIntPipe) gameId: number,
