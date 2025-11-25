@@ -15,7 +15,6 @@ import { Answer, AnswerStatus } from '../../domain/entities/answer.entity';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 
 import { GamesQueryRepository } from '../../infrastructure/query/games.query-repository';
-import { PlayerValidationService } from '../../domain/services/player-validation.service';
 import { PlayersRepository } from '../../infrastructure/players.repository';
 import { QuestionInputDto } from '../../../admin/api/input-dto/question.input-dto';
 import { GameQuestionCreateDto } from '../../domain/dto/game-question.create-dto';
@@ -29,6 +28,7 @@ import { DateService } from '../../../../user-accounts/users/application/service
 import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { AnswerCreateDto } from '../../domain/dto/answer.create-dto';
 
 describe('GetCurrentGameQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -55,7 +55,6 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
         DateService,
 
         GamesQueryRepository,
-        PlayerValidationService,
         PlayersRepository,
       ],
     }).compile();
@@ -86,11 +85,6 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
     await module.close();
   });
 
-  /**
-   * Хелпер: создать пользователя
-   * @param userData - частичные данные пользователя для переопределения дефолтных значений
-   * @returns созданный и сохранённый User
-   */
   const createTestUser = async (userData?: Partial<UserInputDto>): Promise<User> => {
     const dto: CreateUserDto = {
       login: 'test_user',
@@ -103,11 +97,6 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
     return await userRepo.save(user);
   };
 
-  /**
-   * Хелпер: создать опубликованный вопрос
-   * @param questionData - частичные данные вопроса
-   * @returns созданный и опубликованный Question
-   */
   const createTestPublishedQuestion = async (
     questionData?: Partial<QuestionInputDto>,
   ): Promise<Question> => {
@@ -122,11 +111,6 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
     return await questionRepo.save(question);
   };
 
-  /**
-   * Хелпер: создать несколько опубликованных вопросов
-   * @param count - количество вопросов
-   * @returns массив созданных Question
-   */
   const createMultiplePublishedQuestions = async (count: number): Promise<Question[]> => {
     const questions: Question[] = [];
 
@@ -141,11 +125,6 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
     return questions;
   };
 
-  /**
-   * Хелпер: создать игру в статусе Pending с одним игроком (Host)
-   * @param userId - ID пользователя, который будет Host
-   * @returns созданная Game и Player
-   */
   const createPendingGameWithOnePlayer = async (
     userId: number,
   ): Promise<{ game: Game; player: Player }> => {
@@ -159,12 +138,6 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
     return { game: createdGame, player: createdPlayer };
   };
 
-  /**
-   * Хелпер: создать игру в статусе Active с двумя игроками
-   * @param hostId - ID пользователя Host
-   * @param playerId - ID пользователя Player
-   * @returns созданная активная Game и массив Players
-   */
   const createActiveGameWithPlayers = async (
     hostId: number,
     playerId: number,
@@ -186,12 +159,6 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
     return { game: activeGame, players: createdPlayers };
   };
 
-  /**
-   * Хелпер: создать игру в статусе Finished с двумя игроками
-   * @param hostId - ID пользователя Host
-   * @param playerId - ID пользователя Player
-   * @returns законченная Game и массив Players
-   */
   const createFinishedGameWithPlayers = async (
     hostId: number,
     playerId: number,
@@ -214,12 +181,6 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
     return { game: finishedGame, players: createdPlayers };
   };
 
-  /**
-   * Хелпер: связать вопросы с игрой (создать GameQuestion)
-   * @param gameId - ID игры
-   * @param questions - массив вопросов
-   * @returns массив созданных GameQuestion
-   */
   const linkQuestionsToGame = async (
     gameId: number,
     questions: Question[],
@@ -240,29 +201,8 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
     return gameQuestions;
   };
 
-  /**
-   * Хелпер: создать ответ игрока на вопрос
-   * @param playerId - ID игрока
-   * @param gameQuestionId - ID вопроса в игре
-   * @param gameId - ID игры
-   * @param answerBody - текст ответа
-   * @param status - статус ответа (Correct/Incorrect)
-   * @returns созданный Answer
-   */
-  const createTestAnswer = async (
-    playerId: number,
-    gameQuestionId: number,
-    gameId: number,
-    answerBody: string,
-    status: AnswerStatus,
-  ): Promise<Answer> => {
-    const answer: Answer = Answer.create({
-      playerId,
-      gameId,
-      gameQuestionId,
-      answerBody,
-      status,
-    });
+  const createTestAnswer = async (dto: AnswerCreateDto): Promise<Answer> => {
+    const answer: Answer = Answer.create(dto);
 
     return await answerRepo.save(answer);
   };
@@ -279,7 +219,7 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
 
         expect(gameViewDto).toBeDefined();
         expect(gameViewDto).not.toBeNull();
-        expect(gameViewDto.id).toBe(game.publicId);
+        expect(gameViewDto.id).toBe(game.id.toString());
         expect(gameViewDto.status).toBe(GameStatus.Pending);
         expect(gameViewDto.pairCreatedDate).toBe(game.createdAt.toISOString());
         expect(gameViewDto.startGameDate).toBeNull();
@@ -294,8 +234,7 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
 
         expect(gameViewDto.secondPlayerProgress).toBeNull();
 
-        expect(gameViewDto.questions).toHaveLength(0);
-        expect(gameViewDto.questions).toEqual([]);
+        expect(gameViewDto.questions).toBeNull();
       });
     });
 
@@ -320,7 +259,7 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
 
         expect(gameViewDto).toBeDefined();
         expect(gameViewDto).not.toBeNull();
-        expect(gameViewDto.id).toBe(game.publicId);
+        expect(gameViewDto.id).toBe(game.id.toString());
         expect(gameViewDto.status).toBe(GameStatus.Active);
         expect(gameViewDto.pairCreatedDate).toBe(game.createdAt.toISOString());
         expect(gameViewDto.startGameDate).toBe(game.startGameDate!.toISOString());
@@ -342,8 +281,8 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
 
         expect(gameViewDto.questions).toHaveLength(REQUIRED_QUESTIONS_COUNT);
         for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-          expect(gameViewDto.questions[i].id).toBe(questions[i].publicId);
-          expect(gameViewDto.questions[i].body).toBe(questions[i].body);
+          expect(gameViewDto.questions![i].id).toBe(questions[i].publicId);
+          expect(gameViewDto.questions![i].body).toBe(questions[i].body);
         }
       });
 
@@ -367,7 +306,7 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
 
         expect(gameViewDto).toBeDefined();
         expect(gameViewDto).not.toBeNull();
-        expect(gameViewDto.id).toBe(game.publicId);
+        expect(gameViewDto.id).toBe(game.id.toString());
         expect(gameViewDto.status).toBe(GameStatus.Active);
         expect(gameViewDto.pairCreatedDate).toBe(game.createdAt.toISOString());
         expect(gameViewDto.startGameDate).toBe(game.startGameDate!.toISOString());
@@ -389,8 +328,8 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
 
         expect(gameViewDto.questions).toHaveLength(REQUIRED_QUESTIONS_COUNT);
         for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-          expect(gameViewDto.questions[i].id).toBe(questions[i].publicId);
-          expect(gameViewDto.questions[i].body).toBe(questions[i].body);
+          expect(gameViewDto.questions![i].id).toBe(questions[i].publicId);
+          expect(gameViewDto.questions![i].body).toBe(questions[i].body);
         }
       });
 
@@ -410,13 +349,14 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
 
         const answers: Answer[] = [];
         for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-          const answer: Answer = await createTestAnswer(
-            players[0].id,
-            gameQuestions[i].id,
-            game.id,
-            questions[i].correctAnswers[0],
-            AnswerStatus.Correct,
-          );
+          const answer: Answer = await createTestAnswer({
+            answerBody: questions[i].correctAnswers[0],
+            status: AnswerStatus.Correct,
+            playerId: players[0].id,
+            gameQuestionId: gameQuestions[i].id,
+            gameId: game.id,
+          });
+
           answers.push(answer);
         }
 
@@ -462,13 +402,13 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
 
         const answers: Answer[] = [];
         for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-          const answer: Answer = await createTestAnswer(
-            players[1].id,
-            gameQuestions[i].id,
-            game.id,
-            questions[i].correctAnswers[0],
-            AnswerStatus.Correct,
-          );
+          const answer: Answer = await createTestAnswer({
+            answerBody: questions[i].correctAnswers[0],
+            status: AnswerStatus.Correct,
+            playerId: players[1].id,
+            gameQuestionId: gameQuestions[i].id,
+            gameId: game.id,
+          });
           answers.push(answer);
         }
 
@@ -519,21 +459,21 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
         const answers_player2: Answer[] = [];
 
         for (let i = 0; i < answersCount; i++) {
-          const answer_p1: Answer = await createTestAnswer(
-            players[0].id,
-            gameQuestions[i].id,
-            game.id,
-            questions[i].correctAnswers[0],
-            AnswerStatus.Correct,
-          );
+          const answer_p1: Answer = await createTestAnswer({
+            answerBody: questions[i].correctAnswers[0],
+            status: AnswerStatus.Correct,
+            playerId: players[0].id,
+            gameQuestionId: gameQuestions[i].id,
+            gameId: game.id,
+          });
 
-          const answer_p2: Answer = await createTestAnswer(
-            players[1].id,
-            gameQuestions[i].id,
-            game.id,
-            questions[i].correctAnswers[0],
-            AnswerStatus.Correct,
-          );
+          const answer_p2: Answer = await createTestAnswer({
+            answerBody: questions[i].correctAnswers[0],
+            status: AnswerStatus.Correct,
+            playerId: players[1].id,
+            gameQuestionId: gameQuestions[i].id,
+            gameId: game.id,
+          });
 
           answers_player1.push(answer_p1);
           answers_player2.push(answer_p2);
@@ -591,22 +531,22 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
 
         const correctAnswersCount: number = 3;
         for (let i = 0; i < correctAnswersCount; i++) {
-          await createTestAnswer(
-            players[0].id,
-            gameQuestions[i].id,
-            game.id,
-            questions[i].correctAnswers[0],
-            AnswerStatus.Correct,
-          );
+          await createTestAnswer({
+            answerBody: questions[i].correctAnswers[0],
+            status: AnswerStatus.Correct,
+            playerId: players[0].id,
+            gameQuestionId: gameQuestions[i].id,
+            gameId: game.id,
+          });
         }
         for (let i = correctAnswersCount; i < REQUIRED_QUESTIONS_COUNT; i++) {
-          await createTestAnswer(
-            players[0].id,
-            gameQuestions[i].id,
-            game.id,
-            'Wrong answer',
-            AnswerStatus.Incorrect,
-          );
+          await createTestAnswer({
+            answerBody: questions[i].correctAnswers[0],
+            status: AnswerStatus.Incorrect,
+            playerId: players[0].id,
+            gameQuestionId: gameQuestions[i].id,
+            gameId: game.id,
+          });
         }
 
         players[0].addScore(correctAnswersCount);
@@ -677,7 +617,7 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
           new GetCurrentGameQuery(firstUserId),
         );
 
-        expect(gameViewDto.id).toBe(pendingGame.publicId);
+        expect(gameViewDto.id).toBe(pendingGame.id.toString());
         expect(gameViewDto.status).toBe(GameStatus.Pending);
       });
     });
