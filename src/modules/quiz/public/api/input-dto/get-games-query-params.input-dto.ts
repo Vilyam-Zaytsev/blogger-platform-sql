@@ -2,7 +2,7 @@ import { BaseQueryParams } from '../../../../../core/dto/base.query-params.input
 import { IsEnum } from 'class-validator';
 
 export enum GamesSortBy {
-  CreatedAt = 'createdAt',
+  PairCreatedDate = 'createdAt',
   UpdatedAt = 'updatedAt',
   DeletedAt = 'deletedAt',
   StartGameDate = 'startGameDate',
@@ -12,5 +12,5 @@ export enum GamesSortBy {
 
 export class GetGamesQueryParams extends BaseQueryParams<GamesSortBy> {
   @IsEnum(GamesSortBy)
-  sortBy: GamesSortBy = GamesSortBy.CreatedAt;
+  sortBy: GamesSortBy = GamesSortBy.PairCreatedDate;
 }
