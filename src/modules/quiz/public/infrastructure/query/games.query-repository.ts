@@ -10,6 +10,8 @@ import { DomainExceptionCode } from '../../../../../core/exceptions/domain-excep
 import { GetGamesQueryParams } from '../../api/input-dto/get-games-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { convertToSnakeCase } from '../../../../../core/utils/convert-to-snake-case.utility';
+import { StatisticViewDto } from '../../api/view-dto/statistic.view-dto';
+import { Statistic } from '../../domain/entities/statistic.entity';
 
 @Injectable()
 export class GamesQueryRepository {
@@ -266,5 +268,19 @@ export class GamesQueryRepository {
       totalCount,
       items: rawGames.map((g) => GameViewDto.mapToView(g)),
     };
+  }
+
+  async getStatisticByUserId(userId: number): Promise<StatisticViewDto> {
+    const statistic: Statistic | null = await this.dataSource
+      .getRepository<Statistic>(Statistic)
+      .findOneBy({
+        userId,
+      });
+
+    if (!statistic) {
+      return new StatisticViewDto();
+    }
+
+    return StatisticViewDto.mapToView(statistic);
   }
 }
