@@ -26,6 +26,7 @@ import { DeleteQuestionUseCase } from './admin/application/usecases/delete-quest
 import { QuestionValidatorService } from './admin/domain/services/question-validator.service';
 import { GetAllGamesForUserQueryHandler } from './public/application/queries/get-all-games-for-user.query-handler';
 import { Statistic } from './public/domain/entities/statistic.entity';
+import { GetStatisticForUserQueryHandler } from './public/application/queries/get-satistic-for-user.query-handler';
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { Statistic } from './public/domain/entities/statistic.entity';
     GetCurrentGameQueryHandler,
     GetGameQueryHandler,
     GetAllGamesForUserQueryHandler,
+    GetStatisticForUserQueryHandler,
 
     // 🔸 Players:
     //repo
