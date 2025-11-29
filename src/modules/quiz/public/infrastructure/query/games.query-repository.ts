@@ -132,7 +132,7 @@ export class GamesQueryRepository {
     if (!rawGame) {
       throw new DomainException({
         code: DomainExceptionCode.NotFound,
-        message: `The post with ID (${id}) does not exist`,
+        message: `The game with ID (${id}) does not exist`,
       });
     }
     return GameViewDto.mapToView(rawGame);
