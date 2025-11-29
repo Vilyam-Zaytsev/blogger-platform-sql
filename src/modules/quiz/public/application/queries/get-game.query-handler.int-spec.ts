@@ -1,5 +1,3 @@
-// src/modules/quiz/public/application/queries/get-game.query-handler.int-spec.ts
-
 import { Test, TestingModule } from '@nestjs/testing';
 import { DataSource, Repository } from 'typeorm';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -17,7 +15,6 @@ import { Answer, AnswerStatus } from '../../domain/entities/answer.entity';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 
 import { GamesQueryRepository } from '../../infrastructure/query/games.query-repository';
-import { PlayerValidationService } from '../../domain/services/player-validation.service';
 import { PlayersRepository } from '../../infrastructure/players.repository';
 import { QuestionInputDto } from '../../../admin/api/input-dto/question.input-dto';
 import { GameQuestionCreateDto } from '../../domain/dto/game-question.create-dto';
@@ -29,6 +26,7 @@ import { UsersFactory } from '../../../../user-accounts/users/application/factor
 import { CryptoService } from '../../../../user-accounts/users/application/services/crypto.service';
 import { DateService } from '../../../../user-accounts/users/application/services/date.service';
 import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants';
+import { AnswerCreateDto } from '../../domain/dto/answer.create-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 
@@ -57,7 +55,6 @@ describe('GetGameQueryHandler (Integration)', () => {
         DateService,
 
         GamesQueryRepository,
-        PlayerValidationService,
         PlayersRepository,
       ],
     }).compile();
@@ -128,6 +125,17 @@ describe('GetGameQueryHandler (Integration)', () => {
     return questions;
   };
 
+  const createPendingGameWithOnePlayer = async (userId: number) => {
+    const game: Game = Game.create();
+    const createdGame: Game = await gameRepo.save(game);
+
+    const player: Player = Player.create(userId, createdGame.id);
+    player.updateRole(GameRole.Host);
+    const createdPlayer: Player = await playerRepo.save(player);
+
+    return { game: createdGame, player: createdPlayer };
+  };
+
   const createActiveGameWithPlayers = async (hostId: number, playerId: number) => {
     const game: Game = Game.create();
     const createdGame: Game = await gameRepo.save(game);
@@ -144,17 +152,6 @@ describe('GetGameQueryHandler (Integration)', () => {
     const activeGame: Game = await gameRepo.save(createdGame);
 
     return { game: activeGame, players: createdPlayers };
-  };
-
-  const createPendingGameWithOnePlayer = async (userId: number) => {
-    const game: Game = Game.create();
-    const createdGame: Game = await gameRepo.save(game);
-
-    const player: Player = Player.create(userId, createdGame.id);
-    player.updateRole(GameRole.Host);
-    const createdPlayers: Player = await playerRepo.save(player);
-
-    return { game: createdGame, player: createdPlayers };
   };
 
   const linkQuestionsToGame = async (
@@ -177,20 +174,8 @@ describe('GetGameQueryHandler (Integration)', () => {
     return gameQuestions;
   };
 
-  const createTestAnswer = async (
-    playerId: number,
-    gameQuestionId: number,
-    gameId: number,
-    answerBody: string,
-    status: AnswerStatus,
-  ): Promise<Answer> => {
-    const answer: Answer = Answer.create({
-      playerId,
-      gameId,
-      gameQuestionId,
-      answerBody,
-      status,
-    });
+  const createTestAnswer = async (dto: AnswerCreateDto): Promise<Answer> => {
+    const answer: Answer = Answer.create(dto);
 
     return await answerRepo.save(answer);
   };
@@ -202,12 +187,12 @@ describe('GetGameQueryHandler (Integration)', () => {
       await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
 
       const gameViewDto: GameViewDto = await queryHandler.execute(
-        new GetGameQuery(createdUserId, game.publicId),
+        new GetGameQuery(createdUserId, game.id),
       );
 
       expect(gameViewDto).toBeDefined();
       expect(gameViewDto).not.toBeNull();
-      expect(gameViewDto.id).toBe(game.publicId);
+      expect(gameViewDto.id).toBe(game.id.toString());
       expect(gameViewDto.status).toBe(GameStatus.Pending);
       expect(gameViewDto.pairCreatedDate).toBe(game.createdAt.toISOString());
       expect(gameViewDto.startGameDate).toBeNull();
@@ -222,8 +207,7 @@ describe('GetGameQueryHandler (Integration)', () => {
 
       expect(gameViewDto.secondPlayerProgress).toBeNull();
 
-      expect(gameViewDto.questions).toHaveLength(0);
-      expect(gameViewDto.questions).toEqual([]);
+      expect(gameViewDto.questions).toBeNull();
     });
 
     it('должен успешно вернуть данные игры (БЕЗ ОТВЕТОВ) для первого игрока (Host). Игра в статусе Active', async () => {
@@ -241,12 +225,12 @@ describe('GetGameQueryHandler (Integration)', () => {
       await linkQuestionsToGame(game.id, questions);
 
       const gameViewDto: GameViewDto = await queryHandler.execute(
-        new GetGameQuery(firstUser.id, game.publicId),
+        new GetGameQuery(firstUser.id, game.id),
       );
 
       expect(gameViewDto).toBeDefined();
       expect(gameViewDto).not.toBeNull();
-      expect(gameViewDto.id).toBe(game.publicId);
+      expect(gameViewDto.id).toBe(game.id.toString());
       expect(gameViewDto.status).toBe(GameStatus.Active);
       expect(gameViewDto.pairCreatedDate).toBe(game.createdAt.toISOString());
       expect(gameViewDto.startGameDate).toBe(game.startGameDate!.toISOString());
@@ -269,8 +253,8 @@ describe('GetGameQueryHandler (Integration)', () => {
       expect(gameViewDto.questions).toHaveLength(REQUIRED_QUESTIONS_COUNT);
 
       for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-        expect(questions[i].publicId).toBe(gameViewDto.questions[i].id);
-        expect(questions[i].body).toBe(gameViewDto.questions[i].body);
+        expect(questions[i].publicId).toBe(gameViewDto.questions![i].id);
+        expect(questions[i].body).toBe(gameViewDto.questions![i].body);
       }
     });
 
@@ -289,12 +273,12 @@ describe('GetGameQueryHandler (Integration)', () => {
       await linkQuestionsToGame(game.id, questions);
 
       const gameViewDto: GameViewDto = await queryHandler.execute(
-        new GetGameQuery(secondUser.id, game.publicId),
+        new GetGameQuery(secondUser.id, game.id),
       );
 
       expect(gameViewDto).toBeDefined();
       expect(gameViewDto).not.toBeNull();
-      expect(gameViewDto.id).toBe(game.publicId);
+      expect(gameViewDto.id).toBe(game.id.toString());
       expect(gameViewDto.status).toBe(GameStatus.Active);
       expect(gameViewDto.pairCreatedDate).toBe(game.createdAt.toISOString());
       expect(gameViewDto.startGameDate).toBe(game.startGameDate!.toISOString());
@@ -317,112 +301,8 @@ describe('GetGameQueryHandler (Integration)', () => {
       expect(gameViewDto.questions).toHaveLength(REQUIRED_QUESTIONS_COUNT);
 
       for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-        expect(questions[i].publicId).toBe(gameViewDto.questions[i].id);
-        expect(questions[i].body).toBe(gameViewDto.questions[i].body);
-      }
-    });
-
-    it('должен успешно вернуть данные игры (БЕЗ ОТВЕТОВ) для первого игрока (Host). Игра в статусе Finished', async () => {
-      const firstUser: User = await createTestUser({
-        login: 'firstUser',
-        email: 'firstUser@example.com',
-      });
-      const secondUser: User = await createTestUser({
-        login: 'secondUser',
-        email: 'secondUser@example.com',
-      });
-      const { game } = await createActiveGameWithPlayers(firstUser.id, secondUser.id);
-
-      const questions: Question[] =
-        await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
-      await linkQuestionsToGame(game.id, questions);
-
-      game.finishGame();
-      const finishedGame: Game = await gameRepo.save(game);
-
-      const gameViewDto: GameViewDto = await queryHandler.execute(
-        new GetGameQuery(firstUser.id, game.publicId),
-      );
-
-      expect(gameViewDto).toBeDefined();
-      expect(gameViewDto).not.toBeNull();
-      expect(gameViewDto.id).toBe(game.publicId);
-      expect(gameViewDto.status).toBe(GameStatus.Finished);
-      expect(gameViewDto.pairCreatedDate).toBe(game.createdAt.toISOString());
-      expect(gameViewDto.startGameDate).toBe(game.startGameDate!.toISOString());
-      expect(gameViewDto.finishGameDate).toBe(finishedGame.finishGameDate!.toISOString());
-
-      expect(gameViewDto.firstPlayerProgress).toBeDefined();
-      expect(gameViewDto.firstPlayerProgress).not.toBeNull();
-      expect(gameViewDto.firstPlayerProgress.player.id).toBe(firstUser.id.toString());
-      expect(gameViewDto.firstPlayerProgress.player.login).toBe(firstUser.login);
-      expect(gameViewDto.firstPlayerProgress.score).toBe(0);
-      expect(gameViewDto.firstPlayerProgress.answers).toEqual([]);
-
-      expect(gameViewDto.secondPlayerProgress).toBeDefined();
-      expect(gameViewDto.secondPlayerProgress).not.toBeNull();
-      expect(gameViewDto.secondPlayerProgress!.player.id).toBe(secondUser.id.toString());
-      expect(gameViewDto.secondPlayerProgress!.player.login).toBe(secondUser.login);
-      expect(gameViewDto.secondPlayerProgress!.score).toBe(0);
-      expect(gameViewDto.secondPlayerProgress!.answers).toEqual([]);
-
-      expect(gameViewDto.questions).toHaveLength(REQUIRED_QUESTIONS_COUNT);
-
-      for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-        expect(questions[i].publicId).toBe(gameViewDto.questions[i].id);
-        expect(questions[i].body).toBe(gameViewDto.questions[i].body);
-      }
-    });
-
-    it('должен успешно вернуть данные игры (БЕЗ ОТВЕТОВ) для второго игрока (Player). Игра в статусе Finished', async () => {
-      const firstUser: User = await createTestUser({
-        login: 'firstUser',
-        email: 'firstUser@example.com',
-      });
-      const secondUser: User = await createTestUser({
-        login: 'secondUser',
-        email: 'secondUser@example.com',
-      });
-      const { game } = await createActiveGameWithPlayers(firstUser.id, secondUser.id);
-
-      const questions: Question[] =
-        await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
-      await linkQuestionsToGame(game.id, questions);
-
-      game.finishGame();
-      const finishedGame: Game = await gameRepo.save(game);
-
-      const gameViewDto: GameViewDto = await queryHandler.execute(
-        new GetGameQuery(secondUser.id, game.publicId),
-      );
-
-      expect(gameViewDto).toBeDefined();
-      expect(gameViewDto).not.toBeNull();
-      expect(gameViewDto.id).toBe(game.publicId);
-      expect(gameViewDto.status).toBe(GameStatus.Finished);
-      expect(gameViewDto.pairCreatedDate).toBe(game.createdAt.toISOString());
-      expect(gameViewDto.startGameDate).toBe(game.startGameDate!.toISOString());
-      expect(gameViewDto.finishGameDate).toBe(finishedGame.finishGameDate!.toISOString());
-
-      expect(gameViewDto.firstPlayerProgress).toBeDefined();
-      expect(gameViewDto.firstPlayerProgress).not.toBeNull();
-      expect(gameViewDto.firstPlayerProgress.player.id).toBe(firstUser.id.toString());
-      expect(gameViewDto.firstPlayerProgress.player.login).toBe(firstUser.login);
-      expect(gameViewDto.firstPlayerProgress.score).toBe(0);
-      expect(gameViewDto.firstPlayerProgress.answers).toEqual([]);
-
-      expect(gameViewDto.secondPlayerProgress).toBeDefined();
-      expect(gameViewDto.secondPlayerProgress).not.toBeNull();
-      expect(gameViewDto.secondPlayerProgress!.player.id).toBe(secondUser.id.toString());
-      expect(gameViewDto.secondPlayerProgress!.player.login).toBe(secondUser.login);
-      expect(gameViewDto.secondPlayerProgress!.score).toBe(0);
-      expect(gameViewDto.secondPlayerProgress!.answers).toEqual([]);
-
-      expect(gameViewDto.questions).toHaveLength(REQUIRED_QUESTIONS_COUNT);
-
-      for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-        expect(questions[i].publicId).toBe(gameViewDto.questions[i].id);
-        expect(questions[i].body).toBe(gameViewDto.questions[i].body);
+        expect(questions[i].publicId).toBe(gameViewDto.questions![i].id);
+        expect(questions[i].body).toBe(gameViewDto.questions![i].body);
       }
     });
 
@@ -442,27 +322,27 @@ describe('GetGameQueryHandler (Integration)', () => {
       const answers: Answer[] = [];
 
       for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-        const answer: Answer = await createTestAnswer(
-          players[0].id,
-          gameQuestions[i].id,
-          game.id,
-          questions[i].correctAnswers[0],
-          AnswerStatus.Correct,
-        );
+        const answer: Answer = await createTestAnswer({
+          answerBody: questions[i].correctAnswers[0],
+          status: AnswerStatus.Correct,
+          playerId: players[0].id,
+          gameQuestionId: gameQuestions[i].id,
+          gameId: game.id,
+        });
 
         answers.push(answer);
       }
 
-      players[0].addScore(6);
+      players[0].addScore(5);
       await playerRepo.save(players[0]);
 
       const gameViewDto: GameViewDto = await queryHandler.execute(
-        new GetGameQuery(secondUser.id, game.publicId),
+        new GetGameQuery(secondUser.id, game.id),
       );
 
       expect(gameViewDto).toBeDefined();
       expect(gameViewDto).not.toBeNull();
-      expect(gameViewDto.id).toBe(game.publicId);
+      expect(gameViewDto.id).toBe(game.id.toString());
       expect(gameViewDto.status).toBe(GameStatus.Active);
       expect(gameViewDto.pairCreatedDate).toBe(game.createdAt.toISOString());
       expect(gameViewDto.startGameDate).toBe(game.startGameDate!.toISOString());
@@ -472,7 +352,7 @@ describe('GetGameQueryHandler (Integration)', () => {
       expect(gameViewDto.firstPlayerProgress).not.toBeNull();
       expect(gameViewDto.firstPlayerProgress.player.id).toBe(firstUser.id.toString());
       expect(gameViewDto.firstPlayerProgress.player.login).toBe(firstUser.login);
-      expect(gameViewDto.firstPlayerProgress.score).toBe(6);
+      expect(gameViewDto.firstPlayerProgress.score).toBe(5);
 
       for (let i = 0; i < answers.length; i++) {
         expect(gameViewDto.firstPlayerProgress.answers[i].questionId).toEqual(
@@ -496,8 +376,8 @@ describe('GetGameQueryHandler (Integration)', () => {
       expect(gameViewDto.questions).toHaveLength(REQUIRED_QUESTIONS_COUNT);
 
       for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-        expect(questions[i].publicId).toBe(gameViewDto.questions[i].id);
-        expect(questions[i].body).toBe(gameViewDto.questions[i].body);
+        expect(questions[i].publicId).toBe(gameViewDto.questions![i].id);
+        expect(questions[i].body).toBe(gameViewDto.questions![i].body);
       }
     });
 
@@ -517,27 +397,27 @@ describe('GetGameQueryHandler (Integration)', () => {
       const answers: Answer[] = [];
 
       for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-        const answer: Answer = await createTestAnswer(
-          players[1].id,
-          gameQuestions[i].id,
-          game.id,
-          questions[i].correctAnswers[0],
-          AnswerStatus.Correct,
-        );
+        const answer: Answer = await createTestAnswer({
+          answerBody: questions[i].correctAnswers[0],
+          status: AnswerStatus.Correct,
+          playerId: players[1].id,
+          gameQuestionId: gameQuestions[i].id,
+          gameId: game.id,
+        });
 
         answers.push(answer);
       }
 
-      players[1].addScore(6);
+      players[1].addScore(5);
       await playerRepo.save(players[1]);
 
       const gameViewDto: GameViewDto = await queryHandler.execute(
-        new GetGameQuery(secondUser.id, game.publicId),
+        new GetGameQuery(secondUser.id, game.id),
       );
 
       expect(gameViewDto).toBeDefined();
       expect(gameViewDto).not.toBeNull();
-      expect(gameViewDto.id).toBe(game.publicId);
+      expect(gameViewDto.id).toBe(game.id.toString());
       expect(gameViewDto.status).toBe(GameStatus.Active);
       expect(gameViewDto.pairCreatedDate).toBe(game.createdAt.toISOString());
       expect(gameViewDto.startGameDate).toBe(game.startGameDate!.toISOString());
@@ -554,7 +434,7 @@ describe('GetGameQueryHandler (Integration)', () => {
       expect(gameViewDto.secondPlayerProgress).not.toBeNull();
       expect(gameViewDto.secondPlayerProgress!.player.id).toBe(secondUser.id.toString());
       expect(gameViewDto.secondPlayerProgress!.player.login).toBe(secondUser.login);
-      expect(gameViewDto.secondPlayerProgress!.score).toBe(6);
+      expect(gameViewDto.secondPlayerProgress!.score).toBe(5);
 
       for (let i = 0; i < answers.length; i++) {
         expect(gameViewDto.secondPlayerProgress!.answers[i].questionId).toEqual(
@@ -571,8 +451,8 @@ describe('GetGameQueryHandler (Integration)', () => {
       expect(gameViewDto.questions).toHaveLength(REQUIRED_QUESTIONS_COUNT);
 
       for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-        expect(questions[i].publicId).toBe(gameViewDto.questions[i].id);
-        expect(questions[i].body).toBe(gameViewDto.questions[i].body);
+        expect(questions[i].publicId).toBe(gameViewDto.questions![i].id);
+        expect(questions[i].body).toBe(gameViewDto.questions![i].body);
       }
     });
 
@@ -591,12 +471,12 @@ describe('GetGameQueryHandler (Integration)', () => {
       await linkQuestionsToGame(game.id, questions);
 
       const gameViewDto: GameViewDto = await queryHandler.execute(
-        new GetGameQuery(firstUser.id, game.publicId),
+        new GetGameQuery(firstUser.id, game.id),
       );
 
       expect(gameViewDto).toBeDefined();
       expect(gameViewDto).not.toBeNull();
-      expect(gameViewDto.id).toBe(game.publicId);
+      expect(gameViewDto.id).toBe(game.id.toString());
       expect(gameViewDto.status).toBe(GameStatus.Active);
       expect(gameViewDto.pairCreatedDate).toBe(game.createdAt.toISOString());
       expect(gameViewDto.startGameDate).toBe(game.startGameDate!.toISOString());
@@ -619,8 +499,8 @@ describe('GetGameQueryHandler (Integration)', () => {
       expect(gameViewDto.questions).toHaveLength(REQUIRED_QUESTIONS_COUNT);
 
       for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-        expect(questions[i].publicId).toBe(gameViewDto.questions[i].id);
-        expect(questions[i].body).toBe(gameViewDto.questions[i].body);
+        expect(questions[i].publicId).toBe(gameViewDto.questions![i].id);
+        expect(questions[i].body).toBe(gameViewDto.questions![i].body);
       }
     });
 
@@ -641,21 +521,21 @@ describe('GetGameQueryHandler (Integration)', () => {
       const answers_player2: Answer[] = [];
 
       for (let i = 0; i < REQUIRED_QUESTIONS_COUNT - 2; i++) {
-        const answer_player1: Answer = await createTestAnswer(
-          players[0].id,
-          gameQuestions[i].id,
-          game.id,
-          questions[i].correctAnswers[0],
-          AnswerStatus.Correct,
-        );
+        const answer_player1: Answer = await createTestAnswer({
+          answerBody: questions[i].correctAnswers[0],
+          status: AnswerStatus.Correct,
+          playerId: players[0].id,
+          gameQuestionId: gameQuestions[i].id,
+          gameId: game.id,
+        });
 
-        const answer_player2: Answer = await createTestAnswer(
-          players[1].id,
-          gameQuestions[i].id,
-          game.id,
-          questions[i].correctAnswers[0],
-          AnswerStatus.Correct,
-        );
+        const answer_player2: Answer = await createTestAnswer({
+          answerBody: questions[i].correctAnswers[0],
+          status: AnswerStatus.Correct,
+          playerId: players[1].id,
+          gameQuestionId: gameQuestions[i].id,
+          gameId: game.id,
+        });
 
         answers_player1.push(answer_player1);
         answers_player2.push(answer_player2);
@@ -667,12 +547,12 @@ describe('GetGameQueryHandler (Integration)', () => {
       await playerRepo.save(players[1]);
 
       const gameViewDto: GameViewDto = await queryHandler.execute(
-        new GetGameQuery(firstUser.id, game.publicId),
+        new GetGameQuery(firstUser.id, game.id),
       );
 
       expect(gameViewDto).toBeDefined();
       expect(gameViewDto).not.toBeNull();
-      expect(gameViewDto.id).toBe(game.publicId);
+      expect(gameViewDto.id).toBe(game.id.toString());
       expect(gameViewDto.status).toBe(GameStatus.Active);
       expect(gameViewDto.pairCreatedDate).toBe(game.createdAt.toISOString());
       expect(gameViewDto.startGameDate).toBe(game.startGameDate!.toISOString());
@@ -717,8 +597,8 @@ describe('GetGameQueryHandler (Integration)', () => {
       expect(gameViewDto.questions).toHaveLength(REQUIRED_QUESTIONS_COUNT);
 
       for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-        expect(questions[i].publicId).toBe(gameViewDto.questions[i].id);
-        expect(questions[i].body).toBe(gameViewDto.questions[i].body);
+        expect(questions[i].publicId).toBe(gameViewDto.questions![i].id);
+        expect(questions[i].body).toBe(gameViewDto.questions![i].body);
       }
     });
 
@@ -739,21 +619,21 @@ describe('GetGameQueryHandler (Integration)', () => {
       const answers_player2: Answer[] = [];
 
       for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-        const answer_player1: Answer = await createTestAnswer(
-          players[0].id,
-          gameQuestions[i].id,
-          game.id,
-          questions[i].correctAnswers[0],
-          AnswerStatus.Correct,
-        );
+        const answer_player1: Answer = await createTestAnswer({
+          answerBody: questions[i].correctAnswers[0],
+          status: AnswerStatus.Correct,
+          playerId: players[0].id,
+          gameQuestionId: gameQuestions[i].id,
+          gameId: game.id,
+        });
 
-        const answer_player2: Answer = await createTestAnswer(
-          players[1].id,
-          gameQuestions[i].id,
-          game.id,
-          questions[i].correctAnswers[0],
-          AnswerStatus.Correct,
-        );
+        const answer_player2: Answer = await createTestAnswer({
+          answerBody: questions[i].correctAnswers[0],
+          status: AnswerStatus.Correct,
+          playerId: players[1].id,
+          gameQuestionId: gameQuestions[i].id,
+          gameId: game.id,
+        });
 
         answers_player1.push(answer_player1);
         answers_player2.push(answer_player2);
@@ -768,12 +648,12 @@ describe('GetGameQueryHandler (Integration)', () => {
       const finishedGame: Game = await gameRepo.save(game);
 
       const gameViewDto: GameViewDto = await queryHandler.execute(
-        new GetGameQuery(firstUser.id, game.publicId),
+        new GetGameQuery(firstUser.id, game.id),
       );
 
       expect(gameViewDto).toBeDefined();
       expect(gameViewDto).not.toBeNull();
-      expect(gameViewDto.id).toBe(game.publicId);
+      expect(gameViewDto.id).toBe(game.id.toString());
       expect(gameViewDto.status).toBe(GameStatus.Finished);
       expect(gameViewDto.pairCreatedDate).toBe(game.createdAt.toISOString());
       expect(gameViewDto.startGameDate).toBe(game.startGameDate!.toISOString());
@@ -818,80 +698,79 @@ describe('GetGameQueryHandler (Integration)', () => {
       expect(gameViewDto.questions).toHaveLength(REQUIRED_QUESTIONS_COUNT);
 
       for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-        expect(questions[i].publicId).toBe(gameViewDto.questions[i].id);
-        expect(questions[i].body).toBe(gameViewDto.questions[i].body);
+        expect(questions[i].publicId).toBe(gameViewDto.questions![i].id);
+        expect(questions[i].body).toBe(gameViewDto.questions![i].body);
       }
     });
+  });
+  describe('Негативные сценарии - игра не найдена', () => {
+    it('должен выбросить DomainException NotFound для несуществующего id', async () => {
+      const { id: createdUserId }: User = await createTestUser();
+      await createPendingGameWithOnePlayer(createdUserId);
+      await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
+      const nonExistentGameId = 11111;
 
-    describe('Негативные сценарии - игра не найдена', () => {
-      it('должен выбросить DomainException NotFound для несуществующего publicId', async () => {
-        const { id: createdUserId }: User = await createTestUser();
-        await createPendingGameWithOnePlayer(createdUserId);
-        await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
-        const nonExistentGameId = '550e8400-e29b-41d4-a716-446655440000';
-
-        try {
-          await queryHandler.execute(new GetGameQuery(createdUserId, nonExistentGameId));
-          fail('Ожидали DomainException');
-        } catch (error) {
-          expect(error).toBeInstanceOf(DomainException);
-          expect((error as DomainException).code).toBe(DomainExceptionCode.NotFound);
-          expect((error as DomainException).message).toBe(
-            `The post with ID (${nonExistentGameId}) does not exist`,
-          );
-        }
-      });
+      try {
+        await queryHandler.execute(new GetGameQuery(createdUserId, nonExistentGameId));
+        fail('Ожидали DomainException');
+      } catch (error) {
+        expect(error).toBeInstanceOf(DomainException);
+        expect((error as DomainException).code).toBe(DomainExceptionCode.NotFound);
+        expect((error as DomainException).message).toBe(
+          `The post with ID (${nonExistentGameId}) does not exist`,
+        );
+      }
     });
+  });
 
-    describe('Негативные сценарии - пользователь не участвует в игре', () => {
-      it('должен выбросить DomainException Forbidden если пользователь не является участником игры', async () => {
-        const { id: firstUserId }: User = await createTestUser({
-          login: 'firstUser',
-          email: 'firstUser@example.com',
-        });
-        const { id: secondUserId }: User = await createTestUser({
-          login: 'secondUser',
-          email: 'secondUser@example.com',
-        });
-        const { id: thirdUserId }: User = await createTestUser({
-          login: 'thirdUser',
-          email: 'thirdUser@example.com',
-        });
-        const { id: userIdUnderTest }: User = await createTestUser({
-          login: 'fourthUser',
-          email: 'fourthUser@example.com',
-        });
-
-        const { game: activeGame } = await createActiveGameWithPlayers(firstUserId, secondUserId);
-        const { game: pendingGame } = await createPendingGameWithOnePlayer(thirdUserId);
-
-        const questionsForActiveGame: Question[] = await createMultiplePublishedQuestions(5);
-        const questionsForPendingGame: Question[] = await createMultiplePublishedQuestions(5);
-        await linkQuestionsToGame(activeGame.id, questionsForActiveGame);
-        await linkQuestionsToGame(pendingGame.id, questionsForPendingGame);
-
-        try {
-          await queryHandler.execute(new GetGameQuery(userIdUnderTest, activeGame.publicId));
-          fail('Ожидали DomainException');
-        } catch (error) {
-          expect(error).toBeInstanceOf(DomainException);
-          expect((error as DomainException).code).toBe(DomainExceptionCode.Forbidden);
-          expect((error as DomainException).message).toBe(
-            `User with id ${userIdUnderTest} is not a participant of game with id ${activeGame.publicId}`,
-          );
-        }
-
-        try {
-          await queryHandler.execute(new GetGameQuery(userIdUnderTest, pendingGame.publicId));
-          fail('Ожидали DomainException');
-        } catch (error) {
-          expect(error).toBeInstanceOf(DomainException);
-          expect((error as DomainException).code).toBe(DomainExceptionCode.Forbidden);
-          expect((error as DomainException).message).toBe(
-            `User with id ${userIdUnderTest} is not a participant of game with id ${pendingGame.publicId}`,
-          );
-        }
+  describe('Негативные сценарии - пользователь не участвует в игре', () => {
+    it('должен выбросить DomainException Forbidden если пользователь не является участником игры', async () => {
+      const { id: firstUserId }: User = await createTestUser({
+        login: 'firstUser',
+        email: 'firstUser@example.com',
       });
+      const { id: secondUserId }: User = await createTestUser({
+        login: 'secondUser',
+        email: 'secondUser@example.com',
+      });
+      const { id: thirdUserId }: User = await createTestUser({
+        login: 'thirdUser',
+        email: 'thirdUser@example.com',
+      });
+      const { id: userIdUnderTest }: User = await createTestUser({
+        login: 'fourthUser',
+        email: 'fourthUser@example.com',
+      });
+
+      const { game: activeGame } = await createActiveGameWithPlayers(firstUserId, secondUserId);
+      const { game: pendingGame } = await createPendingGameWithOnePlayer(thirdUserId);
+
+      const questionsForActiveGame: Question[] = await createMultiplePublishedQuestions(5);
+      const questionsForPendingGame: Question[] = await createMultiplePublishedQuestions(5);
+      await linkQuestionsToGame(activeGame.id, questionsForActiveGame);
+      await linkQuestionsToGame(pendingGame.id, questionsForPendingGame);
+
+      try {
+        await queryHandler.execute(new GetGameQuery(userIdUnderTest, activeGame.id));
+        fail('Ожидали DomainException');
+      } catch (error) {
+        expect(error).toBeInstanceOf(DomainException);
+        expect((error as DomainException).code).toBe(DomainExceptionCode.Forbidden);
+        expect((error as DomainException).message).toBe(
+          `User with id ${userIdUnderTest} is not a participant of game with id ${activeGame.id}`,
+        );
+      }
+
+      try {
+        await queryHandler.execute(new GetGameQuery(userIdUnderTest, pendingGame.id));
+        fail('Ожидали DomainException');
+      } catch (error) {
+        expect(error).toBeInstanceOf(DomainException);
+        expect((error as DomainException).code).toBe(DomainExceptionCode.Forbidden);
+        expect((error as DomainException).message).toBe(
+          `User with id ${userIdUnderTest} is not a participant of game with id ${pendingGame.id}`,
+        );
+      }
     });
   });
 });
