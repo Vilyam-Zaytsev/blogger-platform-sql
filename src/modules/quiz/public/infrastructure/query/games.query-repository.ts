@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource } from '@nestjs/typeorm';
 import { DataSource } from 'typeorm';
 import { GameViewDto } from '../../api/view-dto/game.view-dto';
-import { Game } from '../../domain/entities/game.entity';
+import { Game, GameStatus } from '../../domain/entities/game.entity';
 import { GameRole } from '../../domain/entities/player.entity';
 import { RawGame } from './types/raw-game.type';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
@@ -11,7 +11,7 @@ import { GetGamesQueryParams } from '../../api/input-dto/get-games-query-params.
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { convertToSnakeCase } from '../../../../../core/utils/convert-to-snake-case.utility';
 import { StatisticViewDto } from '../../api/view-dto/statistic.view-dto';
-import { Statistic } from '../../domain/entities/statistic.entity';
+import { RawStatistic } from './types/raw-statistic.type';
 
 @Injectable()
 export class GamesQueryRepository {
@@ -270,17 +270,48 @@ export class GamesQueryRepository {
     };
   }
 
-  async getStatisticByUserId(userId: number): Promise<StatisticViewDto> {
-    const statistic: Statistic | null = await this.dataSource
-      .getRepository<Statistic>(Statistic)
-      .findOneBy({
-        userId,
-      });
+  async getMyStatisticByUserId(userId: number): Promise<StatisticViewDto> {
+    const qb = this.dataSource
+      .getRepository<Game>(Game)
+      .createQueryBuilder('g')
 
-    if (!statistic) {
-      return new StatisticViewDto();
+      .select('COALESCE(SUM(currentPlayer.score), 0)', 'sumScore')
+      .addSelect('COALESCE(ROUND(AVG(currentPlayer.score), 2), 0)', 'avgScores')
+      .addSelect('COUNT(*)', 'gamesCount')
+      .addSelect(
+        'COALESCE(SUM(CASE WHEN currentPlayer.score > opponent.score THEN 1 ELSE 0 END), 0)',
+        'winsCount',
+      )
+      .addSelect(
+        'COALESCE(SUM(CASE WHEN currentPlayer.score < opponent.score THEN 1 ELSE 0 END), 0)',
+        'lossesCount',
+      )
+      .addSelect(
+        'COALESCE(SUM(CASE WHEN currentPlayer.score = opponent.score THEN 1 ELSE 0 END), 0)',
+        'drawsCount',
+      )
+
+      .innerJoin(
+        'players',
+        'currentPlayer',
+        'currentPlayer.game_id = g.id AND currentPlayer.user_id = :userId',
+        { userId },
+      )
+      .innerJoin('players', 'opponent', 'opponent.game_id = g.id AND opponent.user_id != :userId', {
+        userId,
+      })
+
+      .where(`g.status = '${GameStatus.Finished}'`);
+
+    const rawStatistic: RawStatistic | null = (await qb.getRawOne()) ?? null;
+
+    if (!rawStatistic) {
+      throw new DomainException({
+        code: DomainExceptionCode.NotFound,
+        message: `Statistics for the user with ID ${userId} were not found`,
+      });
     }
 
-    return StatisticViewDto.mapToView(statistic);
+    return StatisticViewDto.mapToView(rawStatistic);
   }
 }
