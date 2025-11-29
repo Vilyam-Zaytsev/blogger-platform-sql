@@ -306,10 +306,7 @@ export class GamesQueryRepository {
     const rawStatistic: RawStatistic | null = (await qb.getRawOne()) ?? null;
 
     if (!rawStatistic) {
-      throw new DomainException({
-        code: DomainExceptionCode.NotFound,
-        message: `Statistics for the user with ID ${userId} were not found`,
-      });
+      return new StatisticViewDto();
     }
 
     return StatisticViewDto.mapToView(rawStatistic);
