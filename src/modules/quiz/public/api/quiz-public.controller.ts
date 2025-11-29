@@ -26,7 +26,7 @@ import { PaginatedViewDto } from '../../../../core/dto/paginated.view-dto';
 import { GetGamesQueryParams } from './input-dto/get-games-query-params.input-dto';
 import { GetAllGamesForUserQuery } from '../application/queries/get-all-games-for-user.query-handler';
 import { StatisticViewDto } from './view-dto/statistic.view-dto';
-import { GetStatisticForUserQuery } from '../application/queries/get-satistic-for-user.query-handler';
+import { GetMyStatisticQuery } from '../application/queries/get-satistic-for-user.query-handler';
 
 @Controller('pair-game-quiz')
 @UseGuards(JwtAuthGuard)
@@ -78,9 +78,9 @@ export class QuizPublicController {
   }
 
   @Get('pairs/my-statistic')
-  async getStatisticForUser(
+  async getMyStatistic(
     @ExtractUserFromRequest() { id: userId }: UserContextDto,
   ): Promise<StatisticViewDto> {
-    return this.queryBus.execute(new GetStatisticForUserQuery(userId));
+    return this.queryBus.execute(new GetMyStatisticQuery(userId));
   }
 }
