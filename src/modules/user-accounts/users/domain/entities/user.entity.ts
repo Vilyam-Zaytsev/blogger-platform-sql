@@ -10,7 +10,6 @@ import { Session } from '../../../sessions/domain/entities/session.entity';
 import { Reaction } from '../../../../bloggers-platform/reactions/domain/entities/reaction.entity';
 import { Comment } from '../../../../bloggers-platform/comments/domain/entities/comment.entity';
 import { Player } from '../../../../quiz/public/domain/entities/player.entity';
-import { Statistic } from '../../../../quiz/public/domain/entities/statistic.entity';
 
 export const loginConstraints = {
   minLength: 3,
@@ -71,11 +70,6 @@ export class User extends BaseEntity {
     },
   )
   public passwordRecoveryCode: PasswordRecoveryCode;
-
-  @OneToOne(() => Statistic, (statistic: Statistic) => statistic.user, {
-    cascade: true,
-  })
-  public statistic: Statistic;
 
   @OneToMany(() => Session, (session: Session) => session.user)
   public sessions: Session[];

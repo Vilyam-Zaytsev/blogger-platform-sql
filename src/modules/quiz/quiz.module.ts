@@ -25,12 +25,11 @@ import { UpdateQuestionUseCase } from './admin/application/usecases/update-quest
 import { DeleteQuestionUseCase } from './admin/application/usecases/delete-question.usecase';
 import { QuestionValidatorService } from './admin/domain/services/question-validator.service';
 import { GetAllGamesForUserQueryHandler } from './public/application/queries/get-all-games-for-user.query-handler';
-import { Statistic } from './public/domain/entities/statistic.entity';
 import { GetStatisticForUserQueryHandler } from './public/application/queries/get-satistic-for-user.query-handler';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([Question, Game, GameQuestion, Player, Answer, Statistic]),
+    TypeOrmModule.forFeature([Question, Game, GameQuestion, Player, Answer]),
     UserAccountsModule,
   ],
   controllers: [QuestionsAdminController, QuizPublicController],
