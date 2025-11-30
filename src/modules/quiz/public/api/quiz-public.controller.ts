@@ -37,21 +37,19 @@ export class QuizPublicController {
     private readonly gamesQueryRepository: GamesQueryRepository,
   ) {}
 
-  @Post('pairs/connection')
-  @HttpCode(HttpStatus.OK)
-  async connectToGame(@ExtractUserFromRequest() { id }: UserContextDto): Promise<GameViewDto> {
-    const idConnectedGame: number = await this.commandBus.execute(new ConnectToGameCommand(id));
-
-    return this.gamesQueryRepository.getByIdOrNotFoundFail(idConnectedGame);
+  @Get('pairs/my')
+  async getAllGamesForUser(
+    @ExtractUserFromRequest() { id: userId }: UserContextDto,
+    @Query() query: GetGamesQueryParams,
+  ): Promise<PaginatedViewDto<GameViewDto>> {
+    return this.queryBus.execute(new GetAllGamesForUserQuery(query, userId));
   }
 
-  @Post('pairs/my-current/answers')
-  @HttpCode(HttpStatus.OK)
-  async recordAnswer(
+  @Get('users/my-statistic')
+  async getMyStatistic(
     @ExtractUserFromRequest() { id: userId }: UserContextDto,
-    @Body() { answer }: AnswerInputDto,
-  ): Promise<AnswerViewDto> {
-    return this.commandBus.execute(new RecordAnswerCommand(userId, answer));
+  ): Promise<StatisticViewDto> {
+    return this.queryBus.execute(new GetMyStatisticQuery(userId));
   }
 
   @Get('pairs/my-current')
@@ -69,18 +67,20 @@ export class QuizPublicController {
     return this.queryBus.execute(new GetGameQuery(userId, gameId));
   }
 
-  @Get('pairs/my')
-  async getAllGamesForUser(
-    @ExtractUserFromRequest() { id: userId }: UserContextDto,
-    @Query() query: GetGamesQueryParams,
-  ): Promise<PaginatedViewDto<GameViewDto>> {
-    return this.queryBus.execute(new GetAllGamesForUserQuery(query, userId));
+  @Post('pairs/connection')
+  @HttpCode(HttpStatus.OK)
+  async connectToGame(@ExtractUserFromRequest() { id }: UserContextDto): Promise<GameViewDto> {
+    const idConnectedGame: number = await this.commandBus.execute(new ConnectToGameCommand(id));
+
+    return this.gamesQueryRepository.getByIdOrNotFoundFail(idConnectedGame);
   }
 
-  @Get('pairs/my-statistic')
-  async getMyStatistic(
+  @Post('pairs/my-current/answers')
+  @HttpCode(HttpStatus.OK)
+  async recordAnswer(
     @ExtractUserFromRequest() { id: userId }: UserContextDto,
-  ): Promise<StatisticViewDto> {
-    return this.queryBus.execute(new GetMyStatisticQuery(userId));
+    @Body() { answer }: AnswerInputDto,
+  ): Promise<AnswerViewDto> {
+    return this.commandBus.execute(new RecordAnswerCommand(userId, answer));
   }
 }
