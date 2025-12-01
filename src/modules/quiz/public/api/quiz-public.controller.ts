@@ -27,6 +27,10 @@ import { GetGamesQueryParams } from './input-dto/get-games-query-params.input-dt
 import { GetAllGamesForUserQuery } from '../application/queries/get-all-games-for-user.query-handler';
 import { StatisticViewDto } from './view-dto/statistic.view-dto';
 import { GetMyStatisticQuery } from '../application/queries/get-satistic-for-user.query-handler';
+import { GetTopPlayersQueryParams } from './input-dto/get-top-players-query-params.input-dto';
+import { TopGamePlayerViewDto } from './view-dto/top-game-player-view.dto';
+import { GetTopPlayersQuery } from '../application/queries/get-top-players.query-handler';
+import { Public } from '../../../user-accounts/decorators/public.decorator';
 
 @Controller('pair-game-quiz')
 @UseGuards(JwtAuthGuard)
@@ -36,6 +40,14 @@ export class QuizPublicController {
     private readonly queryBus: QueryBus,
     private readonly gamesQueryRepository: GamesQueryRepository,
   ) {}
+
+  @Get('users/top')
+  @Public()
+  async getTopPlayers(
+    @Query() query: GetTopPlayersQueryParams,
+  ): Promise<PaginatedViewDto<TopGamePlayerViewDto>> {
+    return this.queryBus.execute(new GetTopPlayersQuery(query));
+  }
 
   @Get('pairs/my')
   async getAllGamesForUser(
