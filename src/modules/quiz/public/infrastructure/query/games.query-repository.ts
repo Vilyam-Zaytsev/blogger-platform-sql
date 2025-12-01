@@ -12,6 +12,9 @@ import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { convertToSnakeCase } from '../../../../../core/utils/convert-to-snake-case.utility';
 import { StatisticViewDto } from '../../api/view-dto/statistic.view-dto';
 import { RawStatistic } from './types/raw-statistic.type';
+import { GetTopPlayersQueryParams } from '../../api/input-dto/get-top-players-query-params.input-dto';
+import { TopGamePlayerViewDto } from '../../api/view-dto/top-game-player-view.dto';
+import { RawTopPlayer } from './types/raw-top-players.type';
 
 @Injectable()
 export class GamesQueryRepository {
@@ -310,5 +313,69 @@ export class GamesQueryRepository {
     }
 
     return StatisticViewDto.mapToView(rawStatistic);
+  }
+
+  async getTopPlayers(
+    queryParams: GetTopPlayersQueryParams,
+  ): Promise<PaginatedViewDto<TopGamePlayerViewDto>> {
+    const { pageSize, pageNumber }: GetTopPlayersQueryParams = queryParams;
+    const skip: number = queryParams.calculateSkip();
+    const sortFields: Array<{ field: string; direction: 'ASC' | 'DESC' }> =
+      queryParams.getParsedSort();
+
+    const qb = this.dataSource
+      .createQueryBuilder()
+
+      .select('u.id', 'userId')
+      .addSelect('u.login', 'userLogin')
+      .addSelect('COALESCE(SUM(p.score), 0)', 'sumScore')
+      .addSelect('COALESCE(ROUND(AVG(p.score), 2), 0)', 'avgScores')
+      .addSelect('COUNT(*)', 'gamesCount')
+      .addSelect('SUM(CASE WHEN p.score > opponent.score THEN 1 ELSE 0 END)', 'winsCount')
+      .addSelect('SUM(CASE WHEN p.score < opponent.score THEN 1 ELSE 0 END)', 'lossesCount')
+      .addSelect('SUM(CASE WHEN p.score = opponent.score THEN 1 ELSE 0 END)', 'drawsCount')
+
+      .from('players', 'p')
+      .innerJoin('users', 'u', 'u.id = p.user_id')
+      .innerJoin('games', 'g', 'g.id = p.game_id')
+      .innerJoin('players', 'opponent', 'opponent.game_id = g.id AND opponent.user_id != p.user_id')
+
+      .where('g.status = :status', { status: GameStatus.Finished })
+
+      .groupBy('u.id')
+      .addGroupBy('u.login');
+
+    sortFields.forEach((sort, index) => {
+      if (index === 0) {
+        qb.orderBy(`"${sort.field}"`, sort.direction);
+      } else {
+        qb.addOrderBy(`"${sort.field}"`, sort.direction);
+      }
+    });
+
+    qb.offset(skip).limit(pageSize);
+
+    const rawTopPlayers: RawTopPlayer[] = await qb.getRawMany();
+
+    const countQb = this.dataSource
+      .createQueryBuilder()
+      .select('COUNT(DISTINCT u.id)', 'count')
+      .from('players', 'p')
+      .innerJoin('users', 'u', 'u.id = p.user_id')
+      .innerJoin('games', 'g', 'g.id = p.game_id')
+      .innerJoin('players', 'opponent', 'opponent.game_id = g.id AND opponent.user_id != p.user_id')
+      .where('g.status = :status', { status: GameStatus.Finished });
+
+    const countResult: { count: string } | undefined = await countQb.getRawOne();
+    const totalCount: number = countResult ? +countResult.count : 0;
+    const pagesCount: number = Math.ceil(totalCount / pageSize);
+
+    return {
+      pagesCount,
+      page: pageNumber,
+      pageSize,
+      totalCount,
+      items: rawTopPlayers.map((t) => TopGamePlayerViewDto.mapToView(t)),
+    };
   }
 }
