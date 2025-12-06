@@ -10,6 +10,7 @@ import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants'
 import { Player } from '../../domain/entities/player.entity';
 import { PlayersRepository } from '../../infrastructure/players.repository';
 import { AnswerCreateDto } from '../../domain/dto/answer.create-dto';
+import { GameFinishSchedulerService } from '../../domain/services/game-finish-scheduler.service';
 
 export class RecordAnswerCommand {
   constructor(
@@ -21,6 +22,7 @@ export class RecordAnswerCommand {
 @CommandHandler(RecordAnswerCommand)
 export class RecordAnswerUseCase implements ICommandHandler<RecordAnswerCommand> {
   constructor(
+    private readonly gameFinishScheduler: GameFinishSchedulerService,
     private readonly playersRepository: PlayersRepository,
     private readonly gamesRepository: GamesRepository,
   ) {}
@@ -47,22 +49,29 @@ export class RecordAnswerUseCase implements ICommandHandler<RecordAnswerCommand>
 
     await this.awardPointsToPlayer(gameProgress.progressCurrentPlayer.playerId, answerStatus);
 
-    if (
-      currentQuestion.order === REQUIRED_QUESTIONS_COUNT &&
-      gameProgress.progressOpponent.answers.length === REQUIRED_QUESTIONS_COUNT
-    ) {
-      await this.awardBonusPointsToPlayer(userId);
+    if (currentQuestion.order === REQUIRED_QUESTIONS_COUNT) {
+      if (gameProgress.progressOpponent.answers.length === REQUIRED_QUESTIONS_COUNT) {
+        await this.gameFinishScheduler.cancelGameFinish(gameProgress.gameId);
 
-      const game: Game | null = await this.gamesRepository.getById(gameProgress.gameId);
+        await this.awardBonusPointsToPlayer(userId);
 
-      if (!game) {
-        throw new DomainException({
-          code: DomainExceptionCode.InternalServerError,
-          message: `At the end of the game (${gameProgress.gameId}), no game data was found`,
+        const game: Game | null = await this.gamesRepository.getById(gameProgress.gameId);
+
+        if (!game) {
+          throw new DomainException({
+            code: DomainExceptionCode.InternalServerError,
+            message: `At the end of the game (${gameProgress.gameId}), no game data was found`,
+          });
+        }
+
+        await this.finishGame(game);
+      } else {
+        await this.gameFinishScheduler.scheduleGameFinish({
+          gameId: gameProgress.gameId,
+          userId,
+          firstFinishedPlayerId: gameProgress.progressCurrentPlayer.playerId,
         });
       }
-
-      await this.finishGame(game);
     }
 
     return {

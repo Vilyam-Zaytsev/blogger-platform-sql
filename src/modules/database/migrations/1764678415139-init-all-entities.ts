@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner } from 'typeorm';
 
-export class InitAllEntities1763557713656 implements MigrationInterface {
-  name = 'InitAllEntities1763557713656';
+export class InitAllEntities1764678415139 implements MigrationInterface {
+  name = 'InitAllEntities1764678415139';
 
   public async up(queryRunner: QueryRunner): Promise<void> {
     await queryRunner.query(
@@ -10,9 +10,19 @@ export class InitAllEntities1763557713656 implements MigrationInterface {
     await queryRunner.query(
       `CREATE TABLE "email_confirmation_codes" ("id" SERIAL NOT NULL, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, "confirmation_code" character varying(255), "expiration_date" TIMESTAMP WITH TIME ZONE, "confirmation_status" "public"."email_confirmation_codes_confirmation_status_enum" NOT NULL DEFAULT 'Not confirmed', "userId" integer, CONSTRAINT "UQ_12af5b7158c9484e3d8f1b46312" UNIQUE ("confirmation_code"), CONSTRAINT "REL_96d2547f03816d23a2cfaea911" UNIQUE ("userId"), CONSTRAINT "PK_4625ddcbdb342246349422503aa" PRIMARY KEY ("id"))`,
     );
-    await queryRunner.query(
-      `CREATE TABLE "password_recovery_codes" ("id" SERIAL NOT NULL, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, "recovery_code" character varying(255), "expiration_date" TIMESTAMP WITH TIME ZONE, "userId" integer, CONSTRAINT "UQ_67222d1bd41b25d95796b4f81cd" UNIQUE ("recovery_code"), CONSTRAINT "REL_a3a77e1f77749faad3e39b0ba5" UNIQUE ("userId"), CONSTRAINT "PK_25813f45b3266672a186e0c5dbb" PRIMARY KEY ("id"))`,
-    );
+    await queryRunner.query(`CREATE TABLE "password_recovery_codes"
+                                 (
+                                   "id"              SERIAL                   NOT NULL,
+                                   "created_at"      TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+                                   "updated_at"      TIMESTAMP WITH TIME ZONE          DEFAULT now(),
+                                   "deleted_at"      TIMESTAMP WITH TIME ZONE,
+                                   "recovery_code"   character varying(255),
+                                   "expiration_date" TIMESTAMP WITH TIME ZONE,
+                                   "userId"          integer,
+                                   CONSTRAINT "UQ_67222d1bd41b25d95796b4f81cd" UNIQUE ("recovery_code"),
+                                   CONSTRAINT "REL_a3a77e1f77749faad3e39b0ba5" UNIQUE ("userId"),
+                                   CONSTRAINT "PK_25813f45b3266672a186e0c5dbb" PRIMARY KEY ("id")
+                                 )`);
     await queryRunner.query(
       `CREATE TABLE "sessions" ("id" SERIAL NOT NULL, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, "device_id" character varying(255) NOT NULL, "device_name" character varying(255) COLLATE "C" NOT NULL, "ip" character varying(255) COLLATE "C" NOT NULL, "iat" TIMESTAMP WITH TIME ZONE NOT NULL, "exp" TIMESTAMP WITH TIME ZONE NOT NULL, "user_id" integer NOT NULL, CONSTRAINT "UQ_97207844c19e5c27d33a07f67c0" UNIQUE ("device_id"), CONSTRAINT "PK_3238ef96f18b355b671619111bc" PRIMARY KEY ("id"))`,
     );
@@ -41,7 +51,7 @@ export class InitAllEntities1763557713656 implements MigrationInterface {
       `CREATE TYPE "public"."questions_status_enum" AS ENUM('notPublished', 'published')`,
     );
     await queryRunner.query(
-      `CREATE TABLE "questions" ("id" SERIAL NOT NULL, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, "public_id" uuid NOT NULL DEFAULT uuid_generate_v4(), "body" character varying(500) COLLATE "C" NOT NULL, "correct_answers" character varying array NOT NULL, "status" "public"."questions_status_enum" NOT NULL DEFAULT 'notPublished', CONSTRAINT "UQ_3aa05354b01d6ddf00bfc2f1025" UNIQUE ("public_id"), CONSTRAINT "CHK_body_length" CHECK (char_length(body) >= 10 AND char_length(body) <= 500), CONSTRAINT "CHK_correctAnswers_length" CHECK (check_varchar_array_length("correct_answers", 1, 100)), CONSTRAINT "PK_08a6d4b0f49ff300bf3a0ca60ac" PRIMARY KEY ("id"))`,
+      `CREATE TABLE "questions" ("id" SERIAL NOT NULL, "created_at" TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(), "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT now(), "deleted_at" TIMESTAMP WITH TIME ZONE, "public_id" uuid NOT NULL DEFAULT uuid_generate_v4(), "body" character varying(500) COLLATE "C" NOT NULL, "correct_answers" character varying array NOT NULL, "status" "public"."questions_status_enum" NOT NULL DEFAULT 'notPublished', CONSTRAINT "UQ_3aa05354b01d6ddf00bfc2f1025" UNIQUE ("public_id"), CONSTRAINT "CHK_body_length" CHECK (char_length(body) >= 10 AND char_length(body) <= 500), CONSTRAINT "PK_08a6d4b0f49ff300bf3a0ca60ac" PRIMARY KEY ("id"))`,
     );
     await queryRunner.query(
       `CREATE TABLE "game_questions" ("id" SERIAL NOT NULL, "order" integer NOT NULL, "added_at" TIMESTAMP NOT NULL DEFAULT now(), "game_id" integer NOT NULL, "question_id" integer NOT NULL, CONSTRAINT "UQ_a9a01e420bf7d52384ddfd30875" UNIQUE ("game_id", "order"), CONSTRAINT "UQ_7755e7207f95809211fab8f84d2" UNIQUE ("game_id", "question_id"), CONSTRAINT "PK_8655fa1f9639162ee24c3a5582a" PRIMARY KEY ("id"))`,

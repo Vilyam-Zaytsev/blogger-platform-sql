@@ -15,7 +15,6 @@ export function IsStringArrayWithLength(
       validator: {
         validate(value: any, args: ValidationArguments) {
           if (!Array.isArray(value)) return false;
-
           const [min, max] = args.constraints as number[];
           return value.every(
             (item) =>

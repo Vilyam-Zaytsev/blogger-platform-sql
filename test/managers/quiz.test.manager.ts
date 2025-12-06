@@ -54,8 +54,9 @@ export class QuizTestManager {
     return newQuestions;
   }
 
-  async createPublishedQuestions(quantity: number): Promise<void> {
+  async createPublishedQuestions(quantity: number): Promise<QuestionViewDto[]> {
     const dtos: QuestionInputDto[] = TestDtoFactory.generateQuestionInputDto(quantity);
+    const publishedQuestions: QuestionViewDto[] = [];
 
     for (let i = 0; i < quantity; i++) {
       const dto: QuestionInputDto = dtos[i];
@@ -76,11 +77,15 @@ export class QuizTestManager {
       expect(newQuestion.published).toBe(false);
 
       await request(this.server)
-        .post(`/${GLOBAL_PREFIX}/sa/quiz/questions/${newQuestion.id}/publish`)
+        .put(`/${GLOBAL_PREFIX}/sa/quiz/questions/${newQuestion.id}/publish`)
         .set('Authorization', this.adminCredentialsInBase64)
         .send({ published: true })
         .expect(HttpStatus.NO_CONTENT);
+
+      publishedQuestions.push(newQuestion);
     }
+
+    return publishedQuestions;
   }
   async createQuestionsWithNoCorrectAnswers(quantity: number): Promise<QuestionViewDto[]> {
     const newQuestions: QuestionViewDto[] = [];
@@ -118,6 +123,17 @@ export class QuizTestManager {
         .set('Authorization', this.adminCredentialsInBase64)
         .send({ published: true })
         .expect(HttpStatus.NO_CONTENT);
+    }
+  }
+
+  async connectTwoUsersToGame(accTokenUser1: string, accTokenUser2: string) {
+    const tokens: string[] = [accTokenUser1, accTokenUser2];
+
+    for (const token of tokens) {
+      await request(this.server)
+        .post(`/${GLOBAL_PREFIX}/pair-game-quiz/pairs/connection`)
+        .set('Authorization', `Bearer ${token}`)
+        .expect(HttpStatus.OK);
     }
   }
 }

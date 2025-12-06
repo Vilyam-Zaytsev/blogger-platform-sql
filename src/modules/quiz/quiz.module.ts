@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, OnModuleDestroy } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Question } from './admin/domain/entities/question.entity';
 import { UserAccountsModule } from '../user-accounts/user-accounts.module';
@@ -27,6 +27,7 @@ import { QuestionValidatorService } from './admin/domain/services/question-valid
 import { GetAllGamesForUserQueryHandler } from './public/application/queries/get-all-games-for-user.query-handler';
 import { GetMyStatisticQueryHandler } from './public/application/queries/get-satistic-for-user.query-handler';
 import { GetTopPlayersQueryHandler } from './public/application/queries/get-top-players.query-handler';
+import { GameFinishSchedulerService } from './public/domain/services/game-finish-scheduler.service';
 
 @Module({
   imports: [
@@ -64,9 +65,16 @@ import { GetTopPlayersQueryHandler } from './public/application/queries/get-top-
     GetMyStatisticQueryHandler,
     GetTopPlayersQueryHandler,
 
+    GameFinishSchedulerService,
+
     // 🔸 Players:
     //repo
     PlayersRepository,
   ],
 })
-export class QuizModule {}
+export class QuizModule implements OnModuleDestroy {
+  constructor(private readonly gameFinishScheduler: GameFinishSchedulerService) {}
+  onModuleDestroy() {
+    this.gameFinishScheduler.clearAll();
+  }
+}
