@@ -1,5 +1,5 @@
 import { AppTestManager } from '../../managers/app.test-manager';
-import { AdminCredentials } from '../../types';
+import { AdminCredentials, TestResultLogin } from '../../types';
 import { Server } from 'http';
 import { TestUtils } from '../../helpers/test.utils';
 import { QuizTestManager } from '../../managers/quiz.test.manager';
@@ -7,6 +7,10 @@ import { ACCESS_TOKEN_STRATEGY_INJECT_TOKEN } from '../../../src/modules/user-ac
 import { UserAccountsConfig } from '../../../src/modules/user-accounts/config/user-accounts.config';
 import { JwtService } from '@nestjs/jwt';
 import { UsersTestManager } from '../../managers/users.test-manager';
+import { QuestionViewDto } from '../../../src/modules/quiz/admin/api/view-dto/question.view-dto';
+import request from 'supertest';
+import { GLOBAL_PREFIX } from '../../../src/setup/global-prefix.setup';
+import { HttpStatus } from '@nestjs/common';
 
 describe('QuestionsAdminController - createQuestion() (POST: /sa/quiz/questions)', () => {
   let appTestManager: AppTestManager;
@@ -51,9 +55,22 @@ describe('QuestionsAdminController - createQuestion() (POST: /sa/quiz/questions)
     await appTestManager.close();
   });
 
-  // it('должен вернуть текущею игру пользователя если он участвует в активной игре или ожидает соперника', async () => {
-  //   await quizTestManager.createPublishedQuestions(5);
-  //   const resultLogins: TestResultLogin[] = await usersTestManager.createAuthorizedUsers(1);
-  //   const game: Game =
-  // });
+  it('', async () => {
+    const questions: QuestionViewDto[] = await quizTestManager.createPublishedQuestions(5);
+    const [resultLoginUser1, resultLoginUser2]: TestResultLogin[] =
+      await usersTestManager.createAuthorizedUsers(2);
+    const accTokenUser1: string = resultLoginUser1.authTokens.accessToken;
+    const accTokenUser2: string = resultLoginUser2.authTokens.accessToken;
+    await quizTestManager.connectTwoUsersToGame(accTokenUser1, accTokenUser2);
+
+    for (let i = 0; i < questions.length; i++) {
+      await request(server)
+        .post(`/${GLOBAL_PREFIX}/pair-game-quiz/pairs/my-current/answers`)
+        .set('Authorization', `Bearer ${accTokenUser1}`)
+        .send({ answer: questions[i].correctAnswers[0] })
+        .expect(HttpStatus.OK);
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 20000));
+  }, 30000);
 });

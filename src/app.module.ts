@@ -22,7 +22,6 @@ import { QuizModule } from './modules/quiz/quiz.module';
     UserAccountsModule,
     NotificationsModule,
     BloggersPlatformModule,
-    QuizModule,
     ThrottlerModule.forRootAsync({
       inject: [CoreConfig],
       useFactory: (coreConfig: CoreConfig) => [
@@ -32,6 +31,7 @@ import { QuizModule } from './modules/quiz/quiz.module';
         },
       ],
     }),
+    QuizModule,
   ],
   controllers: [],
   providers: [
