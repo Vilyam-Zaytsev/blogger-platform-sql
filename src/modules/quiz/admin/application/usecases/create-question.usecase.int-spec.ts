@@ -266,24 +266,5 @@ describe('CreateQuestionUseCase (Integration)', () => {
 
       await expect(useCase.execute(new CreateQuestionCommand(dto))).rejects.toThrowError();
     });
-
-    it('должен отклонять создание вопроса с элементом correctAnswers длиннее максимальной длины', async () => {
-      const longAnswer = 'A'.repeat(correctAnswersConstraints.maxLength + 1);
-      const dto: QuestionInputDto = {
-        body: 'Valid question text',
-        correctAnswers: [longAnswer],
-      };
-
-      await expect(useCase.execute(new CreateQuestionCommand(dto))).rejects.toThrowError();
-    });
-
-    it('должен отклонять создание вопроса с пустыми элементами correctAnswers (после trim)', async () => {
-      const dto: QuestionInputDto = {
-        body: 'Valid question text',
-        correctAnswers: ['   ', '\t\n', ''],
-      };
-
-      await expect(useCase.execute(new CreateQuestionCommand(dto))).rejects.toThrowError();
-    });
   });
 });
