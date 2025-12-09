@@ -18,21 +18,21 @@ export class CommentsQueryRepository {
   async getByIdOrNotFoundFail(id: number, user: UserContextDto | null): Promise<CommentViewDto> {
     const likesCountQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select('rc."commentId"', 'commentId')
+      .select('rc.comment_id', 'commentId')
       .addSelect('COUNT(*)', 'count')
       .from('reactions_comments', 'rc')
-      .innerJoin('reactions', 'r', 'r.id = rc."reactionId"')
+      .innerJoin('reactions', 'r', 'r.id = rc.reaction_id')
       .where('r.status = :like', { like: ReactionStatus.Like })
-      .groupBy('rc."commentId"');
+      .groupBy('rc.comment_id');
 
     const dislikesCountQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select('rc."commentId"', 'commentId')
+      .select('rc.comment_id', 'commentId')
       .addSelect('COUNT(*)', 'count')
       .from('reactions_comments', 'rc')
-      .innerJoin('reactions', 'r', 'r.id = rc."reactionId"')
+      .innerJoin('reactions', 'r', 'r.id = rc.reaction_id')
       .where('r.status = :dislike', { dislike: ReactionStatus.Dislike })
-      .groupBy('rc."commentId"');
+      .groupBy('rc.comment_id');
 
     const mainQueryBuilder = this.dataSource
       .getRepository<Comment>(Comment)
@@ -65,12 +65,12 @@ export class CommentsQueryRepository {
               'reactions',
               'r',
               `
-            r.id = rc."reactionId" 
+            r.id = rc.reaction_id 
             AND r.userId = :uid
             `,
               { uid: user.id },
             )
-            .where('rc."commentId" = comment.id')
+            .where('rc.comment_id = comment.id')
             .limit(1),
         'myStatus',
       );
@@ -100,21 +100,21 @@ export class CommentsQueryRepository {
 
     const likesCountQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select('rc."commentId"', 'commentId')
+      .select('rc.comment_id', 'commentId') // ✅ ИСПРАВЛЕНО!
       .addSelect('COUNT(*)', 'count')
       .from('reactions_comments', 'rc')
-      .innerJoin('reactions', 'r', 'r.id = rc."reactionId"')
+      .innerJoin('reactions', 'r', 'r.id = rc.reaction_id') // ✅ ИСПРАВЛЕНО!
       .where('r.status = :like', { like: ReactionStatus.Like })
-      .groupBy('rc."commentId"');
+      .groupBy('rc.comment_id'); // ✅ ИСПРАВЛЕНО!
 
     const dislikesCountQueryBuilder = this.dataSource
       .createQueryBuilder()
-      .select('rc."commentId"', 'commentId')
+      .select('rc.comment_id', 'commentId') // ✅ ИСПРАВЛЕНО!
       .addSelect('COUNT(*)', 'count')
       .from('reactions_comments', 'rc')
-      .innerJoin('reactions', 'r', 'r.id = rc."reactionId"')
+      .innerJoin('reactions', 'r', 'r.id = rc.reaction_id') // ✅ ИСПРАВЛЕНО!
       .where('r.status = :dislike', { dislike: ReactionStatus.Dislike })
-      .groupBy('rc."commentId"');
+      .groupBy('rc.comment_id'); // ✅ ИСПРАВЛЕНО!
 
     const mainQueryBuilder = this.dataSource
       .getRepository<Comment>(Comment)
@@ -147,12 +147,12 @@ export class CommentsQueryRepository {
               'reactions',
               'r',
               `
-            r.id = rc."reactionId" 
-            AND r.userId = :uid
-            `,
+          r.id = rc.reaction_id 
+          AND r.userId = :uid
+          `,
               { uid: user.id },
             )
-            .where('rc."commentId" = comment.id')
+            .where('rc.comment_id = comment.id') // ✅ ИСПРАВЛЕНО!
             .limit(1),
         'myStatus',
       );

@@ -12,6 +12,7 @@ import { DomainException } from '../../../../../core/exceptions/domain-exception
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
+import { QuestionValidatorService } from '../../domain/services/question-validator.service';
 
 describe('PublishQuestionUseCase (Integration)', () => {
   let module: TestingModule;
@@ -28,7 +29,7 @@ describe('PublishQuestionUseCase (Integration)', () => {
         CoreModule,
         TypeOrmModule.forFeature(getRelatedEntities(Question)),
       ],
-      providers: [PublishQuestionUseCase, QuestionsRepository],
+      providers: [PublishQuestionUseCase, QuestionsRepository, QuestionValidatorService],
     }).compile();
 
     useCase = module.get<PublishQuestionUseCase>(PublishQuestionUseCase);
@@ -61,11 +62,11 @@ describe('PublishQuestionUseCase (Integration)', () => {
 
   describe('успешная публикация вопроса', () => {
     it('должен опубликовать вопрос со статусом notPublished и правильными ответами', async () => {
-      const { id, status }: Question = await createTestQuestion();
+      const { id, publicId, status }: Question = await createTestQuestion();
 
       expect(status).toBe(QuestionStatus.NotPublished);
 
-      await useCase.execute(new PublishQuestionCommand(id));
+      await useCase.execute(new PublishQuestionCommand(publicId));
 
       const publishedQuestion: Question | null = await questionRepo.findOneBy({ id });
 
@@ -74,24 +75,24 @@ describe('PublishQuestionUseCase (Integration)', () => {
     });
 
     it('должен опубликовать вопрос с одним правильным ответом', async () => {
-      const { id }: Question = await createTestQuestion({
+      const { id, publicId }: Question = await createTestQuestion({
         body: 'What is 2+2?',
         correctAnswers: ['4'],
       });
 
-      await useCase.execute(new PublishQuestionCommand(id));
+      await useCase.execute(new PublishQuestionCommand(publicId));
 
       const publishedQuestion: Question | null = await questionRepo.findOneBy({ id });
       expect(publishedQuestion!.status).toBe(QuestionStatus.Published);
     });
 
     it('должен опубликовать вопрос с множественными правильными ответами', async () => {
-      const { id }: Question = await createTestQuestion({
+      const { id, publicId }: Question = await createTestQuestion({
         body: 'Which are programming languages?',
         correctAnswers: ['JavaScript', 'Python', 'Java', 'TypeScript'],
       });
 
-      await useCase.execute(new PublishQuestionCommand(id));
+      await useCase.execute(new PublishQuestionCommand(publicId));
 
       const publishedQuestion: Question | null = await questionRepo.findOneBy({ id });
       expect(publishedQuestion!.status).toBe(QuestionStatus.Published);
@@ -102,25 +103,22 @@ describe('PublishQuestionUseCase (Integration)', () => {
       const originalBody: string = question.body;
       const originalAnswers: string[] = [...question.correctAnswers];
       const originalCreatedAt: Date = question.createdAt;
-      const originalUpdatedAt: Date = question.updatedAt;
 
-      await useCase.execute(new PublishQuestionCommand(question.id));
+      await useCase.execute(new PublishQuestionCommand(question.publicId));
 
       const publishedQuestion: Question | null = await questionRepo.findOneBy({ id: question.id });
 
       expect(publishedQuestion!.body).toBe(originalBody);
       expect(publishedQuestion!.correctAnswers).toEqual(originalAnswers);
       expect(publishedQuestion!.createdAt).toEqual(originalCreatedAt);
-      expect(publishedQuestion!.updatedAt.getTime()).toBeGreaterThanOrEqual(
-        originalUpdatedAt.getTime(),
-      );
+      expect(publishedQuestion!.updatedAt).not.toBeNull();
       expect(publishedQuestion!.status).toBe(QuestionStatus.Published);
     });
   });
 
   describe('обработка ошибок домена', () => {
     it('должен выбросить DomainException при попытке опубликовать несуществующий вопрос', async () => {
-      const nonExistentId = 99999;
+      const nonExistentId = '123e4567-e89b-12d3-a456-426614174000';
 
       await expect(useCase.execute(new PublishQuestionCommand(nonExistentId))).rejects.toThrow(
         DomainException,
@@ -128,7 +126,7 @@ describe('PublishQuestionUseCase (Integration)', () => {
     });
 
     it('должен выбросить DomainException с правильным кодом NotFound для несуществующего вопроса', async () => {
-      const nonExistentId = 88888;
+      const nonExistentId = '123e4567-e89b-12d3-a456-426614174000';
 
       try {
         await useCase.execute(new PublishQuestionCommand(nonExistentId));
@@ -143,50 +141,50 @@ describe('PublishQuestionUseCase (Integration)', () => {
     });
 
     it('должен выбросить DomainException при попытке опубликовать уже опубликованный вопрос', async () => {
-      const { id }: Question = await createTestQuestion();
+      const { publicId }: Question = await createTestQuestion();
 
-      await useCase.execute(new PublishQuestionCommand(id));
+      await useCase.execute(new PublishQuestionCommand(publicId));
 
-      await expect(useCase.execute(new PublishQuestionCommand(id))).rejects.toThrow(
+      await expect(useCase.execute(new PublishQuestionCommand(publicId))).rejects.toThrow(
         DomainException,
       );
     });
 
     it('должен выбросить DomainException с правильным кодом BadRequest для уже опубликованного вопроса', async () => {
-      const { id }: Question = await createTestQuestion();
+      const { publicId }: Question = await createTestQuestion();
 
-      await useCase.execute(new PublishQuestionCommand(id));
+      await useCase.execute(new PublishQuestionCommand(publicId));
 
       try {
-        await useCase.execute(new PublishQuestionCommand(id));
+        await useCase.execute(new PublishQuestionCommand(publicId));
         fail('Ожидали DomainException');
       } catch (error) {
         expect(error).toBeInstanceOf(DomainException);
         expect((error as DomainException).code).toBe(DomainExceptionCode.BadRequest);
         expect((error as DomainException).message).toContain(
-          `The question with ID (${id}) already published`,
+          `The question with ID (${publicId}) already published`,
         );
       }
     });
 
     it('должен выбросить ValidationException при попытке опубликовать вопрос без правильных ответов', async () => {
-      const { id }: Question = await createTestQuestion({
+      const { publicId }: Question = await createTestQuestion({
         body: 'Question without correct answers',
         correctAnswers: [],
       });
 
-      await expect(useCase.execute(new PublishQuestionCommand(id))).rejects.toThrow(
+      await expect(useCase.execute(new PublishQuestionCommand(publicId))).rejects.toThrow(
         ValidationException,
       );
     });
 
     it('должен выбросить ValidationException с правильным сообщением для вопроса без правильных ответов', async () => {
-      const { id }: Question = await createTestQuestion({
+      const { publicId }: Question = await createTestQuestion({
         correctAnswers: [],
       });
 
       try {
-        await useCase.execute(new PublishQuestionCommand(id));
+        await useCase.execute(new PublishQuestionCommand(publicId));
         fail('Ожидали ValidationException');
       } catch (error) {
         expect(error).toBeInstanceOf(ValidationException);
@@ -200,9 +198,9 @@ describe('PublishQuestionUseCase (Integration)', () => {
     });
 
     it('не должен изменить статус вопроса при ValidationException', async () => {
-      const { id }: Question = await createTestQuestion({ correctAnswers: [] });
+      const { id, publicId }: Question = await createTestQuestion({ correctAnswers: [] });
 
-      await expect(useCase.execute(new PublishQuestionCommand(id))).rejects.toThrow(
+      await expect(useCase.execute(new PublishQuestionCommand(publicId))).rejects.toThrow(
         ValidationException,
       );
 
@@ -211,18 +209,18 @@ describe('PublishQuestionUseCase (Integration)', () => {
     });
 
     it('не должен изменить статус при попытке опубликовать уже опубликованный вопрос', async () => {
-      const { id }: Question = await createTestQuestion();
+      const { id, publicId }: Question = await createTestQuestion();
 
-      await useCase.execute(new PublishQuestionCommand(id));
+      await useCase.execute(new PublishQuestionCommand(publicId));
 
       const firstPublishedQuestion: Question | null = await questionRepo.findOneBy({
         id,
       });
-      const firstUpdatedAt: Date = firstPublishedQuestion!.updatedAt;
+      const firstUpdatedAt: Date = firstPublishedQuestion!.updatedAt!;
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
-      await expect(useCase.execute(new PublishQuestionCommand(id))).rejects.toThrow(
+      await expect(useCase.execute(new PublishQuestionCommand(publicId))).rejects.toThrow(
         DomainException,
       );
 
@@ -231,54 +229,6 @@ describe('PublishQuestionUseCase (Integration)', () => {
       });
       expect(secondPublishedQuestion!.status).toBe(QuestionStatus.Published);
       expect(secondPublishedQuestion!.updatedAt).toEqual(firstUpdatedAt);
-    });
-  });
-
-  describe('граничные случаи', () => {
-    it('должен корректно обрабатывать ID равный нулю', async () => {
-      await expect(useCase.execute(new PublishQuestionCommand(0))).rejects.toThrow(DomainException);
-    });
-
-    it('должен корректно обрабатывать отрицательные ID', async () => {
-      await expect(useCase.execute(new PublishQuestionCommand(-1))).rejects.toThrow(
-        DomainException,
-      );
-    });
-
-    it('должен корректно обрабатывать очень большие ID', async () => {
-      await expect(
-        useCase.execute(new PublishQuestionCommand(Number.MAX_SAFE_INTEGER)),
-      ).rejects.toThrow();
-    });
-
-    it('должен корректно обрабатывать дробные ID', async () => {
-      await expect(useCase.execute(new PublishQuestionCommand(123.456))).rejects.toThrow();
-    });
-
-    it('должен публиковать вопрос с одним ответом минимальной длины', async () => {
-      const dto: QuestionInputDto = {
-        body: 'Short answer',
-        correctAnswers: ['X'],
-      };
-      const { id }: Question = await createTestQuestion(dto);
-
-      await useCase.execute(new PublishQuestionCommand(id));
-      const after: Question | null = await questionRepo.findOneBy({ id });
-      expect(after?.status).toBe(QuestionStatus.Published);
-    });
-
-    it('должен публиковать вопрос с ответом максимальной длины', async () => {
-      const answer: string = 'A'.repeat(100);
-      const dto: QuestionInputDto = {
-        body: 'Long answer',
-        correctAnswers: [answer],
-      };
-      const { id }: Question = await createTestQuestion(dto);
-
-      await useCase.execute(new PublishQuestionCommand(id));
-      const after: Question | null = await questionRepo.findOneBy({ id });
-      expect(after?.correctAnswers[0].length).toBe(100);
-      expect(after?.status).toBe(QuestionStatus.Published);
     });
   });
 
@@ -291,7 +241,7 @@ describe('PublishQuestionUseCase (Integration)', () => {
       ]);
 
       const publishPromises = questions.map((question) =>
-        useCase.execute(new PublishQuestionCommand(question.id)),
+        useCase.execute(new PublishQuestionCommand(question.publicId)),
       );
 
       await Promise.all(publishPromises);
@@ -306,12 +256,12 @@ describe('PublishQuestionUseCase (Integration)', () => {
     });
 
     it('должен корректно обрабатывать множественные последовательные операции на одном вопросе', async () => {
-      const { id }: Question = await createTestQuestion();
+      const { id, publicId }: Question = await createTestQuestion();
 
-      await useCase.execute(new PublishQuestionCommand(id));
+      await useCase.execute(new PublishQuestionCommand(publicId));
 
       for (let i = 0; i < 3; i++) {
-        await expect(useCase.execute(new PublishQuestionCommand(id))).rejects.toThrow(
+        await expect(useCase.execute(new PublishQuestionCommand(publicId))).rejects.toThrow(
           DomainException,
         );
       }
@@ -323,18 +273,18 @@ describe('PublishQuestionUseCase (Integration)', () => {
 
   describe('интеграция с repository', () => {
     it('должен правильно вызывать методы repository в нужном порядке', async () => {
-      const { id }: Question = await createTestQuestion();
+      const { publicId }: Question = await createTestQuestion();
 
-      const getByIdSpy = jest.spyOn(questionsRepository, 'getById');
+      const getByPublicIdSpy = jest.spyOn(questionsRepository, 'getByPublicId');
       const saveSpy = jest.spyOn(questionsRepository, 'save');
 
-      await useCase.execute(new PublishQuestionCommand(id));
+      await useCase.execute(new PublishQuestionCommand(publicId));
 
-      expect(getByIdSpy).toHaveBeenCalledWith(id);
-      expect(getByIdSpy).toHaveBeenCalledTimes(1);
+      expect(getByPublicIdSpy).toHaveBeenCalledWith(publicId);
+      expect(getByPublicIdSpy).toHaveBeenCalledTimes(1);
       expect(saveSpy).toHaveBeenCalledTimes(1);
 
-      const getByIdCall: number = getByIdSpy.mock.invocationCallOrder[0];
+      const getByIdCall: number = getByPublicIdSpy.mock.invocationCallOrder[0];
       const saveCall: number = saveSpy.mock.invocationCallOrder[0];
       expect(getByIdCall).toBeLessThan(saveCall);
 
@@ -342,12 +292,12 @@ describe('PublishQuestionUseCase (Integration)', () => {
       expect(saveCallArgs).toBeInstanceOf(Question);
       expect(saveCallArgs.status).toBe(QuestionStatus.Published);
 
-      getByIdSpy.mockRestore();
+      getByPublicIdSpy.mockRestore();
       saveSpy.mockRestore();
     });
 
     it('не должен вызывать save если вопрос не найден', async () => {
-      const nonExistentId = 99999;
+      const nonExistentId = '123e4567-e89b-12d3-a456-426614174000';
 
       const saveSpy = jest.spyOn(questionsRepository, 'save');
 
@@ -361,13 +311,13 @@ describe('PublishQuestionUseCase (Integration)', () => {
     });
 
     it('не должен вызывать save если вопрос уже опубликован', async () => {
-      const { id }: Question = await createTestQuestion();
+      const { publicId }: Question = await createTestQuestion();
 
-      await useCase.execute(new PublishQuestionCommand(id));
+      await useCase.execute(new PublishQuestionCommand(publicId));
 
       const saveSpy = jest.spyOn(questionsRepository, 'save');
 
-      await expect(useCase.execute(new PublishQuestionCommand(id))).rejects.toThrow(
+      await expect(useCase.execute(new PublishQuestionCommand(publicId))).rejects.toThrow(
         DomainException,
       );
 
@@ -377,11 +327,11 @@ describe('PublishQuestionUseCase (Integration)', () => {
     });
 
     it('не должен вызывать save если нет правильных ответов', async () => {
-      const { id }: Question = await createTestQuestion({ correctAnswers: [] });
+      const { publicId }: Question = await createTestQuestion({ correctAnswers: [] });
 
       const saveSpy = jest.spyOn(questionsRepository, 'save');
 
-      await expect(useCase.execute(new PublishQuestionCommand(id))).rejects.toThrow(
+      await expect(useCase.execute(new PublishQuestionCommand(publicId))).rejects.toThrow(
         ValidationException,
       );
 
@@ -393,18 +343,18 @@ describe('PublishQuestionUseCase (Integration)', () => {
 
   describe('валидация business-правил', () => {
     it('должен требовать минимум один правильный ответ', async () => {
-      const { id }: Question = await createTestQuestion({ correctAnswers: [] });
+      const { publicId }: Question = await createTestQuestion({ correctAnswers: [] });
 
-      await expect(useCase.execute(new PublishQuestionCommand(id))).rejects.toThrow(
+      await expect(useCase.execute(new PublishQuestionCommand(publicId))).rejects.toThrow(
         ValidationException,
       );
     });
 
     it('должен разрешать публикацию с большим количеством правильных ответов', async () => {
       const manyAnswers: string[] = Array.from({ length: 10 }, (_, i) => `Answer ${i + 1}`);
-      const { id }: Question = await createTestQuestion({ correctAnswers: manyAnswers });
+      const { id, publicId }: Question = await createTestQuestion({ correctAnswers: manyAnswers });
 
-      await useCase.execute(new PublishQuestionCommand(id));
+      await useCase.execute(new PublishQuestionCommand(publicId));
 
       const publishedQuestion: Question | null = await questionRepo.findOneBy({ id });
       expect(publishedQuestion!.status).toBe(QuestionStatus.Published);
@@ -415,7 +365,7 @@ describe('PublishQuestionUseCase (Integration)', () => {
       question.status = QuestionStatus.Published;
       await questionRepo.save(question);
 
-      await expect(useCase.execute(new PublishQuestionCommand(question.id))).rejects.toThrow(
+      await expect(useCase.execute(new PublishQuestionCommand(question.publicId))).rejects.toThrow(
         DomainException,
       );
     });

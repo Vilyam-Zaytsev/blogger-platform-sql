@@ -53,11 +53,11 @@ export class Reaction extends BaseEntity {
     return reaction;
   }
 
-  static createForComment({ status, userId, parentId: postId }: ReactionCreateDto): Reaction {
+  static createForComment({ status, userId, parentId: commentId }: ReactionCreateDto): Reaction {
     const reaction = new this();
     reaction.status = status;
     reaction.userId = userId;
-    reaction.reactionComment = ReactionComment.create(postId);
+    reaction.reactionComment = ReactionComment.create(commentId);
 
     return reaction;
   }

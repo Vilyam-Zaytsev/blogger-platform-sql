@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { UpdateQuestionCommand, UpdateQuestionUseCase } from './update-question.usecase';
-import { DataSource, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 import { Question, QuestionStatus } from '../../domain/entities/question.entity';
 import { DatabaseModule } from '../../../../database/database.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -12,6 +12,7 @@ import { configModule } from '../../../../../dynamic-config.module';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
+import { QuestionValidatorService } from '../../domain/services/question-validator.service';
 
 describe('UpdateQuestionUseCase (Integration)', () => {
   let module: TestingModule;
@@ -27,7 +28,7 @@ describe('UpdateQuestionUseCase (Integration)', () => {
         DatabaseModule,
         TypeOrmModule.forFeature(getRelatedEntities(Question)),
       ],
-      providers: [UpdateQuestionUseCase, QuestionsRepository],
+      providers: [UpdateQuestionUseCase, QuestionsRepository, QuestionValidatorService],
     }).compile();
 
     useCase = module.get<UpdateQuestionUseCase>(UpdateQuestionUseCase);
@@ -74,10 +75,10 @@ describe('UpdateQuestionUseCase (Integration)', () => {
 
   describe('Позитивные сценарии', () => {
     it('должен успешно обновить body неопубликованного вопроса', async () => {
-      const { id, body: beforeUpdateBody }: Question = await createTestQuestion();
+      const { id, publicId, body: beforeUpdateBody }: Question = await createTestQuestion();
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'What is the capital of Germany?',
         correctAnswers: ['Berlin'],
       };
@@ -93,10 +94,10 @@ describe('UpdateQuestionUseCase (Integration)', () => {
     });
 
     it('должен успешно обновить body опубликованного вопроса', async () => {
-      const { id }: Question = await createTestPublishedQuestion();
+      const { id, publicId }: Question = await createTestPublishedQuestion();
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'Updated published question',
         correctAnswers: ['Answer 1', 'Answer 2'],
       };
@@ -109,10 +110,10 @@ describe('UpdateQuestionUseCase (Integration)', () => {
     });
 
     it('должен успешно обновить correctAnswers опубликованного вопроса с минимум одним ответом', async () => {
-      const { id }: Question = await createTestPublishedQuestion();
+      const { id, publicId }: Question = await createTestPublishedQuestion();
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'Name popular programming languages',
         correctAnswers: ['JavaScript', 'Python', 'Java'],
       };
@@ -125,10 +126,10 @@ describe('UpdateQuestionUseCase (Integration)', () => {
     });
 
     it('должен успешно обновить оба поля неопубликованного вопроса', async () => {
-      const { id }: Question = await createTestQuestion();
+      const { id, publicId }: Question = await createTestQuestion();
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'What is TypeScript?',
         correctAnswers: ['A typed superset of JavaScript'],
       };
@@ -146,13 +147,13 @@ describe('UpdateQuestionUseCase (Integration)', () => {
         correctAnswers: ['Original answer'],
       };
 
-      const { id }: Question = await createTestPublishedQuestion(questionData);
+      const { id, publicId }: Question = await createTestPublishedQuestion(questionData);
 
       const publishedQuestionBefore: Question | null = await questionRepo.findOneBy({ id });
       expect(publishedQuestionBefore?.status).toBe(QuestionStatus.Published);
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'Updated question',
         correctAnswers: ['Updated answer'],
       };
@@ -166,15 +167,15 @@ describe('UpdateQuestionUseCase (Integration)', () => {
     });
 
     it('должен корректно обновить updatedAt при изменении вопроса', async () => {
-      const { id }: Question = await createTestQuestion();
+      const { id, publicId }: Question = await createTestQuestion();
 
       const originalQuestion: Question | null = await questionRepo.findOneBy({ id });
       const originalUpdatedAt = originalQuestion?.updatedAt;
-
+      console.log(originalUpdatedAt);
       await new Promise((resolve) => setTimeout(resolve, 10));
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'Updated body',
         correctAnswers: ['Updated answer'],
       };
@@ -183,19 +184,19 @@ describe('UpdateQuestionUseCase (Integration)', () => {
 
       const updatedQuestion: Question | null = await questionRepo.findOneBy({ id });
 
-      expect(updatedQuestion?.updatedAt.getTime()).toBeGreaterThan(
+      expect(updatedQuestion?.updatedAt!.getTime()).toBeGreaterThan(
         originalUpdatedAt?.getTime() || 0,
       );
     });
 
     it('должен сохранить createdAt при обновлении вопроса', async () => {
-      const { id }: Question = await createTestQuestion();
+      const { id, publicId }: Question = await createTestQuestion();
 
       const originalQuestion: Question | null = await questionRepo.findOneBy({ id });
       const originalCreatedAt = originalQuestion?.createdAt;
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'Updated body',
         correctAnswers: ['Updated answer'],
       };
@@ -208,13 +209,13 @@ describe('UpdateQuestionUseCase (Integration)', () => {
     });
 
     it('должен обновить опубликованный вопрос, оставив correctAnswers с одним ответом', async () => {
-      const { id }: Question = await createTestPublishedQuestion({
+      const { id, publicId }: Question = await createTestPublishedQuestion({
         body: 'Multiple answers question',
         correctAnswers: ['Answer 1', 'Answer 2', 'Answer 3'],
       });
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'Single answer question',
         correctAnswers: ['Single answer'],
       };
@@ -228,10 +229,10 @@ describe('UpdateQuestionUseCase (Integration)', () => {
     });
 
     it('должен обновить неопубликованный вопрос с пустыми correctAnswers', async () => {
-      const { id }: Question = await createTestQuestion();
+      const { id, publicId }: Question = await createTestQuestion();
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'Question without answers',
         correctAnswers: [],
       };
@@ -246,7 +247,7 @@ describe('UpdateQuestionUseCase (Integration)', () => {
 
   describe('Обработка ошибок - NotFound', () => {
     it('должен выбросить DomainException NotFound для несуществующего ID', async () => {
-      const nonExistentId = 999999;
+      const nonExistentId = '123e4567-e89b-12d3-a456-426614174000';
 
       const updateDto: QuestionUpdateDto = {
         id: nonExistentId,
@@ -266,54 +267,18 @@ describe('UpdateQuestionUseCase (Integration)', () => {
       }
     });
 
-    it('должен выбросить NotFound для нулевого ID', async () => {
-      const zeroId = 0;
-
-      const updateDto: QuestionUpdateDto = {
-        id: zeroId,
-        body: 'Updated body',
-        correctAnswers: ['Updated answer'],
-      };
-
-      try {
-        await useCase.execute(new UpdateQuestionCommand(updateDto));
-        fail('Ожидали DomainException');
-      } catch (error) {
-        expect(error).toBeInstanceOf(DomainException);
-        expect((error as DomainException).code).toBe(DomainExceptionCode.NotFound);
-      }
-    });
-
-    it('должен выбросить NotFound для отрицательного ID', async () => {
-      const negativeId = -1;
-
-      const updateDto: QuestionUpdateDto = {
-        id: negativeId,
-        body: 'Updated body',
-        correctAnswers: ['Updated answer'],
-      };
-
-      try {
-        await useCase.execute(new UpdateQuestionCommand(updateDto));
-        fail('Ожидали DomainException');
-      } catch (error) {
-        expect(error).toBeInstanceOf(DomainException);
-        expect((error as DomainException).code).toBe(DomainExceptionCode.NotFound);
-      }
-    });
-
     it('должен выбросить NotFound для удаленного вопроса (soft delete)', async () => {
       const questionData: QuestionInputDto = {
         body: 'This question will be deleted',
         correctAnswers: ['Deleted'],
       };
 
-      const { id }: Question = await createTestQuestion(questionData);
+      const { id, publicId }: Question = await createTestQuestion(questionData);
 
       await questionRepo.softDelete(id);
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'Updated body',
         correctAnswers: ['Updated answer'],
       };
@@ -330,7 +295,7 @@ describe('UpdateQuestionUseCase (Integration)', () => {
 
   describe('Обработка ошибок - ValidationException (публикованные вопросы)', () => {
     it('должен выбросить ValidationException при попытке обновить опубликованный вопрос без ответов', async () => {
-      const { id }: Question = await createTestPublishedQuestion({
+      const { id, publicId }: Question = await createTestPublishedQuestion({
         body: 'Published question',
         correctAnswers: ['Answer 1'],
       });
@@ -339,7 +304,7 @@ describe('UpdateQuestionUseCase (Integration)', () => {
       expect(publishedQuestionBefore?.status).toBe(QuestionStatus.Published);
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'Updated published question',
         correctAnswers: [],
       };
@@ -361,7 +326,7 @@ describe('UpdateQuestionUseCase (Integration)', () => {
     });
 
     it('должен позволить обновить неопубликованный вопрос с пустыми correctAnswers', async () => {
-      const { id }: Question = await createTestQuestion({
+      const { id, publicId }: Question = await createTestQuestion({
         body: 'Not published question',
         correctAnswers: ['Answer 1'],
       });
@@ -370,7 +335,7 @@ describe('UpdateQuestionUseCase (Integration)', () => {
       expect(notPublishedBefore?.status).toBe(QuestionStatus.NotPublished);
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'Updated not published question',
         correctAnswers: [],
       };
@@ -390,36 +355,36 @@ describe('UpdateQuestionUseCase (Integration)', () => {
         correctAnswers: ['Test answer'],
       };
 
-      const { id }: Question = await createTestPublishedQuestion(questionData);
+      const { id, publicId }: Question = await createTestPublishedQuestion(questionData);
 
-      const getByIdSpy = jest.spyOn(questionsRepository, 'getById');
+      const getByPublicIdSpy = jest.spyOn(questionsRepository, 'getByPublicId');
       const saveSpy = jest.spyOn(questionsRepository, 'save');
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'Updated body',
         correctAnswers: ['Updated answer'],
       };
 
       await useCase.execute(new UpdateQuestionCommand(updateDto));
 
-      expect(getByIdSpy).toHaveBeenCalledWith(id);
-      expect(getByIdSpy).toHaveBeenCalledTimes(1);
+      expect(getByPublicIdSpy).toHaveBeenCalledWith(publicId);
+      expect(getByPublicIdSpy).toHaveBeenCalledTimes(1);
 
       expect(saveSpy).toHaveBeenCalledTimes(1);
-      const savedQuestion = saveSpy.mock.calls[0][0];
+      const savedQuestion: Question = saveSpy.mock.calls[0][0];
       expect(savedQuestion.id).toBe(id);
       expect(savedQuestion.body).toBe('Updated body');
       expect(savedQuestion.correctAnswers).toEqual(['Updated answer']);
 
-      getByIdSpy.mockRestore();
+      getByPublicIdSpy.mockRestore();
       saveSpy.mockRestore();
     });
 
     it('должен вызвать только getById при NotFound ошибке', async () => {
-      const nonExistentId = 123456;
+      const nonExistentId = '123e4567-e89b-12d3-a456-426614174000';
 
-      const getByIdSpy = jest.spyOn(questionsRepository, 'getById');
+      const getByPublicIdSpy = jest.spyOn(questionsRepository, 'getByPublicId');
       const saveSpy = jest.spyOn(questionsRepository, 'save');
 
       const updateDto: QuestionUpdateDto = {
@@ -434,24 +399,24 @@ describe('UpdateQuestionUseCase (Integration)', () => {
         // Ожидаем ошибку
       }
 
-      expect(getByIdSpy).toHaveBeenCalledWith(nonExistentId);
-      expect(getByIdSpy).toHaveBeenCalledTimes(1);
+      expect(getByPublicIdSpy).toHaveBeenCalledWith(nonExistentId);
+      expect(getByPublicIdSpy).toHaveBeenCalledTimes(1);
       expect(saveSpy).not.toHaveBeenCalled();
 
-      getByIdSpy.mockRestore();
+      getByPublicIdSpy.mockRestore();
       saveSpy.mockRestore();
     });
 
     it('должен вызвать только getById при ValidationException ошибке (пустые ответы у published)', async () => {
-      const { id }: Question = await createTestPublishedQuestion({
+      const { publicId }: Question = await createTestPublishedQuestion({
         correctAnswers: ['Answer'],
       });
 
-      const getByIdSpy = jest.spyOn(questionsRepository, 'getById');
+      const getByPublicIdSpy = jest.spyOn(questionsRepository, 'getByPublicId');
       const saveSpy = jest.spyOn(questionsRepository, 'save');
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'Updated body',
         correctAnswers: [],
       };
@@ -462,11 +427,11 @@ describe('UpdateQuestionUseCase (Integration)', () => {
         // Ожидаем ValidationException
       }
 
-      expect(getByIdSpy).toHaveBeenCalledWith(id);
-      expect(getByIdSpy).toHaveBeenCalledTimes(1);
+      expect(getByPublicIdSpy).toHaveBeenCalledWith(publicId);
+      expect(getByPublicIdSpy).toHaveBeenCalledTimes(1);
       expect(saveSpy).not.toHaveBeenCalled();
 
-      getByIdSpy.mockRestore();
+      getByPublicIdSpy.mockRestore();
       saveSpy.mockRestore();
     });
 
@@ -476,12 +441,12 @@ describe('UpdateQuestionUseCase (Integration)', () => {
         correctAnswers: ['Original answer'],
       };
 
-      const { id }: Question = await createTestPublishedQuestion(questionData);
+      const { id, publicId }: Question = await createTestPublishedQuestion(questionData);
 
       const saveSpy = jest.spyOn(questionsRepository, 'save');
 
       const updateDto: QuestionUpdateDto = {
-        id,
+        id: publicId,
         body: 'Updated question',
         correctAnswers: ['Updated answer 1', 'Updated answer 2'],
       };
@@ -506,10 +471,10 @@ describe('UpdateQuestionUseCase (Integration)', () => {
         { body: 'Published Question 3', correctAnswers: ['Answer 3'] },
       ];
 
-      const createdIds: number[] = [];
+      const createdIds: string[] = [];
       for (const data of questionsData) {
-        const { id }: Question = await createTestPublishedQuestion(data);
-        createdIds.push(id);
+        const { publicId }: Question = await createTestPublishedQuestion(data);
+        createdIds.push(publicId);
       }
 
       const updateDtos: QuestionUpdateDto[] = [
@@ -522,7 +487,11 @@ describe('UpdateQuestionUseCase (Integration)', () => {
         await useCase.execute(new UpdateQuestionCommand(updateDto));
       }
 
-      const updatedQuestions = await questionRepo.findByIds(createdIds);
+      const updatedQuestions: Question[] = await questionRepo.find({
+        where: {
+          publicId: In(createdIds),
+        },
+      });
       expect(updatedQuestions).toHaveLength(3);
       expect(updatedQuestions.every((q) => q.status === QuestionStatus.Published)).toBe(true);
       expect(updatedQuestions[0].body).toBe('Updated Q1');
@@ -537,10 +506,10 @@ describe('UpdateQuestionUseCase (Integration)', () => {
         { body: 'Parallel published 3', correctAnswers: ['Answer 3'] },
       ];
 
-      const createdIds: number[] = [];
+      const createdIds: string[] = [];
       for (const data of questionsData) {
-        const { id }: Question = await createTestPublishedQuestion(data);
-        createdIds.push(id);
+        const { publicId }: Question = await createTestPublishedQuestion(data);
+        createdIds.push(publicId);
       }
 
       const updateDtos: QuestionUpdateDto[] = [
@@ -555,19 +524,23 @@ describe('UpdateQuestionUseCase (Integration)', () => {
 
       await Promise.all(updatePromises);
 
-      const updatedQuestions = await questionRepo.findByIds(createdIds);
+      const updatedQuestions: Question[] = await questionRepo.find({
+        where: {
+          publicId: In(createdIds),
+        },
+      });
       expect(updatedQuestions).toHaveLength(3);
       expect(updatedQuestions.every((q) => q.body.includes('Parallel Updated'))).toBe(true);
       expect(updatedQuestions.every((q) => q.status === QuestionStatus.Published)).toBe(true);
     });
 
     it('должен корректно обновить один и тот же опубликованный вопрос несколько раз подряд', async () => {
-      const { id }: Question = await createTestPublishedQuestion();
+      const { id, publicId }: Question = await createTestPublishedQuestion();
 
       const updates = [
-        { id, body: 'First update', correctAnswers: ['Answer 1'] },
-        { id, body: 'Second update', correctAnswers: ['Answer 2', 'Answer 2b'] },
-        { id, body: 'Third update', correctAnswers: ['Answer 3'] },
+        { id: publicId, body: 'First update', correctAnswers: ['Answer 1'] },
+        { id: publicId, body: 'Second update', correctAnswers: ['Answer 2', 'Answer 2b'] },
+        { id: publicId, body: 'Third update', correctAnswers: ['Answer 3'] },
       ];
 
       for (const updateDto of updates) {
@@ -581,21 +554,22 @@ describe('UpdateQuestionUseCase (Integration)', () => {
     });
 
     it('должен обновить смешанный список: опубликованные вопросы успешно, неопубликованные с пустыми ответами тоже', async () => {
-      const publishedId: number = (
-        await createTestPublishedQuestion({ correctAnswers: ['Published Answer'] })
-      ).id;
-      const notPublishedId: number = (
-        await createTestQuestion({ correctAnswers: ['Not Published Answer'] })
-      ).id;
+      const { id: publishedId, publicId: publishedPublicId }: Question =
+        await createTestPublishedQuestion({
+          correctAnswers: ['Published Answer'],
+        });
+
+      const { id: notPublishedId, publicId: notPublishedPublicId }: Question =
+        await createTestQuestion({ correctAnswers: ['Not Published Answer'] });
 
       const publishedUpdate: QuestionUpdateDto = {
-        id: publishedId,
+        id: publishedPublicId,
         body: 'Updated published with answer',
         correctAnswers: ['Updated Published Answer'],
       };
 
       const notPublishedUpdate: QuestionUpdateDto = {
-        id: notPublishedId,
+        id: notPublishedPublicId,
         body: 'Updated not published without answers',
         correctAnswers: [],
       };
