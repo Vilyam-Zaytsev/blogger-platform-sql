@@ -262,8 +262,8 @@ describe('CreatePostUseCase (Integration)', () => {
 
       expect(createdPost!.createdAt.getTime()).toBeGreaterThanOrEqual(beforeCreation.getTime());
       expect(createdPost!.createdAt.getTime()).toBeLessThanOrEqual(afterCreation.getTime());
-      expect(createdPost!.updatedAt.getTime()).toBeGreaterThanOrEqual(beforeCreation.getTime());
-      expect(createdPost!.updatedAt.getTime()).toBeLessThanOrEqual(afterCreation.getTime());
+      expect(createdPost!.updatedAt!.getTime()).toBeGreaterThanOrEqual(beforeCreation.getTime());
+      expect(createdPost!.updatedAt!.getTime()).toBeLessThanOrEqual(afterCreation.getTime());
     });
   });
 
