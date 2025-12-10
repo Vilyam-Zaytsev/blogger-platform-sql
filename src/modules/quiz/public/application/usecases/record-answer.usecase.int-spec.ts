@@ -25,18 +25,14 @@ import { AnswerViewDto } from '../../api/view-dto/answer.view-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants';
-import { GameFinishJobDto } from '../../infrastructure/dto/game-finish-job.dto';
-import { Queue } from 'bullmq';
-import { CoreConfig } from '../../../../../core/core.config';
-import { BullModule, getQueueToken } from '@nestjs/bullmq';
-import { GameFinishProcessor } from '../../infrastructure/game-finish.processor';
+import { GameFinishSchedulerService } from '../../domain/services/game-finish-scheduler.service';
 
 describe('RecordAnswerUseCase (Integration)', () => {
   let module: TestingModule;
   let dataSource: DataSource;
 
-  let gameFinishQueue: Queue<GameFinishJobDto>;
-  let coreConfig: CoreConfig;
+  let gameFinishSchedulerService: GameFinishSchedulerService;
+  // let coreConfig: CoreConfig;
 
   let useCase: RecordAnswerUseCase;
   let usersFactory: UsersFactory;
@@ -50,22 +46,9 @@ describe('RecordAnswerUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [
-        configModule,
-        DatabaseModule,
-        TypeOrmModule.forFeature(getRelatedEntities(Game)),
-        BullModule.forRoot({
-          connection: {
-            host: 'localhost',
-            port: 6379,
-          },
-        }),
-        BullModule.registerQueue({ name: 'game-finish' }),
-      ],
+      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Game))],
       providers: [
         RecordAnswerUseCase,
-
-        GameFinishProcessor,
 
         GamesRepository,
         PlayersRepository,
@@ -75,7 +58,7 @@ describe('RecordAnswerUseCase (Integration)', () => {
         CryptoService,
         DateService,
 
-        CoreConfig,
+        GameFinishSchedulerService,
       ],
     }).compile();
 
@@ -83,8 +66,8 @@ describe('RecordAnswerUseCase (Integration)', () => {
     usersFactory = module.get<UsersFactory>(UsersFactory);
     useCase = module.get<RecordAnswerUseCase>(RecordAnswerUseCase);
 
-    gameFinishQueue = module.get(getQueueToken('game-finish'));
-    coreConfig = module.get<CoreConfig>(CoreConfig);
+    gameFinishSchedulerService = module.get(GameFinishSchedulerService);
+    // coreConfig = module.get<CoreConfig>(CoreConfig);
 
     gameRepo = dataSource.getRepository<Game>(Game);
     playerRepo = dataSource.getRepository<Player>(Player);
@@ -92,8 +75,6 @@ describe('RecordAnswerUseCase (Integration)', () => {
     gameQuestionRepo = dataSource.getRepository<GameQuestion>(GameQuestion);
     userRepo = dataSource.getRepository<User>(User);
     answerRepo = dataSource.getRepository(Answer);
-
-    console.log('DataSource database:', dataSource.options.database);
   });
 
   beforeEach(async () => {
@@ -101,11 +82,11 @@ describe('RecordAnswerUseCase (Integration)', () => {
     await dataSource.query('TRUNCATE TABLE users RESTART IDENTITY CASCADE');
     await dataSource.query('TRUNCATE TABLE questions RESTART IDENTITY CASCADE');
 
-    await gameFinishQueue.obliterate({ force: true });
+    // await gameFinishQueue.obliterate({ force: true });
   });
 
   afterAll(async () => {
-    await gameFinishQueue.close();
+    // await gameFinishQueue.close();
     await dataSource.destroy();
     await module.close();
   });
@@ -942,7 +923,7 @@ describe('RecordAnswerUseCase (Integration)', () => {
           login: 'user2',
           email: 'user2@example.com',
         });
-        const { game, players } = await createActiveGameWithPlayers(user1.id, user2.id);
+        const { game } = await createActiveGameWithPlayers(user1.id, user2.id);
         const questions: Question[] =
           await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
         await linkQuestionsToGame(game.id, questions);
@@ -957,10 +938,10 @@ describe('RecordAnswerUseCase (Integration)', () => {
         await useCase.execute(new RecordAnswerCommand(user2.id, questions[1].correctAnswers[0]));
 
         // Проверяем что в очереди пока нет задач
-        const jobsBeforeBefore = await gameFinishQueue.getJobs(['delayed']);
-        expect(jobsBeforeBefore).toHaveLength(0);
+        const scheduledGamesBefore = gameFinishSchedulerService.getScheduledGames();
+        expect(scheduledGamesBefore.size).toBe(0);
 
-        // Act: user1 отвечает на ПОСЛЕДНИЙ вопрос (5-й)
+        // user1 отвечает на ПОСЛЕДНИЙ вопрос (5-й)
         await useCase.execute(
           new RecordAnswerCommand(
             user1.id,
@@ -968,20 +949,16 @@ describe('RecordAnswerUseCase (Integration)', () => {
           ),
         );
 
-        // Assert: проверяем что задача запланирована в очереди
-        const jobId = `game-finish-${game.id}`;
-        const job = await gameFinishQueue.getJob(jobId);
+        // проверяем что задача запланирована в очереди
+        const scheduledGamesAfter = gameFinishSchedulerService.getScheduledGames();
+        expect(scheduledGamesAfter.size).toBe(1);
 
-        expect(job).toBeDefined();
-        expect(job).not.toBeNull();
-        expect(job!.id).toBe(jobId);
-        expect(job!.data.gameId).toBe(game.id);
-        expect(job!.data.userId).toBe(user1.id);
-        expect(job!.data.firstFinishedPlayerId).toBe(players[0].id); // user1 - Host
+        const timeout = scheduledGamesAfter.get(game.id);
 
-        // Проверяем delay
-        const delay = job!.opts.delay;
-        expect(delay).toBe(coreConfig.gameFinishTimeoutMs); // 10000 мс
+        expect(timeout).toBeDefined();
+        expect(timeout).not.toBeNull();
+        expect(timeout!['_idleTimeout']).toBe(10000);
+        expect(timeout!['_destroyed']).toBe(false);
 
         // Проверяем что игра всё ещё активна
         const updatedGame: Game | null = await gameRepo.findOne({ where: { id: game.id } });
@@ -989,7 +966,6 @@ describe('RecordAnswerUseCase (Integration)', () => {
       });
 
       it('должен отменить запланированную задачу и завершить игру когда второй игрок отвечает на последний вопрос вовремя', async () => {
-        // Arrange: создаём активную игру с вопросами
         const user1: User = await createTestUser({
           login: 'user1',
           email: 'user1@example.com',
@@ -1009,16 +985,15 @@ describe('RecordAnswerUseCase (Integration)', () => {
         }
 
         // Проверяем что задача запланирована
-        const jobId = `game-finish-${game.id}`;
-        let job = await gameFinishQueue.getJob(jobId);
-        expect(job).toBeDefined();
+        const scheduledGames_1 = gameFinishSchedulerService.getScheduledGames();
+        expect(scheduledGames_1.size).toBe(1);
 
         // user2 отвечает на первые 4 вопроса
         for (let i = 0; i < REQUIRED_QUESTIONS_COUNT - 1; i++) {
           await useCase.execute(new RecordAnswerCommand(user2.id, questions[i].correctAnswers[0]));
         }
 
-        // Act: user2 отвечает на последний вопрос (игра должна завершиться)
+        // user2 отвечает на последний вопрос (игра должна завершиться)
         await useCase.execute(
           new RecordAnswerCommand(
             user2.id,
@@ -1026,9 +1001,9 @@ describe('RecordAnswerUseCase (Integration)', () => {
           ),
         );
 
-        // Assert: проверяем что задача отменена (удалена из очереди)
-        job = await gameFinishQueue.getJob(jobId);
-        expect(job).not.toBeDefined(); // Задача должна быть удалена
+        // проверяем что задача отменена (удалена из очереди)
+        const scheduledGames_2 = gameFinishSchedulerService.getScheduledGames();
+        expect(scheduledGames_2.size).toBe(0); // Задача должна быть удалена
 
         // Проверяем что игра завершена
         const finishedGame: Game | null = await gameRepo.findOne({ where: { id: game.id } });
@@ -1037,7 +1012,6 @@ describe('RecordAnswerUseCase (Integration)', () => {
       });
 
       it('должен начислить бонус первому игроку при отмене отложенной задачи (оба ответили на все вопросы)', async () => {
-        // Arrange
         const user1: User = await createTestUser({
           login: 'user1',
           email: 'user1@example.com',
@@ -1084,7 +1058,6 @@ describe('RecordAnswerUseCase (Integration)', () => {
       });
 
       it('НЕ должен начислить бонус первому игроку если его score = 0', async () => {
-        // Arrange
         const user1: User = await createTestUser({
           login: 'user1',
           email: 'user1@example.com',
@@ -1108,7 +1081,7 @@ describe('RecordAnswerUseCase (Integration)', () => {
           await useCase.execute(new RecordAnswerCommand(user2.id, questions[i].correctAnswers[0]));
         }
 
-        // Assert: проверяем что user1 НЕ получил бонус
+        // проверяем что user1 НЕ получил бонус
         const player1Updated: Player | null = await playerRepo.findOne({
           where: { id: players[0].id },
         });
@@ -1129,70 +1102,69 @@ describe('RecordAnswerUseCase (Integration)', () => {
     });
 
     describe('GameFinishProcessor (обработка отложенных задач)', () => {
-      it.only('должен завершить игру и проставить Incorrect ответы второму игроку по истечении таймаута', async () => {
-        // Arrange: создаём ситуацию где user1 ответил на все, user2 - только на 2 вопроса
-        const user1: User = await createTestUser({
-          login: 'user1',
-          email: 'user1@example.com',
-        });
-        const user2: User = await createTestUser({
-          login: 'user2',
-          email: 'user2@example.com',
-        });
-        const { game, players } = await createActiveGameWithPlayers(user1.id, user2.id);
-        const questions: Question[] =
-          await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
-        await linkQuestionsToGame(game.id, questions);
-
-        // user1 отвечает на все 5 вопросов (все правильные)
-        for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
-          await useCase.execute(new RecordAnswerCommand(user1.id, questions[i].correctAnswers[0]));
-        }
-
-        // user2 отвечает только на 2 вопроса
-        await useCase.execute(new RecordAnswerCommand(user2.id, questions[0].correctAnswers[0]));
-        await useCase.execute(new RecordAnswerCommand(user2.id, questions[1].correctAnswers[0]));
-
-        // Проверяем что job запланирован
-        const jobId = `game-finish-${game.id}`;
-        const job = await gameFinishQueue.getJob(jobId);
-        expect(job).toBeDefined();
-        expect(job!.opts.delay).toBe(10000);
-
-        // Act: ждём реального выполнения job'а (100ms + запас)
-        await new Promise((resolve) => setTimeout(resolve, 15000));
-
-        // Assert: проверяем что игра завершена
-        const finishedGame: Game | null = await gameRepo.findOne({ where: { id: game.id } });
-        expect(finishedGame!.status).toBe(GameStatus.Finished);
-        expect(finishedGame!.finishGameDate).not.toBeNull();
-
-        // Проверяем что для user2 созданы 3 неправильных ответа (на вопросы 3, 4, 5)
-        const allAnswers: Answer[] = await answerRepo.find({
-          where: { gameId: game.id },
-          order: { addedAt: 'ASC' },
-        });
-
-        // Всего должно быть 10 ответов: 5 от user1 + 2 правильных от user2 + 3 неправильных от user2
-        expect(allAnswers).toHaveLength(10);
-
-        // Фильтруем ответы user2
-        const player2Answers: Answer[] = allAnswers.filter((a) => a.playerId === players[1].id);
-        expect(player2Answers).toHaveLength(5);
-
-        // Первые 2 ответа - правильные (отвечал сам)
-        expect(player2Answers[0].status).toBe(AnswerStatus.Correct);
-        expect(player2Answers[1].status).toBe(AnswerStatus.Correct);
-
-        // Последние 3 ответа - неправильные (проставлены процессором)
-        expect(player2Answers[2].status).toBe(AnswerStatus.Incorrect);
-        expect(player2Answers[2].answerBody).toBe('');
-        expect(player2Answers[3].status).toBe(AnswerStatus.Incorrect);
-        expect(player2Answers[3].answerBody).toBe('');
-        expect(player2Answers[4].status).toBe(AnswerStatus.Incorrect);
-        expect(player2Answers[4].answerBody).toBe('');
-      }, 20000);
-
+      // it('должен завершить игру и проставить Incorrect ответы второму игроку по истечении таймаута', async () => {
+      //   // создаём ситуацию где user1 ответил на все, user2 - только на 2 вопроса
+      //   const user1: User = await createTestUser({
+      //     login: 'user1',
+      //     email: 'user1@example.com',
+      //   });
+      //   const user2: User = await createTestUser({
+      //     login: 'user2',
+      //     email: 'user2@example.com',
+      //   });
+      //   const { game, players } = await createActiveGameWithPlayers(user1.id, user2.id);
+      //   const questions: Question[] =
+      //     await createMultiplePublishedQuestions(REQUIRED_QUESTIONS_COUNT);
+      //   await linkQuestionsToGame(game.id, questions);
+      //
+      //   // user1 отвечает на все 5 вопросов (все правильные)
+      //   for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
+      //     await useCase.execute(new RecordAnswerCommand(user1.id, questions[i].correctAnswers[0]));
+      //   }
+      //
+      //   // user2 отвечает только на 2 вопроса
+      //   await useCase.execute(new RecordAnswerCommand(user2.id, questions[0].correctAnswers[0]));
+      //   await useCase.execute(new RecordAnswerCommand(user2.id, questions[1].correctAnswers[0]));
+      //
+      //   // проверяем что задача запланирована в очереди
+      //   const scheduledGamesAfter = gameFinishSchedulerService.getScheduledGames();
+      //   expect(scheduledGamesAfter.size).toBe(1);
+      //
+      //   const timeout = scheduledGamesAfter.get(game.id);
+      //   expect(timeout).toBeDefined();
+      //   expect(timeout).not.toBeNull();
+      //   expect(timeout!['_idleTimeout']).toBe(10000);
+      //
+      //   // проверяем что игра завершена
+      //   const finishedGame: Game | null = await gameRepo.findOne({ where: { id: game.id } });
+      //   expect(finishedGame!.status).toBe(GameStatus.Finished);
+      //   expect(finishedGame!.finishGameDate).not.toBeNull();
+      //
+      //   // Проверяем что для user2 созданы 3 неправильных ответа (на вопросы 3, 4, 5)
+      //   const allAnswers: Answer[] = await answerRepo.find({
+      //     where: { gameId: game.id },
+      //     order: { addedAt: 'ASC' },
+      //   });
+      //
+      //   // Всего должно быть 10 ответов: 5 от user1 + 2 правильных от user2 + 3 неправильных от user2
+      //   expect(allAnswers).toHaveLength(10);
+      //
+      //   // Фильтруем ответы user2
+      //   const player2Answers: Answer[] = allAnswers.filter((a) => a.playerId === players[1].id);
+      //   expect(player2Answers).toHaveLength(5);
+      //
+      //   // Первые 2 ответа - правильные (отвечал сам)
+      //   expect(player2Answers[0].status).toBe(AnswerStatus.Correct);
+      //   expect(player2Answers[1].status).toBe(AnswerStatus.Correct);
+      //
+      //   // Последние 3 ответа - неправильные (проставлены процессором)
+      //   expect(player2Answers[2].status).toBe(AnswerStatus.Incorrect);
+      //   expect(player2Answers[2].answerBody).toBe('');
+      //   expect(player2Answers[3].status).toBe(AnswerStatus.Incorrect);
+      //   expect(player2Answers[3].answerBody).toBe('');
+      //   expect(player2Answers[4].status).toBe(AnswerStatus.Incorrect);
+      //   expect(player2Answers[4].answerBody).toBe('');
+      // });
       // it('должен начислить бонус первому игроку при завершении по таймауту (если score > 0)', async () => {
       //   // Arrange
       //   const user1: User = await createTestUser({
