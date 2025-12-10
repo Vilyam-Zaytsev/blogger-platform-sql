@@ -717,7 +717,7 @@ describe('GetGameQueryHandler (Integration)', () => {
         expect(error).toBeInstanceOf(DomainException);
         expect((error as DomainException).code).toBe(DomainExceptionCode.NotFound);
         expect((error as DomainException).message).toBe(
-          `The post with ID (${nonExistentGameId}) does not exist`,
+          `The game with ID (${nonExistentGameId}) does not exist`,
         );
       }
     });
