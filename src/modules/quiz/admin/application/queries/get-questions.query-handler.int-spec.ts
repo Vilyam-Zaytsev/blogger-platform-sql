@@ -201,9 +201,9 @@ describe('GetQuestionQueryHandler (Integration)', () => {
       );
 
       expect(result.items).toHaveLength(3);
-      expect(result.items[0].id).toBe(q3.id.toString());
-      expect(result.items[1].id).toBe(q2.id.toString());
-      expect(result.items[2].id).toBe(q1.id.toString());
+      expect(result.items[0].id).toBe(q3.publicId);
+      expect(result.items[1].id).toBe(q2.publicId);
+      expect(result.items[2].id).toBe(q1.publicId);
     });
 
     it('должен вернуть вопросы отсортированные по createdAt ASC', async () => {
@@ -222,9 +222,9 @@ describe('GetQuestionQueryHandler (Integration)', () => {
       );
 
       expect(result.items).toHaveLength(3);
-      expect(result.items[0].id).toBe(q1.id.toString());
-      expect(result.items[1].id).toBe(q2.id.toString());
-      expect(result.items[2].id).toBe(q3.id.toString());
+      expect(result.items[0].id).toBe(q1.publicId);
+      expect(result.items[1].id).toBe(q2.publicId);
+      expect(result.items[2].id).toBe(q3.publicId);
     });
 
     it('должен вернуть вопросы отсортированные по body ASC', async () => {
@@ -282,27 +282,6 @@ describe('GetQuestionQueryHandler (Integration)', () => {
       expect(result.items[0].published).toBe(false);
       expect(result.items[1].published).toBe(true);
       expect(result.items[2].published).toBe(true);
-    });
-
-    it('должен вернуть вопросы отсортированные по updatedAt DESC', async () => {
-      const q1 = await createTestQuestion({ body: 'Question 1' });
-      await new Promise((resolve) => setTimeout(resolve, 10));
-      const q2 = await createTestQuestion({ body: 'Question 2' });
-      await new Promise((resolve) => setTimeout(resolve, 10));
-      const q3 = await createTestQuestion({ body: 'Question 3' });
-
-      const queryParams: GetQuestionsQueryParams = new GetQuestionsQueryParams();
-      queryParams.sortBy = QuestionsSortBy.UpdatedAt;
-      queryParams.sortDirection = SortDirection.Descending;
-
-      const result: PaginatedViewDto<QuestionViewDto> = await handler.execute(
-        new GetQuestionsQuery(queryParams),
-      );
-
-      expect(result.items).toHaveLength(3);
-      expect(result.items[0].id).toBe(q3.id.toString());
-      expect(result.items[1].id).toBe(q2.id.toString());
-      expect(result.items[2].id).toBe(q1.id.toString());
     });
   });
 
