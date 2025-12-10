@@ -73,7 +73,6 @@ describe('DeleteQuestionUseCase (Integration)', () => {
   describe('Позитивные сценарии', () => {
     it('должен успешно удалить (soft delete) неопубликованный вопрос', async () => {
       const { id, publicId }: Question = await createTestQuestion();
-      console.log(id);
       const questionBeforeDelete: Question | null = await questionRepo.findOneBy({ id });
       expect(questionBeforeDelete).toBeDefined();
       expect(questionBeforeDelete?.deletedAt).toBeNull();
