@@ -79,7 +79,7 @@ describe('UpdateBlogUseCase (Integration)', () => {
       expect(updatedBlog!.createdAt).toEqual(originalBlog.createdAt);
       expect(updatedBlog!.deletedAt).toBeNull();
 
-      expect(updatedBlog!.updatedAt.getTime()).toBeGreaterThan(originalBlog.updatedAt.getTime());
+      expect(updatedBlog!.updatedAt!.getTime()).toBeGreaterThan(originalBlog.updatedAt!.getTime());
     });
 
     it('должен обновить только один указанный блог среди нескольких', async () => {
@@ -147,7 +147,7 @@ describe('UpdateBlogUseCase (Integration)', () => {
     it('должен сохранить временные метки корректно при обновлении', async () => {
       const originalBlog: Blog = await createTestBlog();
       const originalCreatedAt: Date = originalBlog.createdAt;
-      const originalUpdatedAt: Date = originalBlog.updatedAt;
+      const originalUpdatedAt: Date = originalBlog.updatedAt!;
 
       await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -168,8 +168,8 @@ describe('UpdateBlogUseCase (Integration)', () => {
 
       expect(updatedBlog!.createdAt).toEqual(originalCreatedAt);
       expect(updatedBlog!.updatedAt).not.toEqual(originalUpdatedAt);
-      expect(updatedBlog!.updatedAt.getTime()).toBeGreaterThanOrEqual(beforeUpdate.getTime());
-      expect(updatedBlog!.updatedAt.getTime()).toBeLessThanOrEqual(afterUpdate.getTime());
+      expect(updatedBlog!.updatedAt!.getTime()).toBeGreaterThanOrEqual(beforeUpdate.getTime());
+      expect(updatedBlog!.updatedAt!.getTime()).toBeLessThanOrEqual(afterUpdate.getTime());
       expect(updatedBlog!.deletedAt).toBeNull();
     });
 
@@ -196,7 +196,7 @@ describe('UpdateBlogUseCase (Integration)', () => {
       expect(updatedBlog!.name).toBe(originalBlog.name);
       expect(updatedBlog!.description).toBe(originalBlog.description);
       expect(updatedBlog!.websiteUrl).toBe(originalBlog.websiteUrl);
-      expect(updatedBlog!.updatedAt.getTime()).toBe(originalBlog.updatedAt.getTime());
+      expect(updatedBlog!.updatedAt!.getTime()).toBe(originalBlog.updatedAt!.getTime());
     });
   });
 
