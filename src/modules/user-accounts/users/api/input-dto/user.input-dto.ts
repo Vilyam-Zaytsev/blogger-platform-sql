@@ -1,18 +1,23 @@
 import { IsStringWithTrimDecorator } from '../../../../../core/decorators/validation/is-string-with-trim.decorator';
 import { IsEmail, IsString, Matches } from 'class-validator';
 import { TrimDecorator } from '../../../../../core/decorators/transform/trim.decorator';
+import {
+  emailConstraints,
+  loginConstraints,
+  passwordConstraints,
+} from '../../domain/entities/user.entity';
 
 export class UserInputDto {
-  @Matches(/^[a-zA-Z0-9_-]*$/)
-  @IsStringWithTrimDecorator(3, 10)
+  @Matches(loginConstraints.match)
+  @IsStringWithTrimDecorator(loginConstraints.minLength, loginConstraints.maxLength)
   login: string;
 
   @IsString()
   @IsEmail()
-  @Matches(/^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/)
+  @Matches(emailConstraints.match)
   @TrimDecorator()
   email: string;
 
-  @IsStringWithTrimDecorator(6, 20)
+  @IsStringWithTrimDecorator(passwordConstraints.minLength, passwordConstraints.maxLength)
   password: string;
 }
