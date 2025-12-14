@@ -29,7 +29,10 @@ import { JwtAuthGuard } from '../domain/guards/bearer/jwt-auth.guard';
 import { MeViewDto } from '../../users/api/view-dto/user.view-dto';
 import { GetMeQuery } from '../aplication/queries/get-me.query-handler';
 import { UserAccountsConfig } from '../../config/user-accounts.config';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { LoginInputDto } from './input-dto/login.input-dto';
 
+@ApiTags('Authentication')
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
@@ -41,12 +44,101 @@ export class AuthController {
 
   @Post('registration')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Регистрация нового пользователя',
+    description: `
+Создаёт новый аккаунт пользователя.
+
+**ВАЖНО**: После успешной регистрации на email будет отправлена ссылка подтверждения.
+Пользователь НЕ может войти, пока не подтвердит email.
+
+**Rate limit:** 5 запросов за 10 секунд на один email
+    `,
+  })
+  @ApiBody({
+    type: UserInputDto,
+    examples: {
+      example1: {
+        summary: 'Пример регистрации',
+        value: {
+          login: 'user',
+          email: 'user@example.com',
+          password: 'MySecurePassword123',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 204,
+    description:
+      'Входные данные принимаются. Письмо с кодом подтверждения будет отправлено на переданный адрес электронной почты',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Ошибка валидации (invalid email, weak password, etc)',
+    example: {
+      errorsMessages: [
+        {
+          message: 'string',
+          field: 'string',
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 429,
+    description:
+      'Превышен лимит запросов (rate limited). Более 5 попыток с одного IP-адреса за 10 секунд',
+  })
   async registration(@Body() body: UserInputDto): Promise<void> {
     await this.commandBus.execute(new RegisterUserCommand(body));
   }
 
   @Post('registration-confirmation')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Подтверждение email адреса',
+    description: `
+Подтверждает email пользователя по коду из письма.
+
+После подтверждения пользователь сможет входить в систему.
+
+**Код действует:** 1 час с момента регистрации
+**Формат кода:** UUID (отправлен на email)
+    `,
+  })
+  @ApiBody({
+    type: RegistrationConfirmationCodeInputDto,
+    examples: {
+      example1: {
+        summary: 'Пример подтверждения',
+        value: {
+          code: '550e8400-e29b-41d4-a716-446655440000',
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 204,
+    description: 'Электронная почта была подтверждена. Аккаунт был активирован',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Если код подтверждения неверен, просрочен или уже применён',
+    example: {
+      errorsMessages: [
+        {
+          message: 'string',
+          field: 'string',
+        },
+      ],
+    },
+  })
+  @ApiResponse({
+    status: 429,
+    description:
+      'Превышен лимит запросов (rate limited). Более 5 попыток с одного IP-адреса за 10 секунд',
+  })
   async registrationConfirmation(
     @Body() body: RegistrationConfirmationCodeInputDto,
   ): Promise<void> {
@@ -55,6 +147,37 @@ export class AuthController {
 
   @Post('registration-email-resending')
   @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Переотправка письма подтверждения email',
+    description: `
+Генерирует и отправляет новое письмо подтверждения.
+
+Используется, если:
+- Пользователь не получил исходное письмо
+- Код истек (> 1 часа)
+- Письмо попало в спам
+
+**Rate limit:** 5 попыток за 10 секунд
+    `,
+  })
+  @ApiBody({
+    type: RegistrationEmailResandingInputDto,
+  })
+  @ApiResponse({
+    status: 204,
+    description:
+      'Входные данные принимаются. Письмо с кодом подтверждения будет отправлено на адрес переданной электронной почты. Код подтверждения должен быть внутри ссылки как параметр запроса',
+    example:
+      'https://some-front.com/confirm-registration?code=550e8400-e29b-41d4-a716-446655440000',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Если inputModel имеет неправильные значения',
+  })
+  @ApiResponse({
+    status: 429,
+    description: 'Превышен лимит переотправок',
+  })
   async registrationEmailResending(
     @Body() body: RegistrationEmailResandingInputDto,
   ): Promise<void> {
@@ -64,6 +187,40 @@ export class AuthController {
   @Post('login')
   @HttpCode(HttpStatus.OK)
   @UseGuards(LocalAuthGuard)
+  @ApiOperation({ summary: 'Попытка входа пользователя в систему' })
+  @ApiBody({
+    type: LoginInputDto,
+    schema: {
+      example: {
+        loginOrEmail: 'user@example.com',
+        password: 'MySecurePassword123',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Успешный вход. Access Token возвращается в теле, Refresh Token устанавливается в httpOnly cookie.',
+    content: {
+      'application/json': {
+        example: {
+          accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+        },
+      },
+    },
+    headers: {
+      'Set-Cookie': {
+        schema: {
+          type: 'string',
+          example:
+            'refreshToken=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...; Path=/; HttpOnly; Secure; SameSite=Strict',
+        },
+        description: 'JWT Refresh Token записывается в защищенную httpOnly cookie',
+      },
+    },
+  })
+  @ApiResponse({ status: 401, description: 'Неверный логин или пароль' })
+  @ApiResponse({ status: 429, description: 'Слишком много попыток входа' })
   async login(
     @ExtractUserFromRequest() user: UserContextDto,
     @ExtractClientInfo() clientInfo: ClientInfoDto,
