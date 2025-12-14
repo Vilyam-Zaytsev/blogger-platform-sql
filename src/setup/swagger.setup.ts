@@ -188,15 +188,6 @@ export function swaggerSetup(app: INestApplication, isSwaggerEnabled: boolean) {
     .addServer('http://localhost:3000', 'Локальная разработка')
     .addServer('https://api.example.com', 'Production')
     .addServer('https://staging.example.com', 'Staging')
-    .addTag('Authentication', 'Регистрация, вход/выход, восстановление пароля (JWT, JWT-refresh)')
-    .addTag('Blogs', 'Управление блогами (JWT для своих)')
-    .addTag('Posts', 'Управление постами в блогах (JWT)')
-    .addTag('Comments', 'Система комментариев (JWT для своих)')
-    .addTag('Reactions', 'Реакции на посты и комментарии (JWT)')
-    .addTag('Quiz Public', 'Прохождение викторин и таблица лидеров (JWT для игры)')
-    .addTag('Quiz Admin', 'Управление викторинами (Basic Auth)')
-    .addTag('Notifications', 'Система уведомлений (JWT)')
-    .addTag('Testing', 'Утилиты тестирования (Basic Auth)')
     .build();
 
   const document = SwaggerModule.createDocument(app, config);
