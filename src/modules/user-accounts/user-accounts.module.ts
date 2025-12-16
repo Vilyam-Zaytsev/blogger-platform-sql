@@ -41,6 +41,7 @@ import { PasswordRecoveryCode } from './auth/domain/entities/password-recovery-c
 import { UsersFactory } from './users/application/factories/users.factory';
 import { Session } from './sessions/domain/entities/session.entity';
 import { DateService } from './users/application/services/date.service';
+import { SessionsCleanupService } from './sessions/application/services/sessions-cleanup.service';
 
 @Module({
   imports: [
@@ -77,6 +78,9 @@ import { DateService } from './users/application/services/date.service';
     //query-handlers
     GetMeQueryHandler,
     GetSessionsQueryHandler,
+
+    //services
+    SessionsCleanupService,
 
     //🔸 User:
     //use-cases
