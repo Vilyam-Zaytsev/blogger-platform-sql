@@ -51,7 +51,7 @@ export class RecordAnswerUseCase implements ICommandHandler<RecordAnswerCommand>
 
     if (currentQuestion.order === REQUIRED_QUESTIONS_COUNT) {
       if (gameProgress.progressOpponent.answers.length === REQUIRED_QUESTIONS_COUNT) {
-        await this.gameFinishScheduler.cancelGameFinish(gameProgress.gameId);
+        this.gameFinishScheduler.cancelGameFinish(gameProgress.gameId);
 
         await this.awardBonusPointsToPlayer(userId);
 

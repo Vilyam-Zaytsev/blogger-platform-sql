@@ -131,8 +131,8 @@ describe('RegisterUserUseCase (Integration)', () => {
       expect(user).not.toBeNull();
       expect(user!.createdAt.getTime()).toBeGreaterThanOrEqual(before);
       expect(user!.createdAt.getTime()).toBeLessThanOrEqual(after);
-      expect(user!.updatedAt.getTime()).toBeGreaterThanOrEqual(before);
-      expect(user!.updatedAt.getTime()).toBeLessThanOrEqual(after);
+      expect(user!.updatedAt!.getTime()).toBeGreaterThanOrEqual(before);
+      expect(user!.updatedAt!.getTime()).toBeLessThanOrEqual(after);
 
       expect(user!.emailConfirmationCode).toBeDefined();
       expect(user!.emailConfirmationCode.expirationDate).not.toBeNull();

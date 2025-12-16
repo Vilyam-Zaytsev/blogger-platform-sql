@@ -1,5 +1,3 @@
-// src/modules/quiz/public/application/usecases/connect-to-game.usecase.int-spec.ts
-
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConnectToGameCommand, ConnectToGameUseCase } from './connect-to-game.usecase';
 import { DataSource, Repository } from 'typeorm';
@@ -23,10 +21,6 @@ import { DateService } from '../../../../user-accounts/users/application/service
 import { UserInputDto } from '../../../../user-accounts/users/api/input-dto/user.input-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { GameMatchingService } from '../../domain/services/game-matching.service';
-import { GameQuestionsService } from '../../domain/services/game-questions.service';
-import { GameStateService } from '../../domain/services/game-state.service';
-import { PlayerValidationService } from '../../domain/services/player-validation.service';
 
 describe('ConnectToGameUseCase (Integration)', () => {
   let module: TestingModule;
@@ -58,11 +52,6 @@ describe('ConnectToGameUseCase (Integration)', () => {
         UsersFactory,
         CryptoService,
         DateService,
-
-        GameMatchingService,
-        GameQuestionsService,
-        GameStateService,
-        PlayerValidationService,
       ],
     }).compile();
 

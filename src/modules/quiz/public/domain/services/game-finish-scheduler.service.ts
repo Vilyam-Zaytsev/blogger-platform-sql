@@ -86,6 +86,10 @@ export class GameFinishSchedulerService {
     this.logger.log(`All scheduled games cleared`);
   }
 
+  public getScheduledGames() {
+    return this.scheduledGames;
+  }
+
   private async handleGameFinish(data: GameFinishScheduleData): Promise<void> {
     const { gameId, userId, firstFinishedPlayerId } = data;
 

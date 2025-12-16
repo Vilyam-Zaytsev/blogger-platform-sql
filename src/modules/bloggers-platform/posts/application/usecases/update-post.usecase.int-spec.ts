@@ -105,7 +105,7 @@ describe('UpdatePostUseCase (Integration)', () => {
       expect(updatedPost!.createdAt).toEqual(originalPost.createdAt);
       expect(updatedPost!.deletedAt).toBeNull();
 
-      expect(updatedPost!.updatedAt.getTime()).toBeGreaterThan(originalPost.updatedAt.getTime());
+      expect(updatedPost!.updatedAt!.getTime()).toBeGreaterThan(originalPost.updatedAt!.getTime());
     });
   });
 
@@ -180,7 +180,7 @@ describe('UpdatePostUseCase (Integration)', () => {
     const { id: blogId }: Blog = await createTestBlog();
     const originalPost: Post = await createTestPost(blogId);
     const originalCreatedAt: Date = originalPost.createdAt;
-    const originalUpdatedAt: Date = originalPost.updatedAt;
+    const originalUpdatedAt: Date = originalPost.updatedAt!;
 
     await new Promise((resolve) => setTimeout(resolve, 10));
 
@@ -202,8 +202,8 @@ describe('UpdatePostUseCase (Integration)', () => {
 
     expect(updatedPost!.createdAt).toEqual(originalCreatedAt);
     expect(updatedPost!.updatedAt).not.toEqual(originalUpdatedAt);
-    expect(updatedPost!.updatedAt.getTime()).toBeGreaterThanOrEqual(beforeUpdate.getTime());
-    expect(updatedPost!.updatedAt.getTime()).toBeLessThanOrEqual(afterUpdate.getTime());
+    expect(updatedPost!.updatedAt!.getTime()).toBeGreaterThanOrEqual(beforeUpdate.getTime());
+    expect(updatedPost!.updatedAt!.getTime()).toBeLessThanOrEqual(afterUpdate.getTime());
     expect(updatedPost!.deletedAt).toBeNull();
   });
 
@@ -234,7 +234,7 @@ describe('UpdatePostUseCase (Integration)', () => {
     expect(updatedPost!.title).toBe(originalPost.title);
     expect(updatedPost!.shortDescription).toBe(originalPost.shortDescription);
     expect(updatedPost!.content).toBe(originalPost.content);
-    expect(updatedPost!.updatedAt.getTime()).toBe(originalPost.updatedAt.getTime());
+    expect(updatedPost!.updatedAt!.getTime()).toBe(originalPost.updatedAt!.getTime());
   });
 
   describe('обработка ошибок', () => {
