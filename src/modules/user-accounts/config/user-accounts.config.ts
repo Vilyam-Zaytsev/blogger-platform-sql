@@ -66,6 +66,15 @@ export class UserAccountsConfig {
   })
   path: string;
 
+  @IsNumber(
+    {},
+    {
+      message:
+        'SESSION_CLEANUP_RETENTION_DAYS must be a number. Set the environment variable to specify the retention period in days. Example: SESSION_CLEANUP_RETENTION_DAYS=90 (soft-deleted sessions older than 90 days will be permanently deleted)',
+    },
+  )
+  sessionCleanupRetentionDays: number;
+
   constructor(private configService: ConfigService<any, true>) {
     this.accessTokenExpireIn = this.configService.get('JWT_EXPIRATION_AT');
 
@@ -86,6 +95,10 @@ export class UserAccountsConfig {
     this.maxAge = Number(this.configService.get('MAX_AGE'));
 
     this.path = this.configService.get('PATH');
+
+    this.sessionCleanupRetentionDays = Number(
+      this.configService.get('SESSION_CLEANUP_RETENTION_DAYS'),
+    );
 
     configValidator.validateConfig(this);
   }
