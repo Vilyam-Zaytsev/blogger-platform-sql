@@ -21,6 +21,21 @@ export class SessionsRepository extends BaseRepository<Session> {
     });
   }
 
+  async hardDeleteOldSoftDeletedSessions(daysOld: number = 90): Promise<number> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - daysOld);
+
+    const result = await this.repository
+      .createQueryBuilder()
+      .delete()
+      .from(Session)
+      .where('deleted_at IS NOT NULL')
+      .andWhere('deleted_at < :cutoffDate', { cutoffDate })
+      .execute();
+
+    return result.affected || 0;
+  }
+
   async getByDeviceId(deviceId: string): Promise<Session | null> {
     return await this.repository.findOneBy({ deviceId });
   }
