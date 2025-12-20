@@ -23,7 +23,7 @@ export class Player extends BaseEntity {
     type: 'int',
     default: 0,
   })
-  score: number;
+  public score: number;
 
   @ManyToOne(() => Game, (game: Game) => game.players, { onDelete: 'CASCADE' })
   public game: Game;
@@ -59,7 +59,7 @@ export class Player extends BaseEntity {
     this.role = role;
   }
 
-  public addScore(quantity: number = 1) {
-    this.score += quantity;
+  public addScore() {
+    this.score += 1;
   }
 }
