@@ -14,6 +14,7 @@ import { ValidationException } from '../../../../../core/exceptions/validation-e
 import { DateService } from '../services/date.service';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { configModule } from '../../../../../dynamic-config.module';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 import SpyInstance = jest.SpyInstance;
 
 describe('CreateUserByAdminUseCase (Integration)', () => {
@@ -34,6 +35,7 @@ describe('CreateUserByAdminUseCase (Integration)', () => {
         UsersFactory,
         CryptoService,
         DateService,
+        TransactionHelper,
       ],
     }).compile();
 

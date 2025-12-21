@@ -21,6 +21,7 @@ import { CryptoService } from '../../../../user-accounts/users/application/servi
 import { DateService } from '../../../../user-accounts/users/application/services/date.service';
 import { ReactionStatus } from '../../../reactions/domain/entities/reaction.entity';
 import { configModule } from '../../../../../dynamic-config.module';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('GetPostQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -40,6 +41,7 @@ describe('GetPostQueryHandler (Integration)', () => {
         UsersFactory,
         CryptoService,
         DateService,
+        TransactionHelper,
       ],
     }).compile();
 

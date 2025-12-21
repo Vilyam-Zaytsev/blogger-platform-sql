@@ -20,7 +20,6 @@ import { User } from '../../../../user-accounts/users/domain/entities/user.entit
 import { GamesQueryRepository } from '../../infrastructure/query/games.query-repository';
 import { PlayersRepository } from '../../infrastructure/players.repository';
 import { QuestionInputDto } from '../../../admin/api/input-dto/question.input-dto';
-import { GameQuestionCreateDto } from '../../domain/dto/game-question.create-dto';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { UserInputDto } from '../../../../user-accounts/users/api/input-dto/user.input-dto';
 import { CreateUserDto } from '../../../../user-accounts/users/dto/create-user.dto';
@@ -28,7 +27,7 @@ import { UsersFactory } from '../../../../user-accounts/users/application/factor
 import { CryptoService } from '../../../../user-accounts/users/application/services/crypto.service';
 import { DateService } from '../../../../user-accounts/users/application/services/date.service';
 import { StatisticViewDto } from '../../api/view-dto/statistic.view-dto';
-import { AnswerCreateDto } from '../../domain/dto/answer.create-dto';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('GetMyStatisticQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -58,6 +57,8 @@ describe('GetMyStatisticQueryHandler (Integration)', () => {
 
         GamesQueryRepository,
         PlayersRepository,
+
+        TransactionHelper,
       ],
     }).compile();
 
@@ -113,20 +114,6 @@ describe('GetMyStatisticQueryHandler (Integration)', () => {
     const question: Question = Question.create(defaultData);
     question.publish();
     return await questionRepo.save(question);
-  };
-
-  const createMultiplePublishedQuestions = async (count: number): Promise<Question[]> => {
-    const questions: Question[] = [];
-
-    for (let i = 0; i < count; i++) {
-      const question: Question = await createTestPublishedQuestion({
-        body: `Test question ${i + 1}: What is the answer to question ${i + 1}?`,
-        correctAnswers: [`Answer ${i + 1}`, `Correct ${i + 1}`],
-      });
-      questions.push(question);
-    }
-
-    return questions;
   };
 
   const createFinishedGameWithPlayers = async (
@@ -185,36 +172,13 @@ describe('GetMyStatisticQueryHandler (Integration)', () => {
     return { game: createdGame, player: createdPlayer };
   };
 
-  const linkQuestionsToGame = async (
-    gameId: number,
-    questions: Question[],
-  ): Promise<GameQuestion[]> => {
-    const gameQuestions: GameQuestion[] = [];
-
-    for (let i = 0; i < questions.length; i++) {
-      const dto: GameQuestionCreateDto = {
-        order: i + 1,
-        gameId,
-        questionId: questions[i].id,
-      };
-
-      const gameQuestion: GameQuestion = GameQuestion.create(dto);
-      gameQuestions.push(await gameQuestionRepo.save(gameQuestion));
-    }
-
-    return gameQuestions;
-  };
-
-  const createTestAnswer = async (dto: AnswerCreateDto): Promise<Answer> => {
-    const answer: Answer = Answer.create(dto);
-
-    return await answerRepo.save(answer);
-  };
-
   const setPlayerScore = async (playerId: number, score: number): Promise<void> => {
     const player: Player | null = await playerRepo.findOne({ where: { id: playerId } });
     if (player) {
-      player.addScore(score);
+      for (let i = 0; i < score; i++) {
+        player.addScore();
+      }
+
       await playerRepo.save(player);
     }
   };

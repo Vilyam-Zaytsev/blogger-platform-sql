@@ -10,6 +10,7 @@ import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
 import { configModule } from '../../../../../dynamic-config.module';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('DeleteQuestionUseCase (Integration)', () => {
   let module: TestingModule;
@@ -25,7 +26,7 @@ describe('DeleteQuestionUseCase (Integration)', () => {
         DatabaseModule,
         TypeOrmModule.forFeature(getRelatedEntities(Question)),
       ],
-      providers: [DeleteQuestionUseCase, QuestionsRepository],
+      providers: [DeleteQuestionUseCase, QuestionsRepository, TransactionHelper],
     }).compile();
 
     useCase = module.get<DeleteQuestionUseCase>(DeleteQuestionUseCase);

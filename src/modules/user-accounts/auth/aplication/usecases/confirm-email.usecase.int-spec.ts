@@ -16,6 +16,7 @@ import { ValidationException } from '../../../../../core/exceptions/validation-e
 import { Duration } from 'date-fns';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { configModule } from '../../../../../dynamic-config.module';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('ConfirmEmailUseCase (Integration)', () => {
   let module: TestingModule;
@@ -35,6 +36,7 @@ describe('ConfirmEmailUseCase (Integration)', () => {
         UsersRepository,
         CryptoService,
         DateService,
+        TransactionHelper,
       ],
     }).compile();
 

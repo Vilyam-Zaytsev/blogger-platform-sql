@@ -25,6 +25,7 @@ import { PostCreateDto } from '../dto/post.create-dto';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { ReactionStatus } from '../../../reactions/domain/entities/reaction.entity';
 import { configModule } from '../../../../../dynamic-config.module';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('GetPostsQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -44,6 +45,7 @@ describe('GetPostsQueryHandler (Integration)', () => {
         UsersFactory,
         CryptoService,
         DateService,
+        TransactionHelper,
       ],
     }).compile();
 

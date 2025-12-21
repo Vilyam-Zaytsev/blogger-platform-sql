@@ -29,6 +29,7 @@ import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants'
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { AnswerCreateDto } from '../../domain/dto/answer.create-dto';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('GetCurrentGameQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -56,6 +57,8 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
 
         GamesQueryRepository,
         PlayersRepository,
+
+        TransactionHelper,
       ],
     }).compile();
 
@@ -360,7 +363,9 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
           answers.push(answer);
         }
 
-        players[0].addScore(REQUIRED_QUESTIONS_COUNT);
+        for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
+          players[0].addScore();
+        }
         await playerRepo.save(players[0]);
 
         const gameViewDto: GameViewDto = await queryHandler.execute(
@@ -412,7 +417,9 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
           answers.push(answer);
         }
 
-        players[1].addScore(REQUIRED_QUESTIONS_COUNT);
+        for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
+          players[1].addScore();
+        }
         await playerRepo.save(players[1]);
 
         const gameViewDto: GameViewDto = await queryHandler.execute(
@@ -479,9 +486,11 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
           answers_player2.push(answer_p2);
         }
 
-        players[0].addScore(answersCount);
+        for (let i = 0; i < answersCount; i++) {
+          players[0].addScore();
+          players[1].addScore();
+        }
         await playerRepo.save(players[0]);
-        players[1].addScore(answersCount);
         await playerRepo.save(players[1]);
 
         const gameViewDto: GameViewDto = await queryHandler.execute(
@@ -549,7 +558,9 @@ describe('GetCurrentGameQueryHandler (Integration)', () => {
           });
         }
 
-        players[0].addScore(correctAnswersCount);
+        for (let i = 0; i < correctAnswersCount; i++) {
+          players[0].addScore();
+        }
         await playerRepo.save(players[0]);
 
         const gameViewDto: GameViewDto = await queryHandler.execute(

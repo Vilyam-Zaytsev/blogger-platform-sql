@@ -21,6 +21,7 @@ import { DateService } from '../../../../user-accounts/users/application/service
 import { UserInputDto } from '../../../../user-accounts/users/api/input-dto/user.input-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('ConnectToGameUseCase (Integration)', () => {
   let module: TestingModule;
@@ -52,6 +53,8 @@ describe('ConnectToGameUseCase (Integration)', () => {
         UsersFactory,
         CryptoService,
         DateService,
+
+        TransactionHelper,
       ],
     }).compile();
 
@@ -508,7 +511,7 @@ describe('ConnectToGameUseCase (Integration)', () => {
       await createMultiplePublishedQuestions(5);
 
       const getPlayerSpy = jest.spyOn(playersRepository, 'getPlayerByUserIdInPendingOrActiveGame');
-      const getGameInPendingSpy = jest.spyOn(gamesRepository, 'getGameInPending');
+      const getGameInPendingSpy = jest.spyOn(gamesRepository, 'getGameInPendingWithLock');
       const saveGameSpy = jest.spyOn(gamesRepository, 'save');
       const savePlayerSpy = jest.spyOn(playersRepository, 'save');
 
@@ -543,7 +546,7 @@ describe('ConnectToGameUseCase (Integration)', () => {
       await useCase.execute(new ConnectToGameCommand(firstUserId));
 
       const getPlayerSpy = jest.spyOn(playersRepository, 'getPlayerByUserIdInPendingOrActiveGame');
-      const getGameInPendingSpy = jest.spyOn(gamesRepository, 'getGameInPending');
+      const getGameInPendingSpy = jest.spyOn(gamesRepository, 'getGameInPendingWithLock');
       const savePlayerSpy = jest.spyOn(playersRepository, 'save');
       const getRandomQuestionsSpy = jest.spyOn(questionsRepository, 'getRandomPublishedQuestions');
       const saveGameQuestionSpy = jest.spyOn(gamesRepository, 'saveGameQuestion');

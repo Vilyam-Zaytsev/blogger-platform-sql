@@ -8,6 +8,7 @@ import { BlogsRepository } from '../../infrastructure/blogs.repository';
 import { BlogInputDto } from '../../api/input-dto/blog.input-dto';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { configModule } from '../../../../../dynamic-config.module';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('CreateBlogUseCase (Integration)', () => {
   let module: TestingModule;
@@ -18,7 +19,7 @@ describe('CreateBlogUseCase (Integration)', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Blog))],
-      providers: [CreateBlogUseCase, BlogsRepository],
+      providers: [CreateBlogUseCase, BlogsRepository, TransactionHelper],
     }).compile();
 
     useCase = module.get<CreateBlogUseCase>(CreateBlogUseCase);

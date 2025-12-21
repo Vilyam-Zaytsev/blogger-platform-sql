@@ -1,17 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '../../../../core/repositories/base.repository';
 import { Player } from '../domain/entities/player.entity';
-import { DataSource, In } from 'typeorm';
+import { In } from 'typeorm';
 import { GameStatus } from '../domain/entities/game.entity';
+import { TransactionHelper } from '../../../database/trasaction.helper';
 
 @Injectable()
 export class PlayersRepository extends BaseRepository<Player> {
-  constructor(dataSource: DataSource) {
-    super(dataSource, Player);
+  constructor(protected readonly transactionHelper: TransactionHelper) {
+    super(Player, transactionHelper);
+  }
+
+  async getByIdWithLock(id: number): Promise<Player | null> {
+    return await this.getRepository()
+      .createQueryBuilder('p')
+      .where('p.id = :id', { id })
+      .setLock('pessimistic_write')
+      .getOne();
   }
 
   async getPlayerByUserIdInPendingOrActiveGame(userId: number): Promise<Player | null> {
-    return await this.repository.findOne({
+    return await this.getRepository().findOne({
       where: {
         userId,
         game: {
@@ -22,7 +31,7 @@ export class PlayersRepository extends BaseRepository<Player> {
   }
 
   async getPlayerByUserIdInActiveGame(userId: number): Promise<Player | null> {
-    return await this.repository.findOne({
+    return await this.getRepository().findOne({
       where: {
         userId,
         game: {

@@ -29,6 +29,7 @@ import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants'
 import { AnswerCreateDto } from '../../domain/dto/answer.create-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('GetGameQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -56,6 +57,8 @@ describe('GetGameQueryHandler (Integration)', () => {
 
         GamesQueryRepository,
         PlayersRepository,
+
+        TransactionHelper,
       ],
     }).compile();
 
@@ -333,7 +336,9 @@ describe('GetGameQueryHandler (Integration)', () => {
         answers.push(answer);
       }
 
-      players[0].addScore(5);
+      for (let i = 0; i < 5; i++) {
+        players[0].addScore();
+      }
       await playerRepo.save(players[0]);
 
       const gameViewDto: GameViewDto = await queryHandler.execute(
@@ -408,7 +413,9 @@ describe('GetGameQueryHandler (Integration)', () => {
         answers.push(answer);
       }
 
-      players[1].addScore(5);
+      for (let i = 0; i < 5; i++) {
+        players[1].addScore();
+      }
       await playerRepo.save(players[1]);
 
       const gameViewDto: GameViewDto = await queryHandler.execute(
@@ -541,9 +548,11 @@ describe('GetGameQueryHandler (Integration)', () => {
         answers_player2.push(answer_player2);
       }
 
-      players[0].addScore(3);
+      for (let i = 0; i < 3; i++) {
+        players[0].addScore();
+        players[1].addScore();
+      }
       await playerRepo.save(players[0]);
-      players[1].addScore(3);
       await playerRepo.save(players[1]);
 
       const gameViewDto: GameViewDto = await queryHandler.execute(
@@ -638,10 +647,11 @@ describe('GetGameQueryHandler (Integration)', () => {
         answers_player1.push(answer_player1);
         answers_player2.push(answer_player2);
       }
-
-      players[0].addScore(6);
+      for (let i = 0; i < 6; i++) {
+        if (i < 5) players[1].addScore();
+        players[0].addScore();
+      }
       await playerRepo.save(players[0]);
-      players[1].addScore(5);
       await playerRepo.save(players[1]);
 
       game.finishGame();

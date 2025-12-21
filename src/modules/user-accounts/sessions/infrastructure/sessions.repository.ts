@@ -1,13 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { SessionContextDto } from '../../auth/domain/guards/dto/session-context.dto';
 import { Session } from '../domain/entities/session.entity';
-import { DataSource, Not } from 'typeorm';
+import { Not } from 'typeorm';
 import { BaseRepository } from '../../../../core/repositories/base.repository';
+import { TransactionHelper } from '../../../database/trasaction.helper';
 
 @Injectable()
 export class SessionsRepository extends BaseRepository<Session> {
-  constructor(dataSource: DataSource) {
-    super(dataSource, Session);
+  constructor(protected readonly transactionHelper: TransactionHelper) {
+    super(Session, transactionHelper);
   }
 
   async softDeleteCurrentSession(id: number): Promise<void> {
@@ -15,7 +16,7 @@ export class SessionsRepository extends BaseRepository<Session> {
   }
 
   async softDeleteAllSessionsExceptCurrent(dto: SessionContextDto): Promise<void> {
-    await this.repository.softDelete({
+    await this.getRepository().softDelete({
       userId: dto.userId,
       deviceId: Not(dto.deviceId),
     });
@@ -25,7 +26,7 @@ export class SessionsRepository extends BaseRepository<Session> {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysOld);
 
-    const result = await this.repository
+    const result = await this.getRepository()
       .createQueryBuilder()
       .delete()
       .from(Session)
@@ -37,6 +38,6 @@ export class SessionsRepository extends BaseRepository<Session> {
   }
 
   async getByDeviceId(deviceId: string): Promise<Session | null> {
-    return await this.repository.findOneBy({ deviceId });
+    return await this.getRepository().findOneBy({ deviceId });
   }
 }

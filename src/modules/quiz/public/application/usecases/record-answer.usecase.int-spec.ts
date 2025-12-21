@@ -26,6 +26,7 @@ import { DomainException } from '../../../../../core/exceptions/domain-exception
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants';
 import { GameFinishSchedulerService } from '../../domain/services/game-finish-scheduler.service';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('RecordAnswerUseCase (Integration)', () => {
   let module: TestingModule;
@@ -59,6 +60,8 @@ describe('RecordAnswerUseCase (Integration)', () => {
         DateService,
 
         GameFinishSchedulerService,
+
+        TransactionHelper,
       ],
     }).compile();
 
@@ -67,7 +70,6 @@ describe('RecordAnswerUseCase (Integration)', () => {
     useCase = module.get<RecordAnswerUseCase>(RecordAnswerUseCase);
 
     gameFinishSchedulerService = module.get(GameFinishSchedulerService);
-    // coreConfig = module.get<CoreConfig>(CoreConfig);
 
     gameRepo = dataSource.getRepository<Game>(Game);
     playerRepo = dataSource.getRepository<Player>(Player);
@@ -81,12 +83,9 @@ describe('RecordAnswerUseCase (Integration)', () => {
     await dataSource.query('TRUNCATE TABLE games RESTART IDENTITY CASCADE');
     await dataSource.query('TRUNCATE TABLE users RESTART IDENTITY CASCADE');
     await dataSource.query('TRUNCATE TABLE questions RESTART IDENTITY CASCADE');
-
-    // await gameFinishQueue.obliterate({ force: true });
   });
 
   afterAll(async () => {
-    // await gameFinishQueue.close();
     await dataSource.destroy();
     await module.close();
   });

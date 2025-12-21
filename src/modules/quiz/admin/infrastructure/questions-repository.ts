@@ -1,15 +1,15 @@
 import { BaseRepository } from '../../../../core/repositories/base.repository';
 import { Question, QuestionStatus } from '../domain/entities/question.entity';
-import { DataSource } from 'typeorm';
 import { Injectable } from '@nestjs/common';
+import { TransactionHelper } from '../../../database/trasaction.helper';
 
 @Injectable()
 export class QuestionsRepository extends BaseRepository<Question> {
-  constructor(dataSource: DataSource) {
-    super(dataSource, Question);
+  constructor(protected readonly transactionHelper: TransactionHelper) {
+    super(Question, transactionHelper);
   }
   async getRandomPublishedQuestions(count: number): Promise<Question[]> {
-    return this.repository
+    return this.getRepository()
       .createQueryBuilder('q')
       .where('q.status = :status', { status: QuestionStatus.Published })
       .orderBy('RANDOM()')
@@ -18,7 +18,7 @@ export class QuestionsRepository extends BaseRepository<Question> {
   }
 
   async getByPublicId(publicId: string): Promise<Question | null> {
-    return this.repository.findOne({
+    return this.getRepository().findOne({
       where: { publicId },
     });
   }

@@ -15,6 +15,7 @@ import { PostUpdateDto } from '../dto/post.update-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { configModule } from '../../../../../dynamic-config.module';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('UpdatePostUseCase (Integration)', () => {
   let module: TestingModule;
@@ -28,7 +29,7 @@ describe('UpdatePostUseCase (Integration)', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Post))],
-      providers: [UpdatePostUseCase, PostsRepository, BlogsRepository],
+      providers: [UpdatePostUseCase, PostsRepository, BlogsRepository, TransactionHelper],
     }).compile();
 
     useCase = module.get<UpdatePostUseCase>(UpdatePostUseCase);
