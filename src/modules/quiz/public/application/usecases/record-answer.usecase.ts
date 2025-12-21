@@ -11,6 +11,7 @@ import { Player } from '../../domain/entities/player.entity';
 import { PlayersRepository } from '../../infrastructure/players.repository';
 import { AnswerCreateDto } from '../../domain/dto/answer.create-dto';
 import { GameFinishSchedulerService } from '../../domain/services/game-finish-scheduler.service';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 export class RecordAnswerCommand {
   constructor(
@@ -25,60 +26,63 @@ export class RecordAnswerUseCase implements ICommandHandler<RecordAnswerCommand>
     private readonly gameFinishScheduler: GameFinishSchedulerService,
     private readonly playersRepository: PlayersRepository,
     private readonly gamesRepository: GamesRepository,
+    private readonly transactionHelper: TransactionHelper,
   ) {}
 
   async execute({ userId, answerText }: RecordAnswerCommand): Promise<AnswerViewDto> {
-    await this.ensureUserInActiveGame(userId);
+    return this.transactionHelper.doTransactional(async () => {
+      await this.ensureUserInActiveGame(userId);
 
-    const gameProgress: GameProgress = await this.findGameProgressOrFailed(userId);
+      const gameProgress: GameProgress = await this.findGameProgressOrFailed(userId);
 
-    this.ensurePlayerHasUnansweredQuestions(gameProgress);
+      this.ensurePlayerHasUnansweredQuestions(gameProgress);
 
-    const currentQuestion: DetailsOfQuestion =
-      gameProgress.questions[gameProgress.progressCurrentPlayer.answers.length];
+      const currentQuestion: DetailsOfQuestion =
+        gameProgress.questions[gameProgress.progressCurrentPlayer.answers.length];
 
-    const answerStatus: AnswerStatus = this.determineAnswerStatus(answerText, currentQuestion);
+      const answerStatus: AnswerStatus = this.determineAnswerStatus(answerText, currentQuestion);
 
-    const newAnswer: Answer = await this.createAnswer({
-      answerBody: answerText,
-      status: answerStatus,
-      playerId: gameProgress.progressCurrentPlayer.playerId,
-      gameQuestionId: currentQuestion.gameQuestionId,
-      gameId: gameProgress.gameId,
-    });
+      const newAnswer: Answer = await this.createAnswer({
+        answerBody: answerText,
+        status: answerStatus,
+        playerId: gameProgress.progressCurrentPlayer.playerId,
+        gameQuestionId: currentQuestion.gameQuestionId,
+        gameId: gameProgress.gameId,
+      });
 
-    await this.awardPointsToPlayer(gameProgress.progressCurrentPlayer.playerId, answerStatus);
+      await this.awardPointsToPlayer(gameProgress.progressCurrentPlayer.playerId, answerStatus);
 
-    if (currentQuestion.order === REQUIRED_QUESTIONS_COUNT) {
-      if (gameProgress.progressOpponent.answers.length === REQUIRED_QUESTIONS_COUNT) {
-        this.gameFinishScheduler.cancelGameFinish(gameProgress.gameId);
+      if (currentQuestion.order === REQUIRED_QUESTIONS_COUNT) {
+        if (gameProgress.progressOpponent.answers.length === REQUIRED_QUESTIONS_COUNT) {
+          this.gameFinishScheduler.cancelGameFinish(gameProgress.gameId);
 
-        await this.awardBonusPointsToPlayer(userId);
+          await this.awardBonusPointsToPlayer(userId);
 
-        const game: Game | null = await this.gamesRepository.getById(gameProgress.gameId);
+          const game: Game | null = await this.gamesRepository.getByIdWithLock(gameProgress.gameId);
 
-        if (!game) {
-          throw new DomainException({
-            code: DomainExceptionCode.InternalServerError,
-            message: `At the end of the game (${gameProgress.gameId}), no game data was found`,
+          if (!game) {
+            throw new DomainException({
+              code: DomainExceptionCode.InternalServerError,
+              message: `At the end of the game (${gameProgress.gameId}), no game data was found`,
+            });
+          }
+
+          await this.finishGame(game);
+        } else {
+          await this.gameFinishScheduler.scheduleGameFinish({
+            gameId: gameProgress.gameId,
+            userId,
+            firstFinishedPlayerId: gameProgress.progressCurrentPlayer.playerId,
           });
         }
-
-        await this.finishGame(game);
-      } else {
-        await this.gameFinishScheduler.scheduleGameFinish({
-          gameId: gameProgress.gameId,
-          userId,
-          firstFinishedPlayerId: gameProgress.progressCurrentPlayer.playerId,
-        });
       }
-    }
 
-    return {
-      questionId: currentQuestion.questionPublicId,
-      answerStatus,
-      addedAt: newAnswer.addedAt.toISOString(),
-    };
+      return {
+        questionId: currentQuestion.questionPublicId,
+        answerStatus,
+        addedAt: newAnswer.addedAt.toISOString(),
+      };
+    });
   }
 
   private async ensureUserInActiveGame(userId: number): Promise<void> {
@@ -178,7 +182,7 @@ export class RecordAnswerUseCase implements ICommandHandler<RecordAnswerCommand>
 
   private async findGameProgressOrFailed(userId: number): Promise<GameProgress> {
     const gameProgress: GameProgress | null =
-      await this.gamesRepository.getGameProgressByUserId(userId);
+      await this.gamesRepository.getGameProgressByUserIdWithLock(userId);
 
     if (!gameProgress) {
       throw new DomainException({
@@ -191,7 +195,7 @@ export class RecordAnswerUseCase implements ICommandHandler<RecordAnswerCommand>
   }
 
   private async findPlayerOrFailed(id: number): Promise<Player> {
-    const player: Player | null = await this.playersRepository.getById(id);
+    const player: Player | null = await this.playersRepository.getByIdWithLock(id);
 
     if (!player) {
       throw new DomainException({

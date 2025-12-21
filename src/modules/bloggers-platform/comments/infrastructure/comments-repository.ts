@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '../../../../core/repositories/base.repository';
 import { Comment } from '../domain/entities/comment.entity';
-import { DataSource } from 'typeorm';
+import { TransactionHelper } from '../../../database/trasaction.helper';
 
 @Injectable()
 export class CommentsRepository extends BaseRepository<Comment> {
-  constructor(dataSource: DataSource) {
-    super(dataSource, Comment);
+  constructor(protected readonly transactionHelper: TransactionHelper) {
+    super(Comment, transactionHelper);
   }
 }

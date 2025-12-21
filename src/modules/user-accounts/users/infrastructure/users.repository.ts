@@ -1,23 +1,23 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../domain/entities/user.entity';
-import { DataSource } from 'typeorm';
 import { BaseRepository } from '../../../../core/repositories/base.repository';
+import { TransactionHelper } from '../../../database/trasaction.helper';
 
 @Injectable()
 export class UsersRepository extends BaseRepository<User> {
-  constructor(dataSource: DataSource) {
-    super(dataSource, User);
+  constructor(protected readonly transactionHelper: TransactionHelper) {
+    super(User, transactionHelper);
   }
   async getByLogin(login: string): Promise<User | null> {
-    return await this.repository.findOneBy({ login });
+    return await this.getRepository().findOneBy({ login });
   }
 
   async getByEmail(email: string): Promise<User | null> {
-    return await this.repository.findOneBy({ email });
+    return await this.getRepository().findOneBy({ email });
   }
 
   async getByEmailWithEmailConfirmationCode(email: string): Promise<User | null> {
-    return await this.repository.findOne({
+    return await this.getRepository().findOne({
       relations: {
         emailConfirmationCode: true,
       },
@@ -26,7 +26,7 @@ export class UsersRepository extends BaseRepository<User> {
   }
 
   async getByEmailWithPasswordRecoveryCode(email: string): Promise<User | null> {
-    return await this.repository.findOne({
+    return await this.getRepository().findOne({
       relations: {
         passwordRecoveryCode: true,
       },
@@ -35,7 +35,7 @@ export class UsersRepository extends BaseRepository<User> {
   }
 
   async getByEmailConfirmationCode(confirmationCode: string): Promise<User | null> {
-    return await this.repository.findOne({
+    return await this.getRepository().findOne({
       relations: {
         emailConfirmationCode: true,
       },
@@ -44,7 +44,7 @@ export class UsersRepository extends BaseRepository<User> {
   }
 
   async getByPasswordRecoveryCode(recoveryCode: string): Promise<User | null> {
-    return await this.repository.findOne({
+    return await this.getRepository().findOne({
       relations: {
         passwordRecoveryCode: true,
       },

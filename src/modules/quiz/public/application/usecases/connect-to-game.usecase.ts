@@ -10,6 +10,7 @@ import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants'
 import { GameQuestion } from '../../domain/entities/game-question.entity';
 import { QuestionsRepository } from '../../../admin/infrastructure/questions-repository';
 import { GameQuestionCreateDto } from '../../domain/dto/game-question.create-dto';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 export class ConnectToGameCommand {
   constructor(public readonly userId: number) {}
@@ -21,22 +22,24 @@ export class ConnectToGameUseCase implements ICommandHandler<ConnectToGameComman
     private readonly playersRepository: PlayersRepository,
     private readonly gamesRepository: GamesRepository,
     private readonly questionsRepository: QuestionsRepository,
+    private readonly transactionHelper: TransactionHelper,
   ) {}
 
   async execute({ userId }: ConnectToGameCommand): Promise<number> {
-    await this.ensureUserNotInPendingOrActiveGame(userId);
+    return this.transactionHelper.doTransactional(async () => {
+      await this.ensureUserNotInPendingOrActiveGame(userId);
 
-    const pendingGame: Game | null = await this.gamesRepository.getGameInPending();
+      const pendingGame: Game | null = await this.gamesRepository.getGameInPendingWithLock();
 
-    if (!pendingGame) {
-      return this.createNewGameForPlayer(userId);
-    }
+      if (!pendingGame) {
+        return this.createNewGameForPlayer(userId);
+      }
 
-    await this.assignRandomQuestionsToGame(pendingGame.id);
+      await this.assignRandomQuestionsToGame(pendingGame.id);
+      await this.connectPlayerToGame(userId, pendingGame.id);
 
-    await this.connectPlayerToGame(userId, pendingGame.id);
-
-    return await this.startGame(pendingGame);
+      return await this.startGame(pendingGame);
+    });
   }
 
   async connectPlayerToGame(userId: number, gameId: number): Promise<void> {
