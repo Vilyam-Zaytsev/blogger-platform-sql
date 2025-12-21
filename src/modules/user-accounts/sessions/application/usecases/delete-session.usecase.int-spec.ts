@@ -16,6 +16,7 @@ import { DomainExceptionCode } from '../../../../../core/exceptions/domain-excep
 import { DateService } from '../../../users/application/services/date.service';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { configModule } from '../../../../../dynamic-config.module';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('DeleteSessionUseCase (Integration)', () => {
   let module: TestingModule;
@@ -39,6 +40,7 @@ describe('DeleteSessionUseCase (Integration)', () => {
         UsersFactory,
         CryptoService,
         DateService,
+        TransactionHelper,
       ],
     }).compile();
 

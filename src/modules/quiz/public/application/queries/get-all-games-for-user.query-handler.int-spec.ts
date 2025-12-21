@@ -38,6 +38,7 @@ import { GameViewDto } from '../../api/view-dto/game.view-dto';
 import { AnswerCreateDto } from '../../domain/dto/answer.create-dto';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('GetAllGamesForUserQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -45,8 +46,6 @@ describe('GetAllGamesForUserQueryHandler (Integration)', () => {
 
   let queryHandler: GetAllGamesForUserQueryHandler;
   let usersFactory: UsersFactory;
-
-  let gamesQueryRepository: GamesQueryRepository;
 
   let gameRepo: Repository<Game>;
   let playerRepo: Repository<Player>;
@@ -67,14 +66,14 @@ describe('GetAllGamesForUserQueryHandler (Integration)', () => {
 
         GamesQueryRepository,
         PlayersRepository,
+
+        TransactionHelper,
       ],
     }).compile();
 
     dataSource = module.get<DataSource>(DataSource);
     usersFactory = module.get<UsersFactory>(UsersFactory);
     queryHandler = module.get<GetAllGamesForUserQueryHandler>(GetAllGamesForUserQueryHandler);
-
-    gamesQueryRepository = module.get<GamesQueryRepository>(GamesQueryRepository);
 
     gameRepo = dataSource.getRepository(Game);
     playerRepo = dataSource.getRepository(Player);
@@ -604,7 +603,9 @@ describe('GetAllGamesForUserQueryHandler (Integration)', () => {
           answersPlayer2.push(answer2);
         }
 
-        players[0].addScore(REQUIRED_QUESTIONS_COUNT);
+        for (let i = 0; i < REQUIRED_QUESTIONS_COUNT; i++) {
+          players[0].addScore();
+        }
         await playerRepo.save(players[0]);
 
         const queryParams: GetGamesQueryParams = new GetGamesQueryParams();

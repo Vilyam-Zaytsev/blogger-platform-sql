@@ -22,6 +22,7 @@ import { DateService } from '../../../../user-accounts/users/application/service
 import { GetTopPlayersQueryParams } from '../../api/input-dto/get-top-players-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { TopGamePlayerViewDto } from '../../api/view-dto/top-game-player-view.dto';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('GetTopPlayersQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -46,6 +47,8 @@ describe('GetTopPlayersQueryHandler (Integration)', () => {
 
         GamesQueryRepository,
         PlayersRepository,
+
+        TransactionHelper,
       ],
     }).compile();
 
@@ -130,7 +133,10 @@ describe('GetTopPlayersQueryHandler (Integration)', () => {
   const setPlayerScore = async (playerId: number, score: number): Promise<void> => {
     const player: Player | null = await playerRepo.findOne({ where: { id: playerId } });
     if (player) {
-      player.addScore(score);
+      for (let i = 0; i < score; i++) {
+        player.addScore();
+      }
+
       await playerRepo.save(player);
     }
   };

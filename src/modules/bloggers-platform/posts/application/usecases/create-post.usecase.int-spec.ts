@@ -13,6 +13,7 @@ import { DomainException } from '../../../../../core/exceptions/domain-exception
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { configModule } from '../../../../../dynamic-config.module';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('CreatePostUseCase (Integration)', () => {
   let module: TestingModule;
@@ -26,7 +27,7 @@ describe('CreatePostUseCase (Integration)', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Post))],
-      providers: [CreatePostUseCase, PostsRepository, BlogsRepository],
+      providers: [CreatePostUseCase, PostsRepository, BlogsRepository, TransactionHelper],
     }).compile();
 
     useCase = module.get<CreatePostUseCase>(CreatePostUseCase);

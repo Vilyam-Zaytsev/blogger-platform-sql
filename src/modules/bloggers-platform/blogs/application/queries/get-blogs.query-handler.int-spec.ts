@@ -15,6 +15,7 @@ import { BlogViewDto } from '../../api/view-dto/blog.view-dto';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { configModule } from '../../../../../dynamic-config.module';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('GetBlogsQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -26,7 +27,7 @@ describe('GetBlogsQueryHandler (Integration)', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Blog))],
-      providers: [GetBlogsQueryHandler, BlogsQueryRepository],
+      providers: [GetBlogsQueryHandler, BlogsQueryRepository, TransactionHelper],
     }).compile();
 
     queryHandler = module.get<GetBlogsQueryHandler>(GetBlogsQueryHandler);

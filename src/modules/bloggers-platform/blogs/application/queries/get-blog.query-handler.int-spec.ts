@@ -11,6 +11,7 @@ import { DomainException } from '../../../../../core/exceptions/domain-exception
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { configModule } from '../../../../../dynamic-config.module';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('GetBlogQueryHandler (Integration)', () => {
   let module: TestingModule;
@@ -22,7 +23,7 @@ describe('GetBlogQueryHandler (Integration)', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Blog))],
-      providers: [GetBlogQueryHandler, BlogsQueryRepository],
+      providers: [GetBlogQueryHandler, BlogsQueryRepository, TransactionHelper],
     }).compile();
 
     queryHandler = module.get<GetBlogQueryHandler>(GetBlogQueryHandler);

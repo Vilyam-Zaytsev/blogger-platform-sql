@@ -15,6 +15,7 @@ import { CreateSessionDto } from '../../dto/create-session.dto';
 import { DateService } from '../../../users/application/services/date.service';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { configModule } from '../../../../../dynamic-config.module';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 jest.mock('../../../../../core/utils/user-agent.parser');
 const mockParseUserAgent = parseUserAgent as jest.MockedFunction<typeof parseUserAgent>;
@@ -41,6 +42,7 @@ describe('CreateSessionUseCase (Integration)', () => {
         UsersFactory,
         CryptoService,
         DateService,
+        TransactionHelper,
       ],
     }).compile();
 

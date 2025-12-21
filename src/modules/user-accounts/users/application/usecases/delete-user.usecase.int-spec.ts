@@ -13,6 +13,7 @@ import { DomainExceptionCode } from '../../../../../core/exceptions/domain-excep
 import { DateService } from '../services/date.service';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { configModule } from '../../../../../dynamic-config.module';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('DeleteUserUseCase (Integration)', () => {
   let module: TestingModule;
@@ -24,7 +25,14 @@ describe('DeleteUserUseCase (Integration)', () => {
   beforeAll(async () => {
     module = await Test.createTestingModule({
       imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(User))],
-      providers: [DeleteUserUseCase, UsersRepository, UsersFactory, CryptoService, DateService],
+      providers: [
+        DeleteUserUseCase,
+        UsersRepository,
+        UsersFactory,
+        CryptoService,
+        DateService,
+        TransactionHelper,
+      ],
     }).compile();
 
     useCase = module.get<DeleteUserUseCase>(DeleteUserUseCase);

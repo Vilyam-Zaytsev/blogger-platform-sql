@@ -13,6 +13,7 @@ import { DomainException } from '../../../../../core/exceptions/domain-exception
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { QuestionValidatorService } from '../../domain/services/question-validator.service';
+import { TransactionHelper } from '../../../../database/trasaction.helper';
 
 describe('UpdateQuestionUseCase (Integration)', () => {
   let module: TestingModule;
@@ -28,7 +29,12 @@ describe('UpdateQuestionUseCase (Integration)', () => {
         DatabaseModule,
         TypeOrmModule.forFeature(getRelatedEntities(Question)),
       ],
-      providers: [UpdateQuestionUseCase, QuestionsRepository, QuestionValidatorService],
+      providers: [
+        UpdateQuestionUseCase,
+        QuestionsRepository,
+        QuestionValidatorService,
+        TransactionHelper,
+      ],
     }).compile();
 
     useCase = module.get<UpdateQuestionUseCase>(UpdateQuestionUseCase);
