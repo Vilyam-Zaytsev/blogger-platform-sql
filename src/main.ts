@@ -1,22 +1,30 @@
-import { CoreConfig } from './core/core.config';
-import { initAppModule } from './init-app-module';
-import { appSetup } from './setup/app.setup';
 import { NestFactory } from '@nestjs/core';
+import { Configuration, validate } from './settings/configuration/configuration';
+import { ApiSettings } from './settings/configuration/api-settings';
+import { Environments, EnvironmentSettings } from './settings/configuration/environment-settings';
+import { AppModule } from './app.module';
+import { applyAppInitialization } from './settings/app-initialization';
 
 async function bootstrap() {
-  const DynamicAppModule = await initAppModule();
+  const config: Configuration = validate(process.env as Record<string, string>);
+  const apiSettings: ApiSettings = config.apiSettings;
+  const environmentSettings: EnvironmentSettings = config.environmentSettings;
 
-  const app = await NestFactory.create(DynamicAppModule);
+  const app = await NestFactory.create(AppModule);
 
-  const coreConfig: CoreConfig = app.get<CoreConfig>(CoreConfig);
+  applyAppInitialization(app);
 
-  appSetup(app, coreConfig.isSwaggerEnabled);
-
-  const PORT: number = coreConfig.port;
+  const PORT: number = apiSettings.PORT;
+  const ENV: Environments = environmentSettings.currentEnv;
 
   await app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`\n✅ Application is running in ${ENV} mode`);
+    console.log(`📡 Server listening on port ${PORT}`);
+    console.log(`🌍 Environment: ${ENV}\n`);
   });
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('❌ Failed to bootstrap application:', error);
+  process.exit(1);
+});

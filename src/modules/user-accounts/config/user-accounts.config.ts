@@ -2,8 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IsBoolean, IsEnum, IsNotEmpty, IsNumber } from 'class-validator';
 import { configValidator } from '../../../core/utils/config.validator';
-import { Environments } from '../../../core/core.config';
 import { CookieOptions } from 'express';
+import { Environments } from '../../../settings/configuration/environment-settings';
 
 export enum SameSite {
   STRICT = 'strict',
