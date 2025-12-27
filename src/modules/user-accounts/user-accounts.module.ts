@@ -42,9 +42,11 @@ import { UsersFactory } from './users/application/factories/users.factory';
 import { Session } from './sessions/domain/entities/session.entity';
 import { DateService } from './users/application/services/date.service';
 import { SessionsCleanupService } from './sessions/application/services/sessions-cleanup.service';
+import { EnvModule } from '../../env/env.module';
 
 @Module({
   imports: [
+    EnvModule,
     TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode, Session]),
     NotificationsModule,
   ],

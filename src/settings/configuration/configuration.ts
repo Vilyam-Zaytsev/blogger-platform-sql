@@ -12,15 +12,15 @@ export const loadEnv = (): string[] => {
 
   switch (env) {
     case Environments.DEVELOPMENT: {
-      return ['.env.dev', '.env'];
+      return ['src/env/.env.dev.local', 'src/env/.env.dev'];
     }
 
     case Environments.TEST: {
-      return ['.env.test', '.env'];
+      return ['src/env/.env.test', 'src/env/.env'];
     }
 
     default: {
-      return ['.env'];
+      return ['src/env/.env'];
     }
   }
 };

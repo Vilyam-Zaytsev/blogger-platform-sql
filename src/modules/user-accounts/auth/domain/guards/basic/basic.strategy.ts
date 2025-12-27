@@ -1,17 +1,19 @@
 import { Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { BasicStrategy as Strategy } from 'passport-http';
-import { CoreConfig } from '../../../../../../core/core.config';
+import { Configuration } from '../../../../../../settings/configuration/configuration';
+import { BusinessRulesSettings } from '../../../../../../settings/configuration/business-rules-settings';
 
 @Injectable()
 export class BasicStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly coreConfig: CoreConfig) {
+  constructor(private readonly config: Configuration) {
     super();
   }
 
   validate(username: string, password: string): boolean {
-    const validUsername: string = this.coreConfig.adminLogin;
-    const validPassword: string = this.coreConfig.adminPassword;
+    const businessRulesSettings: BusinessRulesSettings = this.config.businessRulesSettings;
+    const validUsername: string = businessRulesSettings.ADMIN_LOGIN;
+    const validPassword: string = businessRulesSettings.ADMIN_PASSWORD;
 
     if (username === validUsername && password === validPassword) {
       return true;

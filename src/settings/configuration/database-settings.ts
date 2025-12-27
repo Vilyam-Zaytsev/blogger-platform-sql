@@ -1,6 +1,6 @@
 import { IsBoolean, IsNumber, IsString } from 'class-validator';
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { SnakeNamingStrategy } from '../modules/database/config/snake-naming.strategy';
+import { SnakeNamingStrategy } from '../../modules/database/config/snake-naming.strategy';
 import { EnvironmentVariable } from './configuration';
 
 export class DatabaseSettings {
@@ -57,5 +57,3 @@ export class DatabaseSettings {
     };
   }
 }
-
-export type DatabaseSettingsType = DatabaseSettings;
