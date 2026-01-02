@@ -1,5 +1,6 @@
 import { IsBoolean, IsEnum, IsNumber, IsString } from 'class-validator';
 import { EnvironmentVariable } from './configuration';
+import { CookieOptions } from 'express';
 
 export enum SameSite {
   STRICT = 'strict',
@@ -42,7 +43,7 @@ export class ApiSettings {
   SECURE: boolean;
 
   @IsEnum(SameSite)
-  SAME_SITE: string;
+  SAME_SITE: SameSite;
 
   @IsNumber()
   MAX_AGE: number;
@@ -67,12 +68,12 @@ export class ApiSettings {
 
     this.HTTP_ONLY = environmentVariables.HTTP_ONLY === 'true';
     this.SECURE = environmentVariables.SECURE === 'true';
-    this.SAME_SITE = environmentVariables.SAME_SITE;
+    this.SAME_SITE = environmentVariables.SAME_SITE as SameSite;
     this.MAX_AGE = Number(environmentVariables.MAX_AGE);
     this.PATH = environmentVariables.PATH;
   }
 
-  getCookieOptions() {
+  getCookieOptions(): CookieOptions {
     return {
       httpOnly: this.HTTP_ONLY,
       secure: this.SECURE,

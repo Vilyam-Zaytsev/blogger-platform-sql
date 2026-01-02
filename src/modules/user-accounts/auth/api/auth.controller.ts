@@ -28,16 +28,16 @@ import { NewPasswordCommand } from '../aplication/usecases/new-password.usecase'
 import { JwtAuthGuard } from '../domain/guards/bearer/jwt-auth.guard';
 import { MeViewDto } from '../../users/api/view-dto/user.view-dto';
 import { GetMeQuery } from '../aplication/queries/get-me.query-handler';
-import { UserAccountsConfig } from '../../config/user-accounts.config';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginInputDto } from './input-dto/login.input-dto';
+import { Configuration } from '../../../../settings/configuration/configuration';
 
 @ApiTags('Authentication')
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly userAccountsConfig: UserAccountsConfig,
+    private readonly config: Configuration,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
@@ -230,7 +230,7 @@ export class AuthController {
       new LoginUserCommand(user, clientInfo),
     );
 
-    res.cookie('refreshToken', refreshToken, this.userAccountsConfig.getCookieConfig());
+    res.cookie('refreshToken', refreshToken, this.config.apiSettings.getCookieOptions());
 
     return { accessToken };
   }
@@ -244,7 +244,7 @@ export class AuthController {
   ): Promise<void> {
     await this.commandBus.execute(new LogoutCommand(session));
 
-    const { httpOnly, secure, sameSite, path } = this.userAccountsConfig.getCookieConfig();
+    const { httpOnly, secure, sameSite, path } = this.config.apiSettings.getCookieOptions();
 
     res.clearCookie('refreshToken', {
       httpOnly,
@@ -277,7 +277,7 @@ export class AuthController {
       new RefreshTokenCommand(session),
     );
 
-    res.cookie('refreshToken', refreshToken, this.userAccountsConfig.getCookieConfig());
+    res.cookie('refreshToken', refreshToken, this.config.apiSettings.getCookieOptions());
 
     return { accessToken };
   }
