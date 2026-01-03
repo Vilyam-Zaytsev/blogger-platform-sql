@@ -1,7 +1,6 @@
 import { PaginatedViewDto } from '../../src/core/dto/paginated.view-dto';
 import request, { Response } from 'supertest';
 import { Server } from 'http';
-import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import { TestResultLogin } from '../types';
 import { HttpStatus } from '@nestjs/common';
 import { UserViewDto } from 'src/modules/user-accounts/users/api/view-dto/user.view-dto';
@@ -23,7 +22,7 @@ export class UsersTestManager {
       const user: UserInputDto = dtos[i];
 
       const response: Response = await request(this.server)
-        .post(`/${GLOBAL_PREFIX}/sa/users`)
+        .post(`/api/sa/users`)
         .send(user)
         .set('Authorization', this.adminCredentialsInBase64)
         .expect(HttpStatus.CREATED);
@@ -49,7 +48,7 @@ export class UsersTestManager {
       const dto: UserInputDto = dtos[i];
 
       const resCreateUser: Response = await request(this.server)
-        .post(`/${GLOBAL_PREFIX}/sa/users`)
+        .post(`/api/sa/users`)
         .send(dto)
         .set('Authorization', this.adminCredentialsInBase64)
         .expect(HttpStatus.CREATED);
@@ -62,7 +61,7 @@ export class UsersTestManager {
       expect(newUser.email).toBe(dto.email);
 
       const resLoginUser: Response = await request(this.server)
-        .post(`/${GLOBAL_PREFIX}/auth/login`)
+        .post(`/api/auth/login`)
         .send({
           loginOrEmail: newUser.login,
           password: 'qwerty',
@@ -96,7 +95,7 @@ export class UsersTestManager {
 
   async registration(dto: UserInputDto): Promise<Response> {
     return await request(this.server)
-      .post(`/${GLOBAL_PREFIX}/auth/registration`)
+      .post(`/api/auth/registration`)
       .send(dto)
       .expect(HttpStatus.NO_CONTENT);
   }
@@ -106,7 +105,7 @@ export class UsersTestManager {
 
     for (let i = 0; i < loginsOrEmails.length; i++) {
       const res: Response = await request(this.server)
-        .post(`/${GLOBAL_PREFIX}/auth/login`)
+        .post(`/api/auth/login`)
         .send({
           loginOrEmail: loginsOrEmails[i],
           password: 'qwerty',
@@ -140,7 +139,7 @@ export class UsersTestManager {
 
   async getAll(query: Partial<GetUsersQueryParams> = {}): Promise<PaginatedViewDto<UserViewDto>> {
     const response: Response = await request(this.server)
-      .get(`/${GLOBAL_PREFIX}/sa/users`)
+      .get(`/api/sa/users`)
       .query(query)
       .set('Authorization', this.adminCredentialsInBase64)
       .expect(HttpStatus.OK);
@@ -150,7 +149,7 @@ export class UsersTestManager {
 
   async passwordRecovery(email: string) {
     await request(this.server)
-      .post(`/${GLOBAL_PREFIX}/auth/password-recovery`)
+      .post(`/api/auth/password-recovery`)
       .send({
         email,
       })

@@ -1,6 +1,5 @@
 import request, { Response } from 'supertest';
 import { UsersTestManager } from '../managers/users.test-manager';
-import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import { TestLoggers } from '../helpers/test.loggers';
 import { AppTestManager } from '../managers/app.test-manager';
 import { AdminCredentials } from '../types';
@@ -16,6 +15,7 @@ describe('AuthController - login() (POST: /auth/login)', () => {
   let adminCredentialsInBase64: string;
   let testLoggingEnabled: boolean;
   let server: Server;
+  let GLOBAL_PREFIX: string;
 
   beforeAll(async () => {
     appTestManager = new AppTestManager();
@@ -27,9 +27,11 @@ describe('AuthController - login() (POST: /auth/login)', () => {
       adminCredentials.password,
     );
     server = appTestManager.getServer();
-    testLoggingEnabled = appTestManager.coreConfig.testLoggingEnabled;
+    testLoggingEnabled = appTestManager.config.businessRulesSettings.TEST_LOGGING_ENABLED;
 
     usersTestManager = new UsersTestManager(server, adminCredentialsInBase64);
+
+    GLOBAL_PREFIX = appTestManager.config.apiSettings.GLOBAL_PREFIX;
   });
 
   beforeEach(async () => {
@@ -106,7 +108,7 @@ describe('AuthController - login() (POST: /auth/login)', () => {
     }
   });
 
-  it('should not log in if the user has sent invalid data (loginOrEmail: "undefined", password: "undefined")', async () => {
+  it.only('should not log in if the user has sent invalid data (loginOrEmail: "undefined", password: "undefined")', async () => {
     // 🔻 Выполняем POST-запрос на /auth/login с пустым телом
     const resLogin: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/login`)
