@@ -29,7 +29,7 @@ import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants'
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { AnswerCreateDto } from '../../domain/dto/answer.create-dto';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('GetCurrentGameQueryHandler (Integration)', () => {
   let module: TestingModule;

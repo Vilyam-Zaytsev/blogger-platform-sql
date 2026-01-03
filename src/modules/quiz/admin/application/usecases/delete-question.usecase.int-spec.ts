@@ -10,7 +10,7 @@ import { QuestionInputDto } from '../../api/input-dto/question.input-dto';
 import { configModule } from '../../../../../dynamic-config.module';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('DeleteQuestionUseCase (Integration)', () => {
   let module: TestingModule;

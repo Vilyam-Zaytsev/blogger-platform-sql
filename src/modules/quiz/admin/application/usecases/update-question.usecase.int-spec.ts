@@ -13,7 +13,7 @@ import { DomainException } from '../../../../../core/exceptions/domain-exception
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { ValidationException } from '../../../../../core/exceptions/validation-exception';
 import { QuestionValidatorService } from '../../domain/services/question-validator.service';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('UpdateQuestionUseCase (Integration)', () => {
   let module: TestingModule;

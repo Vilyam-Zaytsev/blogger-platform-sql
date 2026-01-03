@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '../../../../core/repositories/base.repository';
 import { Game, GameStatus } from '../domain/entities/game.entity';
 import { GameProgress } from './types/game-progress.type';
-import { TransactionHelper } from '../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../trasaction.helper';
 import { EntityManager } from 'typeorm';
 import { GameQuestion } from '../domain/entities/game-question.entity';
 import { Answer } from '../domain/entities/answer.entity';

@@ -26,7 +26,7 @@ import { DomainException } from '../../../../../core/exceptions/domain-exception
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants';
 import { GameFinishSchedulerService } from '../../domain/services/game-finish-scheduler.service';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('RecordAnswerUseCase (Integration)', () => {
   let module: TestingModule;

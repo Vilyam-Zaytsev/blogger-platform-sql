@@ -10,7 +10,7 @@ import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants'
 import { GameQuestion } from '../../domain/entities/game-question.entity';
 import { QuestionsRepository } from '../../../admin/infrastructure/questions-repository';
 import { GameQuestionCreateDto } from '../../domain/dto/game-question.create-dto';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 export class ConnectToGameCommand {
   constructor(public readonly userId: number) {}

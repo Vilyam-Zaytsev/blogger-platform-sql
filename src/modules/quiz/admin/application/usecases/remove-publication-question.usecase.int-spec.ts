@@ -14,7 +14,7 @@ import { configModule } from '../../../../../dynamic-config.module';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { QuestionValidatorService } from '../../domain/services/question-validator.service';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('RemovePublicationQuestionUseCase (Integration)', () => {
   let module: TestingModule;

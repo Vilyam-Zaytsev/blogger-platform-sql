@@ -16,7 +16,6 @@ import { BasicStrategy } from './auth/domain/guards/basic/basic.strategy';
 import { LoginUserUseCase } from './auth/aplication/usecases/login-user.usecase';
 import { AccessTokenProvider } from './auth/providers/access-token.provider';
 import { RefreshTokenProvider } from './auth/providers/refresh-token.provider';
-import { UserAccountsConfig } from './config/user-accounts.config';
 import { JwtStrategy } from './auth/domain/guards/bearer/jwt.strategy';
 import { LocalStrategy } from './auth/domain/guards/local/local.strategy';
 import { CreateSessionUseCase } from './sessions/application/usecases/create-session.usecase';
@@ -42,9 +41,11 @@ import { UsersFactory } from './users/application/factories/users.factory';
 import { Session } from './sessions/domain/entities/session.entity';
 import { DateService } from './users/application/services/date.service';
 import { SessionsCleanupService } from './sessions/application/services/sessions-cleanup.service';
+import { EnvModule } from '../../env/env.module';
 
 @Module({
   imports: [
+    EnvModule,
     TypeOrmModule.forFeature([User, EmailConfirmationCode, PasswordRecoveryCode, Session]),
     NotificationsModule,
   ],
@@ -98,8 +99,6 @@ import { SessionsCleanupService } from './sessions/application/services/sessions
     UsersRepository,
     UsersQueryRepository,
     UsersExternalRepository,
-    //config
-    UserAccountsConfig,
   ],
   exports: [BasicStrategy, UsersExternalRepository],
 })

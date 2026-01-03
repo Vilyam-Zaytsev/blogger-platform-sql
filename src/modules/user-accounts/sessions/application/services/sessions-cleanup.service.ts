@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { SessionsRepository } from '../../infrastructure/sessions.repository';
 import { Cron } from '@nestjs/schedule';
-import { UserAccountsConfig } from '../../../config/user-accounts.config';
+import { Configuration } from '../../../../../settings/configuration/configuration';
+import { BusinessRulesSettings } from '../../../../../settings/configuration/business-rules-settings';
 
 @Injectable()
 export class SessionsCleanupService {
@@ -9,7 +10,7 @@ export class SessionsCleanupService {
 
   constructor(
     private readonly sessionsRepository: SessionsRepository,
-    private readonly userAccountsConfig: UserAccountsConfig,
+    private readonly config: Configuration,
   ) {}
 
   @Cron('0 3 * * *')
@@ -17,8 +18,10 @@ export class SessionsCleanupService {
     try {
       this.logger.debug('Starting hard delete job for old soft-deleted sessions...');
 
+      const businessRulesSettings: BusinessRulesSettings = this.config.businessRulesSettings;
+
       const deletedCount: number = await this.sessionsRepository.hardDeleteOldSoftDeletedSessions(
-        this.userAccountsConfig.sessionCleanupRetentionDays,
+        businessRulesSettings.SESSION_CLEANUP_RETENTION_DAYS,
       );
 
       this.logger.log(

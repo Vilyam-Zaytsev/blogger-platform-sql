@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { BaseRepository } from '../../../../core/repositories/base.repository';
 import { Comment } from '../domain/entities/comment.entity';
-import { TransactionHelper } from '../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../trasaction.helper';
 
 @Injectable()
 export class CommentsRepository extends BaseRepository<Comment> {

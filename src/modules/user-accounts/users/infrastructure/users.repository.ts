@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { User } from '../domain/entities/user.entity';
 import { BaseRepository } from '../../../../core/repositories/base.repository';
-import { TransactionHelper } from '../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../trasaction.helper';
 
 @Injectable()
 export class UsersRepository extends BaseRepository<User> {
