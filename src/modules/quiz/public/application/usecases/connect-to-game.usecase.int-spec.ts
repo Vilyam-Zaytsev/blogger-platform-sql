@@ -21,7 +21,7 @@ import { DateService } from '../../../../user-accounts/users/application/service
 import { UserInputDto } from '../../../../user-accounts/users/api/input-dto/user.input-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('ConnectToGameUseCase (Integration)', () => {
   let module: TestingModule;

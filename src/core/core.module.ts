@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
-import { TransactionHelper } from '../modules/database/trasaction.helper';
+import { TransactionHelper } from '../trasaction.helper';
 
 @Global()
 @Module({

@@ -22,8 +22,8 @@
     "test:e2e-all": "cross-env ENV=TEST jest --config ./test/jest-e2e.json --runInBand",
     "test:unit": "cross-env ENV=TEST jest --config test/jest-unit.json --runInBand --detectOpenHandles",
     "test:int": "cross-env ENV=TEST jest --config test/jest-int.json --runInBand --detectOpenHandles",
-    "migration:create": "cross-env ENV=DEVELOPMENT && typeorm-ts-node-commonjs migration:create ./src/modules/database/migrations/empty",
-    "migration:generate": "cross-env ENV=DEVELOPMENT typeorm-ts-node-commonjs migration:generate -d ./src/migrations-data-source.ts  src/modules/database/migrations/$npm_config_name",
+    "migration:create": "cross-env ENV=DEVELOPMENT && typeorm-ts-node-commonjs migration:create src/migrations/empty",
+    "migration:generate": "cross-env ENV=DEVELOPMENT typeorm-ts-node-commonjs migration:generate -d ./src/migrations-data-source.ts  src/migrations/$npm_config_name",
     "migration:run": "cross-env ENV=DEVELOPMENT typeorm-ts-node-commonjs migration:run -d ./src/migrations-data-source.ts",
     "migration:revert": "cross-env ENV=DEVELOPMENT typeorm-ts-node-commonjs migration:revert -d ./src/migrations-data-source.ts"
   },

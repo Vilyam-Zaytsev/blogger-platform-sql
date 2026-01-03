@@ -13,7 +13,7 @@ import { DomainExceptionCode } from '../../../../../core/exceptions/domain-excep
 import { DateService } from '../services/date.service';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { configModule } from '../../../../../dynamic-config.module';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('DeleteUserUseCase (Integration)', () => {
   let module: TestingModule;

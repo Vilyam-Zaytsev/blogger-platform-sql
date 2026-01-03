@@ -2,7 +2,7 @@ import { config } from 'dotenv';
 import { DataSource } from 'typeorm';
 import * as process from 'node:process';
 import { join } from 'path';
-import { SnakeNamingStrategy } from './modules/database/config/snake-naming.strategy';
+import { SnakeNamingStrategy } from './snake-naming.strategy';
 import { loadEnv } from './settings/configuration/configuration';
 
 config({
@@ -18,7 +18,7 @@ export default new DataSource({
   database: process.env.POSTGRES_DATA_BASE,
   synchronize: false,
   logging: true,
-  migrations: [join(__dirname, 'modules/database/migrations/*.{ts,js}')],
+  migrations: [join(__dirname, '/migrations/*.{ts,js}')],
   entities: ['src/**/*.entity.ts'],
   namingStrategy: new SnakeNamingStrategy(),
 });
