@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MailerModule } from '@nestjs-modules/mailer';
-import { NotificationsConfig } from './config/notifications.config';
 import { EmailService } from './services/email.service';
 import { EmailTemplates } from './templates/email.templates';
 import { SendConfirmationEmailWhenUserRegisteredEventHandler } from './event-handlers/send-confirmation-email-when-user-registered.event-handler';
@@ -35,7 +34,6 @@ import { BusinessRulesSettings } from '../../settings/configuration/business-rul
   providers: [
     EmailService,
     EmailTemplates,
-    NotificationsConfig,
     SendConfirmationEmailWhenUserRegisteredEventHandler,
     ResendConfirmationEmailWhenUserRegisteredEventHandler,
     SendRecoveryCodeEmailWhenUserPasswordRecoveryEventHandler,
