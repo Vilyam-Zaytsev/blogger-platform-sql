@@ -16,7 +16,7 @@ export const loadEnv = (): string[] => {
     }
 
     case Environments.TEST: {
-      return ['src/env/.env.test', 'src/env/.env'];
+      return ['src/env/.env.test.local', 'src/env/.env.test'];
     }
 
     default: {

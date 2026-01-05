@@ -14,6 +14,7 @@ import cookieParser from 'cookie-parser';
 import expressBasicAuth from 'express-basic-auth';
 import { ValidationExceptionFilter } from '../core/exceptions/filters/validation-exception.filter';
 import { DomainHttpExceptionsFilter } from '../core/exceptions/filters/domain-exceptions.filter';
+import { GLOBAL_PREFIX } from '../constants/global-prefix.constants';
 
 const setupSwagger = (
   app: INestApplication,
@@ -91,7 +92,7 @@ export const applyAppInitialization = (app: INestApplication): void => {
   const swaggerSettings: SwaggerSettings = configuration.swaggerSettings;
   const environmentSettings: EnvironmentSettings = configuration.environmentSettings;
 
-  app.setGlobalPrefix('api');
+  app.setGlobalPrefix(GLOBAL_PREFIX);
 
   app.use(cookieParser());
   app.enableCors();

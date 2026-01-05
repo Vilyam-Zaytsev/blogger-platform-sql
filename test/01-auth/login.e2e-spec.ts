@@ -7,6 +7,7 @@ import { Server } from 'http';
 import { TestUtils } from '../helpers/test.utils';
 import { HttpStatus } from '@nestjs/common';
 import { UserViewDto } from '../../src/modules/user-accounts/users/api/view-dto/user.view-dto';
+import { GLOBAL_PREFIX } from '../../src/constants/global-prefix.constants';
 
 describe('AuthController - login() (POST: /auth/login)', () => {
   let appTestManager: AppTestManager;
@@ -15,7 +16,6 @@ describe('AuthController - login() (POST: /auth/login)', () => {
   let adminCredentialsInBase64: string;
   let testLoggingEnabled: boolean;
   let server: Server;
-  let GLOBAL_PREFIX: string;
 
   beforeAll(async () => {
     appTestManager = new AppTestManager();
@@ -30,8 +30,6 @@ describe('AuthController - login() (POST: /auth/login)', () => {
     testLoggingEnabled = appTestManager.config.businessRulesSettings.TEST_LOGGING_ENABLED;
 
     usersTestManager = new UsersTestManager(server, adminCredentialsInBase64);
-
-    GLOBAL_PREFIX = appTestManager.config.apiSettings.GLOBAL_PREFIX;
   });
 
   beforeEach(async () => {
