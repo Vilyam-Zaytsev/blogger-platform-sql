@@ -12,6 +12,8 @@ import { Configuration } from './configuration/configuration';
 import { ApiSettings } from './configuration/api-settings';
 import cookieParser from 'cookie-parser';
 import expressBasicAuth from 'express-basic-auth';
+import { ValidationExceptionFilter } from '../core/exceptions/filters/validation-exception.filter';
+import { DomainHttpExceptionsFilter } from '../core/exceptions/filters/domain-exceptions.filter';
 
 const setupSwagger = (
   app: INestApplication,
@@ -78,6 +80,8 @@ const setupExceptionFilters = (
   app: INestApplication,
   isSendInternalServerErrorDetails: boolean,
 ): void => {
+  app.useGlobalFilters(new ValidationExceptionFilter());
+  app.useGlobalFilters(new DomainHttpExceptionsFilter());
   app.useGlobalFilters(new AllHttpExceptionsFilter(isSendInternalServerErrorDetails));
 };
 
@@ -86,6 +90,8 @@ export const applyAppInitialization = (app: INestApplication): void => {
   const apiSettings: ApiSettings = configuration.apiSettings;
   const swaggerSettings: SwaggerSettings = configuration.swaggerSettings;
   const environmentSettings: EnvironmentSettings = configuration.environmentSettings;
+
+  app.setGlobalPrefix('api');
 
   app.use(cookieParser());
   app.enableCors();
