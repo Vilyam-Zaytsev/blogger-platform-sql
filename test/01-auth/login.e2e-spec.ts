@@ -106,7 +106,7 @@ describe('AuthController - login() (POST: /auth/login)', () => {
     }
   });
 
-  it.only('should not log in if the user has sent invalid data (loginOrEmail: "undefined", password: "undefined")', async () => {
+  it('should not log in if the user has sent invalid data (loginOrEmail: "undefined", password: "undefined")', async () => {
     // 🔻 Выполняем POST-запрос на /auth/login с пустым телом
     const resLogin: Response = await request(server)
       .post(`/${GLOBAL_PREFIX}/auth/login`)

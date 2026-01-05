@@ -67,7 +67,7 @@ const setupValidationPipe = (app: INestApplication): void => {
     new ValidationPipe({
       transform: true,
       whitelist: true,
-      stopAtFirstError: false,
+      stopAtFirstError: true,
       exceptionFactory: (errors) => {
         const formattedErrors: Extension[] = errorFormatter(errors);
 
