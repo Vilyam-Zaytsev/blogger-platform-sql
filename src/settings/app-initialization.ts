@@ -80,9 +80,9 @@ const setupExceptionFilters = (
   app: INestApplication,
   isSendInternalServerErrorDetails: boolean,
 ): void => {
-  app.useGlobalFilters(new ValidationExceptionFilter());
-  app.useGlobalFilters(new DomainHttpExceptionsFilter());
   app.useGlobalFilters(new AllHttpExceptionsFilter(isSendInternalServerErrorDetails));
+  app.useGlobalFilters(new DomainHttpExceptionsFilter());
+  app.useGlobalFilters(new ValidationExceptionFilter());
 };
 
 export const applyAppInitialization = (app: INestApplication): void => {
