@@ -1,6 +1,5 @@
 import request, { Response } from 'supertest';
 import { UsersTestManager } from '../managers/users.test-manager';
-import { GLOBAL_PREFIX } from '../../src/setup/global-prefix.setup';
 import { TestLoggers } from '../helpers/test.loggers';
 import { AppTestManager } from '../managers/app.test-manager';
 import { AdminCredentials } from '../types';
@@ -8,6 +7,7 @@ import { Server } from 'http';
 import { TestUtils } from '../helpers/test.utils';
 import { HttpStatus } from '@nestjs/common';
 import { UserViewDto } from '../../src/modules/user-accounts/users/api/view-dto/user.view-dto';
+import { GLOBAL_PREFIX } from '../../src/constants/global-prefix.constants';
 
 describe('AuthController - login() (POST: /auth/login)', () => {
   let appTestManager: AppTestManager;
@@ -27,7 +27,7 @@ describe('AuthController - login() (POST: /auth/login)', () => {
       adminCredentials.password,
     );
     server = appTestManager.getServer();
-    testLoggingEnabled = appTestManager.coreConfig.testLoggingEnabled;
+    testLoggingEnabled = appTestManager.config.businessRulesSettings.TEST_LOGGING_ENABLED;
 
     usersTestManager = new UsersTestManager(server, adminCredentialsInBase64);
   });

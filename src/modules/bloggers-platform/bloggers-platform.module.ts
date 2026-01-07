@@ -36,11 +36,13 @@ import { ReactionPost } from './reactions/domain/entities/reaction-post.entity';
 import { ReactionsRepository } from './reactions/infrastructure/reactions.repository';
 import { Comment } from './comments/domain/entities/comment.entity';
 import { ReactionComment } from './reactions/domain/entities/reaction-comment.entity';
+import { CoreModule } from '../../core/core.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Blog, Post, Comment, Reaction, ReactionPost, ReactionComment]),
     UserAccountsModule,
+    CoreModule,
   ],
   controllers: [BlogsAdminController, BlogsPublicController, PostsController, CommentsController],
   providers: [

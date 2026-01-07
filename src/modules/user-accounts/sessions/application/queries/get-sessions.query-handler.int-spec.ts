@@ -16,7 +16,7 @@ import { SessionsQueryRepository } from '../../infrastructure/query/sessions.que
 import { DateService } from '../../../users/application/services/date.service';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { configModule } from '../../../../../dynamic-config.module';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('GetSessionsQueryHandler (Integration)', () => {
   let module: TestingModule;

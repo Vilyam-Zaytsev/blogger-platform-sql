@@ -14,7 +14,7 @@ import { PostCreateDto } from '../dto/post.create-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { configModule } from '../../../../../dynamic-config.module';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('DeletePostUseCase (Integration)', () => {
   let module: TestingModule;

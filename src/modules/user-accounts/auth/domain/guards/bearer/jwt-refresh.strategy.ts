@@ -2,32 +2,30 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 import { Injectable } from '@nestjs/common';
 import { SessionContextDto } from '../dto/session-context.dto';
-import { UserAccountsConfig } from '../../../../config/user-accounts.config';
 import { SessionsRepository } from '../../../../sessions/infrastructure/sessions.repository';
 import { ICookieRequest } from '../../../../../../core/interfaces/cookie-request.interface';
 import { PayloadRefreshToken } from '../../../aplication/types/payload-refresh-token.type';
 import { DomainException } from '../../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../../core/exceptions/domain-exception-codes';
 import { Session } from '../../../../sessions/domain/entities/session.entity';
+import { Configuration } from '../../../../../../settings/configuration/configuration';
+import { ConfigService } from '@nestjs/config';
+import { ApiSettings } from '../../../../../../settings/configuration/api-settings';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(
-    private readonly userAccountConfig: UserAccountsConfig,
+    private readonly configService: ConfigService<Configuration, true>,
     private readonly sessionsRepository: SessionsRepository,
   ) {
-    const secret: string = userAccountConfig.refreshTokenSecret;
-
-    if (!secret) {
-      throw new Error('REFRESH_TOKEN_SECRET is not defined in environment variables');
-    }
+    const { refreshToken } = configService.get<ApiSettings>('apiSettings').getJwtConfig();
 
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: ICookieRequest): string | null => req.cookies?.refreshToken ?? null,
       ]),
       ignoreExpiration: false,
-      secretOrKey: secret,
+      secretOrKey: refreshToken.secret,
     });
   }
 

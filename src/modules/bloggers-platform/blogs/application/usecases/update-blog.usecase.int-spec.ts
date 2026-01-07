@@ -11,7 +11,7 @@ import { DomainException } from '../../../../../core/exceptions/domain-exception
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { configModule } from '../../../../../dynamic-config.module';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('UpdateBlogUseCase (Integration)', () => {
   let module: TestingModule;
