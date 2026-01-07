@@ -18,8 +18,6 @@ async function bootstrap() {
   const PORT: number = apiSettings.PORT;
   const ENV: Environments = environmentSettings.currentEnv;
 
-  console.log(PORT);
-
   await app.listen(PORT, () => {
     console.log(`\n✅ Application is running in ${ENV} mode`);
     console.log(`📡 Server listening on port ${PORT}`);
