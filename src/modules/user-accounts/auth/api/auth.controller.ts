@@ -31,13 +31,15 @@ import { GetMeQuery } from '../aplication/queries/get-me.query-handler';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginInputDto } from './input-dto/login.input-dto';
 import { Configuration } from '../../../../settings/configuration/configuration';
+import { ConfigService } from '@nestjs/config';
+import { ApiSettings } from '../../../../settings/configuration/api-settings';
 
 @ApiTags('Authentication')
 @UseGuards(ThrottlerGuard)
 @Controller('auth')
 export class AuthController {
   constructor(
-    private readonly config: Configuration,
+    private readonly configService: ConfigService<Configuration, true>,
     private readonly commandBus: CommandBus,
     private readonly queryBus: QueryBus,
   ) {}
@@ -230,7 +232,11 @@ export class AuthController {
       new LoginUserCommand(user, clientInfo),
     );
 
-    res.cookie('refreshToken', refreshToken, this.config.apiSettings.getCookieOptions());
+    res.cookie(
+      'refreshToken',
+      refreshToken,
+      this.configService.get<ApiSettings>('apiSettings').getCookieOptions(),
+    );
 
     return { accessToken };
   }
@@ -244,7 +250,9 @@ export class AuthController {
   ): Promise<void> {
     await this.commandBus.execute(new LogoutCommand(session));
 
-    const { httpOnly, secure, sameSite, path } = this.config.apiSettings.getCookieOptions();
+    const { httpOnly, secure, sameSite, path } = this.configService
+      .get<ApiSettings>('apiSettings')
+      .getCookieOptions();
 
     res.clearCookie('refreshToken', {
       httpOnly,
@@ -277,7 +285,11 @@ export class AuthController {
       new RefreshTokenCommand(session),
     );
 
-    res.cookie('refreshToken', refreshToken, this.config.apiSettings.getCookieOptions());
+    res.cookie(
+      'refreshToken',
+      refreshToken,
+      this.configService.get<ApiSettings>('apiSettings').getCookieOptions(),
+    );
 
     return { accessToken };
   }

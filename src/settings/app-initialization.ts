@@ -9,12 +9,13 @@ import { ValidationException } from '../core/exceptions/validation-exception';
 import { Extension } from '../core/exceptions/domain-exceptions';
 import { AllHttpExceptionsFilter } from '../core/exceptions/filters/all-exceptions.filter';
 import { Configuration } from './configuration/configuration';
-import { ApiSettings } from './configuration/api-settings';
 import cookieParser from 'cookie-parser';
 import expressBasicAuth from 'express-basic-auth';
 import { ValidationExceptionFilter } from '../core/exceptions/filters/validation-exception.filter';
 import { DomainHttpExceptionsFilter } from '../core/exceptions/filters/domain-exceptions.filter';
 import { GLOBAL_PREFIX } from '../constants/global-prefix.constants';
+import { ConfigService } from '@nestjs/config';
+import { ApiSettings } from './configuration/api-settings';
 
 const setupSwagger = (
   app: INestApplication,
@@ -87,23 +88,26 @@ const setupExceptionFilters = (
 };
 
 export const applyAppInitialization = (app: INestApplication): void => {
-  const configuration: Configuration = app.get(Configuration);
-  const apiSettings: ApiSettings = configuration.apiSettings;
-  const swaggerSettings: SwaggerSettings = configuration.swaggerSettings;
-  const environmentSettings: EnvironmentSettings = configuration.environmentSettings;
+  const configService: ConfigService<Configuration, true> = app.get(
+    ConfigService<Configuration, true>,
+  );
+  const apiSettings: ApiSettings = configService.get<ApiSettings>('apiSettings');
+  const swaggerSettings: SwaggerSettings = configService.get<SwaggerSettings>('swaggerSettings');
+  const envSetting: EnvironmentSettings =
+    configService.get<EnvironmentSettings>('environmentSettings');
 
   app.setGlobalPrefix(GLOBAL_PREFIX);
 
   app.use(cookieParser());
   app.enableCors();
 
-  setupSwagger(app, swaggerSettings, environmentSettings);
+  setupSwagger(app, swaggerSettings, envSetting);
 
   setupValidationPipe(app);
 
   setupExceptionFilters(app, apiSettings.SEND_INTERNAL_SERVER_ERROR_DETAILS);
 
-  if (environmentSettings.isDevelopment) {
+  if (envSetting.isDevelopment) {
     console.log('🚀 Development mode enabled');
     console.log(
       `📚 Swagger available at: http://localhost:${apiSettings.PORT}/${swaggerSettings.SWAGGER_PATH}`,

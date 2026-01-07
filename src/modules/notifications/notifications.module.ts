@@ -5,24 +5,17 @@ import { EmailTemplates } from './templates/email.templates';
 import { SendConfirmationEmailWhenUserRegisteredEventHandler } from './event-handlers/send-confirmation-email-when-user-registered.event-handler';
 import { ResendConfirmationEmailWhenUserRegisteredEventHandler } from './event-handlers/resend-confirmation-email-when-user-registered.event-handler';
 import { SendRecoveryCodeEmailWhenUserPasswordRecoveryEventHandler } from './event-handlers/send-recovery-code-email-when-user-password-recovery.event-handler';
-import { EnvModule } from '../../env/env.module';
 import { Configuration } from '../../settings/configuration/configuration';
 import { BusinessRulesSettings } from '../../settings/configuration/business-rules-settings';
+import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
     MailerModule.forRootAsync({
-      imports: [EnvModule],
-      inject: [Configuration],
-
-      useFactory: (config: Configuration) => {
-        const businessRulesSettings: BusinessRulesSettings = config.businessRulesSettings;
-        const email: string = businessRulesSettings.EMAIL_APP;
-        const password: string = businessRulesSettings.EMAIL_APP_PASSWORD;
-
-        if (!email || !password) {
-          throw new Error('EMAIL and EMAIL_PASSWORD must be defined in environment variables');
-        }
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<Configuration, true>) => {
+        const { EMAIL_APP: email, EMAIL_APP_PASSWORD: password }: BusinessRulesSettings =
+          configService.get<BusinessRulesSettings>('businessRulesSettings');
 
         return {
           transport: `smtps://${encodeURIComponent(email)}:${encodeURIComponent(password)}@smtp.gmail.com`,

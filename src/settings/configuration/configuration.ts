@@ -7,6 +7,8 @@ import { DatabaseSettings } from './database-settings';
 import { SwaggerSettings } from './swagger-settings';
 import { BusinessRulesSettings } from './business-rules-settings';
 
+export type EnvironmentVariable = { [key: string]: string };
+
 export const loadEnv = (): string[] => {
   const env = process.env.ENV as Environments;
 
@@ -26,14 +28,6 @@ export const loadEnv = (): string[] => {
 };
 
 dotenv.config({ path: loadEnv() });
-
-export type EnvironmentVariable = { [key: string]: string };
-export type ConfigurationType = Configuration;
-export type ApiSettingsType = ConfigurationType['apiSettings'];
-export type DatabaseSettingsType = ConfigurationType['databaseSettings'];
-export type EnvironmentSettingsType = ConfigurationType['environmentSettings'];
-export type BusinessRulesSettingsType = ConfigurationType['businessRulesSettings'];
-export type SwaggerSettingsType = ConfigurationType['swaggerSettings'];
 
 export class Configuration {
   @ValidateNested()

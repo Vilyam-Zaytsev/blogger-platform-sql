@@ -9,18 +9,16 @@ import { DomainException } from '../../../../../../core/exceptions/domain-except
 import { DomainExceptionCode } from '../../../../../../core/exceptions/domain-exception-codes';
 import { Session } from '../../../../sessions/domain/entities/session.entity';
 import { Configuration } from '../../../../../../settings/configuration/configuration';
+import { ConfigService } from '@nestjs/config';
+import { ApiSettings } from '../../../../../../settings/configuration/api-settings';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(
-    private readonly config: Configuration,
+    private readonly configService: ConfigService<Configuration, true>,
     private readonly sessionsRepository: SessionsRepository,
   ) {
-    const { refreshToken } = config.apiSettings.getJwtConfig();
-
-    if (!refreshToken.secret) {
-      throw new Error('REFRESH_TOKEN_SECRET is not defined in environment variables');
-    }
+    const { refreshToken } = configService.get<ApiSettings>('apiSettings').getJwtConfig();
 
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
