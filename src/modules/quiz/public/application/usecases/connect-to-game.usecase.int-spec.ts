@@ -1,8 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { ConnectToGameCommand, ConnectToGameUseCase } from './connect-to-game.usecase';
 import { DataSource, Repository } from 'typeorm';
-import { DatabaseModule } from '../../../../database/database.module';
-import { TypeOrmModule } from '@nestjs/typeorm';
 import { GamesRepository } from '../../infrastructure/games.repository';
 import { PlayersRepository } from '../../infrastructure/players.repository';
 import { QuestionsRepository } from '../../../admin/infrastructure/questions-repository';
@@ -10,18 +8,25 @@ import { Game, GameStatus } from '../../domain/entities/game.entity';
 import { GameRole, Player } from '../../domain/entities/player.entity';
 import { Question } from '../../../admin/domain/entities/question.entity';
 import { GameQuestion } from '../../domain/entities/game-question.entity';
-import { configModule } from '../../../../../dynamic-config.module';
 import { QuestionInputDto } from '../../../admin/api/input-dto/question.input-dto';
-import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { User } from '../../../../user-accounts/users/domain/entities/user.entity';
 import { CreateUserDto } from '../../../../user-accounts/users/dto/create-user.dto';
 import { UsersFactory } from '../../../../user-accounts/users/application/factories/users.factory';
-import { CryptoService } from '../../../../user-accounts/users/application/services/crypto.service';
-import { DateService } from '../../../../user-accounts/users/application/services/date.service';
 import { UserInputDto } from '../../../../user-accounts/users/api/input-dto/user.input-dto';
 import { DomainException } from '../../../../../core/exceptions/domain-exceptions';
 import { DomainExceptionCode } from '../../../../../core/exceptions/domain-exception-codes';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import configuration, {
+  Configuration,
+  loadEnv,
+  validate,
+} from '../../../../../settings/configuration/configuration';
+import { DatabaseSettings } from '../../../../../settings/configuration/database-settings';
+import { CryptoService } from '../../../../user-accounts/users/application/services/crypto.service';
+import { DateService } from '../../../../user-accounts/users/application/services/date.service';
 import { TransactionHelper } from '../../../../../trasaction.helper';
+import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 
 describe('ConnectToGameUseCase (Integration)', () => {
   let module: TestingModule;
@@ -42,7 +47,23 @@ describe('ConnectToGameUseCase (Integration)', () => {
 
   beforeAll(async () => {
     module = await Test.createTestingModule({
-      imports: [configModule, DatabaseModule, TypeOrmModule.forFeature(getRelatedEntities(Game))],
+      imports: [
+        ConfigModule.forRoot({
+          isGlobal: true,
+          load: [configuration],
+          validate,
+          envFilePath: loadEnv(),
+        }),
+        TypeOrmModule.forRootAsync({
+          inject: [ConfigService],
+          useFactory: (configService: ConfigService<Configuration, true>) => {
+            return configService
+              .get<DatabaseSettings>('databaseSettings')
+              .getTypeOrmConfigForPostgres();
+          },
+        }),
+        TypeOrmModule.forFeature(getRelatedEntities(Game)),
+      ],
       providers: [
         ConnectToGameUseCase,
 
@@ -151,7 +172,7 @@ describe('ConnectToGameUseCase (Integration)', () => {
   };
 
   describe('Позитивные сценарии', () => {
-    it('должен успешно создать новую игру для первого пользователя с ролью Host', async () => {
+    it.only('должен успешно создать новую игру для первого пользователя с ролью Host', async () => {
       const { id: userId }: User = await createTestUser();
       await createMultiplePublishedQuestions(5);
 
