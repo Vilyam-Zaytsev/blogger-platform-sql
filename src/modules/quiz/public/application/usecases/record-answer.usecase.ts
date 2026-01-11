@@ -11,7 +11,7 @@ import { Player } from '../../domain/entities/player.entity';
 import { PlayersRepository } from '../../infrastructure/players.repository';
 import { AnswerCreateDto } from '../../domain/dto/answer.create-dto';
 import { GameFinishSchedulerService } from '../../domain/services/game-finish-scheduler.service';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 export class RecordAnswerCommand {
   constructor(

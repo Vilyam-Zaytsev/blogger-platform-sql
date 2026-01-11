@@ -18,7 +18,7 @@ import { DateService } from '../../../users/application/services/date.service';
 import { getRelatedEntities } from '../../../../../core/utils/get-related-entities.utility';
 import { configModule } from '../../../../../dynamic-config.module';
 import { UserInputDto } from '../../../users/api/input-dto/user.input-dto';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('SessionsCleanupService (Integration)', () => {
   let module: TestingModule;

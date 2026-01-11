@@ -3,7 +3,7 @@ import { BaseRepository } from '../../../../core/repositories/base.repository';
 import { Player } from '../domain/entities/player.entity';
 import { In } from 'typeorm';
 import { GameStatus } from '../domain/entities/game.entity';
-import { TransactionHelper } from '../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../trasaction.helper';
 
 @Injectable()
 export class PlayersRepository extends BaseRepository<Player> {

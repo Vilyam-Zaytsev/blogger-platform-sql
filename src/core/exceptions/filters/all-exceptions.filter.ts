@@ -2,11 +2,10 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus } from
 import { Request, Response } from 'express';
 import { ErrorResponseBody } from './types/error-response-body.type';
 import { DomainExceptionCode } from '../domain-exception-codes';
-import { CoreConfig } from '../../core.config';
 
 @Catch()
 export class AllHttpExceptionsFilter implements ExceptionFilter {
-  constructor(private readonly coreConfig: CoreConfig) {}
+  constructor(private readonly isSendInternalServerErrorDetails: boolean) {}
 
   catch(exception: Error, host: ArgumentsHost): void {
     const ctx = host.switchToHttp();
@@ -31,7 +30,7 @@ export class AllHttpExceptionsFilter implements ExceptionFilter {
     requestMethod: string,
     message: string,
   ): ErrorResponseBody {
-    if (!this.coreConfig.sendInternalServerErrorDetails) {
+    if (!this.isSendInternalServerErrorDetails) {
       return {
         timestamp: new Date().toISOString(),
         path: null,

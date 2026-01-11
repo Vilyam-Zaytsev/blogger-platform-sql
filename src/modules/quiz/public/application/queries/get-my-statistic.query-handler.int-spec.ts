@@ -27,7 +27,7 @@ import { UsersFactory } from '../../../../user-accounts/users/application/factor
 import { CryptoService } from '../../../../user-accounts/users/application/services/crypto.service';
 import { DateService } from '../../../../user-accounts/users/application/services/date.service';
 import { StatisticViewDto } from '../../api/view-dto/statistic.view-dto';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('GetMyStatisticQueryHandler (Integration)', () => {
   let module: TestingModule;

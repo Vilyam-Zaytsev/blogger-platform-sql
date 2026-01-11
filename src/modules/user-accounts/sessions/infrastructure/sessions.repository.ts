@@ -3,7 +3,7 @@ import { SessionContextDto } from '../../auth/domain/guards/dto/session-context.
 import { Session } from '../domain/entities/session.entity';
 import { Not } from 'typeorm';
 import { BaseRepository } from '../../../../core/repositories/base.repository';
-import { TransactionHelper } from '../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../trasaction.helper';
 
 @Injectable()
 export class SessionsRepository extends BaseRepository<Session> {

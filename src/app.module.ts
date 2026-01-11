@@ -1,59 +1,57 @@
-import { DynamicModule, Module } from '@nestjs/common';
-import { CoreConfig } from './core/core.config';
-import { configModule } from './dynamic-config.module';
-import { CoreModule } from './core/core.module';
-import { TestingModule } from './modules/testing/testing.module';
-import { UserAccountsModule } from './modules/user-accounts/user-accounts.module';
-import { APP_FILTER } from '@nestjs/core';
-import { AllHttpExceptionsFilter } from './core/exceptions/filters/all-exceptions.filter';
-import { DomainHttpExceptionsFilter } from './core/exceptions/filters/domain-exceptions.filter';
-import { ValidationExceptionFilter } from './core/exceptions/filters/validation-exception.filter';
+import { Module } from '@nestjs/common';
+import configuration, {
+  Configuration,
+  loadEnv,
+  validate,
+} from './settings/configuration/configuration';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DatabaseSettings } from './settings/configuration/database-settings';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ApiSettings } from './settings/configuration/api-settings';
+import { UserAccountsModule } from './modules/user-accounts/user-accounts.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { BloggersPlatformModule } from './modules/bloggers-platform/bloggers-platform.module';
-import { DatabaseModule } from './modules/database/database.module';
+import { TestingModule } from './modules/testing/testing.module';
 import { QuizModule } from './modules/quiz/quiz.module';
 
 @Module({
   imports: [
-    configModule,
-    CoreModule,
-    DatabaseModule,
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [configuration],
+      validate,
+      envFilePath: loadEnv(),
+    }),
     UserAccountsModule,
     NotificationsModule,
     BloggersPlatformModule,
-    ThrottlerModule.forRootAsync({
-      inject: [CoreConfig],
-      useFactory: (coreConfig: CoreConfig) => [
-        {
-          ttl: coreConfig.throttleTtl,
-          limit: coreConfig.throttleLimit,
-        },
-      ],
+    TypeOrmModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<Configuration, true>) => {
+        return configService
+          .get<DatabaseSettings>('databaseSettings')
+          .getTypeOrmConfigForPostgres();
+      },
     }),
+    ThrottlerModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService<Configuration, true>) => {
+        const { THROTTLE_TTL: ttl, THROTTLE_LIMIT: limit }: ApiSettings =
+          configService.get<ApiSettings>('apiSettings');
+
+        return [
+          {
+            ttl,
+            limit,
+          },
+        ];
+      },
+    }),
+    ...(process.env.INCLUDE_TESTING_MODULE === 'true' ? [TestingModule] : []),
     QuizModule,
   ],
   controllers: [],
-  providers: [
-    {
-      provide: APP_FILTER,
-      useClass: AllHttpExceptionsFilter,
-    },
-    {
-      provide: APP_FILTER,
-      useClass: DomainHttpExceptionsFilter,
-    },
-    {
-      provide: APP_FILTER,
-      useClass: ValidationExceptionFilter,
-    },
-  ],
+  providers: [],
 })
-export class AppModule {
-  static forRoot(coreConfig: CoreConfig): DynamicModule {
-    return {
-      module: AppModule,
-      imports: [...(coreConfig.includeTestingModule ? [TestingModule] : [])],
-    };
-  }
-}
+export class AppModule {}

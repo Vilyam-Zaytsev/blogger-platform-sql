@@ -38,7 +38,7 @@ import { GameViewDto } from '../../api/view-dto/game.view-dto';
 import { AnswerCreateDto } from '../../domain/dto/answer.create-dto';
 import { SortDirection } from '../../../../../core/dto/base.query-params.input-dto';
 import { REQUIRED_QUESTIONS_COUNT } from '../../domain/constants/game.constants';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('GetAllGamesForUserQueryHandler (Integration)', () => {
   let module: TestingModule;

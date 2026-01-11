@@ -1,23 +1,23 @@
-import { DynamicModule, INestApplication } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { Test, TestingModuleBuilder } from '@nestjs/testing';
-import { appSetup } from '../../src/setup/app.setup';
 import { Server } from 'http';
-import { CoreConfig } from '../../src/core/core.config';
-import { initAppModule } from '../../src/init-app-module';
 import { ThrottlerStorage } from '@nestjs/throttler';
 import { AdminCredentials, MemoryThrottlerStorageLike } from '../types';
 import { DataSource } from 'typeorm';
+import { AppModule } from '../../src/app.module';
+import { Configuration } from '../../src/settings/configuration/configuration';
+import { EnvModule } from '../../src/env/env.module';
+import { applyAppInitialization } from '../../src/settings/app-initialization';
+import { BusinessRulesSettings } from '../../src/settings/configuration/business-rules-settings';
 
 export class AppTestManager {
   app: INestApplication;
   dataSource: DataSource;
-  coreConfig: CoreConfig;
+  config: Configuration;
 
   async init(addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void) {
-    const DynamicAppModule: DynamicModule = await initAppModule();
-
     const testingModuleBuilder: TestingModuleBuilder = Test.createTestingModule({
-      imports: [DynamicAppModule],
+      imports: [AppModule, EnvModule],
     });
 
     if (addSettingsToModuleBuilder) {
@@ -28,10 +28,10 @@ export class AppTestManager {
 
     this.app = testingAppModule.createNestApplication();
 
-    this.coreConfig = this.app.get<CoreConfig>(CoreConfig);
+    this.config = testingAppModule.get(Configuration);
     this.dataSource = this.app.get<DataSource>(DataSource);
 
-    appSetup(this.app, this.coreConfig.isSwaggerEnabled);
+    applyAppInitialization(this.app);
 
     await this.app.init();
   }
@@ -77,8 +77,9 @@ export class AppTestManager {
   }
 
   getAdminCredentials(): AdminCredentials {
-    const login: string | undefined = this.coreConfig.adminLogin;
-    const password: string | undefined = this.coreConfig.adminPassword;
+    const businessRulesSettings: BusinessRulesSettings = this.config.businessRulesSettings;
+    const login: string | undefined = businessRulesSettings.ADMIN_LOGIN;
+    const password: string | undefined = businessRulesSettings.ADMIN_PASSWORD;
 
     if (!login || !password) {
       throw new Error(

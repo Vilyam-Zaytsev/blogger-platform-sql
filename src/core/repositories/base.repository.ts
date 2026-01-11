@@ -1,6 +1,6 @@
 import { EntityManager, EntityTarget, FindOptionsWhere, Repository } from 'typeorm';
 import { BaseEntity } from '../entities/base-entity';
-import { TransactionHelper } from '../../modules/database/trasaction.helper';
+import { TransactionHelper } from '../../trasaction.helper';
 
 export abstract class BaseRepository<Entity extends BaseEntity> {
   protected constructor(

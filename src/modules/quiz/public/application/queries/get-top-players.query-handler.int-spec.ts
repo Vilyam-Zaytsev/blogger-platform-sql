@@ -22,7 +22,7 @@ import { DateService } from '../../../../user-accounts/users/application/service
 import { GetTopPlayersQueryParams } from '../../api/input-dto/get-top-players-query-params.input-dto';
 import { PaginatedViewDto } from '../../../../../core/dto/paginated.view-dto';
 import { TopGamePlayerViewDto } from '../../api/view-dto/top-game-player-view.dto';
-import { TransactionHelper } from '../../../../database/trasaction.helper';
+import { TransactionHelper } from '../../../../../trasaction.helper';
 
 describe('GetTopPlayersQueryHandler (Integration)', () => {
   let module: TestingModule;
